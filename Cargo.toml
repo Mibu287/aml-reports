@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.*.*"
+indicatif = { version = "0.18.*", features = ["tokio"] }
+reqwest = "0.12.*"
+serde = { version = "1.*.*", features = ["serde_derive", "derive"] }
+tokio = "1.48.*"
