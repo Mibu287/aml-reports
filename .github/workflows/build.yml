@@ -40,9 +40,6 @@ jobs:
           cache-key: ${{ runner.os }}-${{ runner.arch }}-cargo-
           cache: true
           cache-all-crates: true
-
-      - name: list files before build
-        run: ls -lha target/release/
       - name: Cache cargo build
         uses: actions/cache@v4
         with:
@@ -50,6 +47,9 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-cargo-build-target-
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cargo-build-target-
+
+      - name: list files before build
+        run: ls -lha target/release/
 
       - name: Build release
         run: cargo build --release --verbose
@@ -60,7 +60,7 @@ jobs:
           name: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.artifact_name }}
           path: target/release/${{ matrix.artifact_name }}
           if-no-files-found: error
-      
+
       - name: list files after build
         run: ls -lha target/release/
 
