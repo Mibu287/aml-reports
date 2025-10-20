@@ -37,16 +37,17 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          cache-key: ${{ runner.os }}-${{ runner.arch }}-cargo-
           cache: true
+          cache-key: ${{ runner.os }}-${{ runner.arch }}-cargo
           cache-all-crates: true
+
       - name: Cache cargo build
         uses: actions/cache@v4
         with:
           path: target
-          key: ${{ runner.os }}-${{ runner.arch }}-cargo-build-target-
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-build-target-${{ hashFiles('**/Cargo.lock', 'src/**/*.rs') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-cargo-build-target-
+            ${{ runner.os }}-${{ runner.arch }}-cargo-build-target
 
       - name: list files before build
         run: ls -lha target/release/
