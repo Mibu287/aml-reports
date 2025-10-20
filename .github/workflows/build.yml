@@ -49,9 +49,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cargo-build-target
 
-      - name: list files before build
-        run: ls -lha target/release/
-
       - name: Build release
         run: cargo build --release --verbose
 
@@ -61,9 +58,6 @@ jobs:
           name: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.artifact_name }}
           path: target/release/${{ matrix.artifact_name }}
           if-no-files-found: error
-
-      - name: list files after build
-        run: ls -lha target/release/
 
   release:
     name: Create Release
