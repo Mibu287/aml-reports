@@ -3,6 +3,10 @@ name = "anti-money-laundering"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "aml-reports"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.*.*"
 indicatif = { version = "0.18.*", features = ["tokio"] }
