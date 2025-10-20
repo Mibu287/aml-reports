@@ -60,7 +60,7 @@ jobs:
             ${{ runner.os }}-cargo-build-target-
 
       - name: Build release
-        run: cargo build --release --verbose
+        run: cargo build --release
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
