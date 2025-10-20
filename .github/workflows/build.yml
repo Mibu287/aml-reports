@@ -24,10 +24,8 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: aml-reports
-            asset_name: aml-reports-linux-{{ matrix.arch }}
           - os: windows-latest
             artifact_name: aml-reports.exe
-            asset_name: aml-reports-windows-{{ matrix.arch }}.exe
 
     steps:
       - name: Checkout code
@@ -55,7 +53,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}
+          name: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.artifact_name }}
           path: target/release/${{ matrix.artifact_name }}
           if-no-files-found: error
 
