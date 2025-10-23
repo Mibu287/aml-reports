@@ -1,8 +1,25 @@
 use scopeguard::defer;
 
 async fn main_task(driver: &thirtyfour::WebDriver) -> anyhow::Result<()> {
-    driver.goto("https://google.com").await?;
-    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+    const BASE_URL: &str = "https://amlstr.sbv.gov.vn";
+
+    // Go to website
+    driver.goto(BASE_URL).await?;
+
+    // Wait until redirected to dashboard
+    let dashboard_url = format!("{}/dashboard", BASE_URL);
+    tokio::time::timeout(std::time::Duration::from_secs(300), async {
+        loop {
+            if driver.current_url().await?.as_str() == dashboard_url {
+                break;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+        }
+        Ok::<(), anyhow::Error>(())
+    })
+    .await??;
+
+    tokio::time::sleep(std::time::Duration::from_secs(500)).await;
     Ok(())
 }
 
