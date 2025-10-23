@@ -2,7 +2,7 @@ mod launch;
 
 use launch::launch_web_automation_task;
 
-async fn main_task(driver: thirtyfour::WebDriver) -> anyhow::Result<thirtyfour::WebDriver> {
+async fn main_task(driver: thirtyfour::WebDriver) -> anyhow::Result<(thirtyfour::WebDriver, ())> {
     const BASE_URL: &str = "https://amlstr.sbv.gov.vn";
     const SSO_URL: &str = "https://amlsso.sbv.gov.vn";
 
@@ -50,7 +50,7 @@ async fn main_task(driver: thirtyfour::WebDriver) -> anyhow::Result<thirtyfour::
     driver.goto(dashboard_url).await?;
 
     tokio::time::sleep(std::time::Duration::from_secs(500)).await;
-    Ok(driver)
+    Ok((driver, ()))
 }
 
 #[tokio::main]
