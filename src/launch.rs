@@ -1,6 +1,6 @@
 use scopeguard::defer;
 
-pub(crate) async fn launch_web_automation_task<TaskFuture, R>(
+pub async fn launch_web_automation_task<TaskFuture, R>(
     func: fn(thirtyfour::WebDriver) -> TaskFuture,
     port: u16,
 ) -> anyhow::Result<R>

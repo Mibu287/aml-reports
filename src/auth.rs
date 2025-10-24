@@ -2,7 +2,7 @@ use std::{collections::HashMap, vec};
 
 use duration_extender::DurationExt;
 
-pub(crate) async fn get_auth_code(
+pub async fn get_auth_code(
     driver: thirtyfour::WebDriver,
 ) -> anyhow::Result<(thirtyfour::WebDriver, (String, String))> {
     const BASE_URL: &str = "https://amlstr.sbv.gov.vn";
