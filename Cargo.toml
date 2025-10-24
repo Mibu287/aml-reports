@@ -10,6 +10,7 @@ path = "src/main.rs"
 [dependencies]
 Thirtyfour-chromedriver = "0.2.0"
 anyhow = "1.*.*"
+duration-extender = "0.5.0"
 indicatif = { version = "0.18.*", features = ["tokio"] }
 reqwest = "0.12.*"
 scopeguard = "1.2.0"

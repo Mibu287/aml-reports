@@ -1,4 +1,8 @@
-pub(crate) async fn get_auth_code(driver: thirtyfour::WebDriver) -> anyhow::Result<(thirtyfour::WebDriver, ())> {
+use duration_extender::DurationExt;
+
+pub(crate) async fn get_auth_code(
+    driver: thirtyfour::WebDriver,
+) -> anyhow::Result<(thirtyfour::WebDriver, ())> {
     const BASE_URL: &str = "https://amlstr.sbv.gov.vn";
     const SSO_URL: &str = "https://amlsso.sbv.gov.vn";
 
@@ -12,7 +16,7 @@ pub(crate) async fn get_auth_code(driver: thirtyfour::WebDriver) -> anyhow::Resu
             if driver.current_url().await?.as_str() == dashboard_url {
                 break;
             }
-            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            tokio::time::sleep(100.milliseconds()).await;
         }
         Ok::<(), anyhow::Error>(())
     })
@@ -35,7 +39,7 @@ pub(crate) async fn get_auth_code(driver: thirtyfour::WebDriver) -> anyhow::Resu
                 }
             }
 
-            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            tokio::time::sleep(100.milliseconds()).await;
         }
     })
     .await??;
@@ -45,6 +49,6 @@ pub(crate) async fn get_auth_code(driver: thirtyfour::WebDriver) -> anyhow::Resu
     // Go back to dashboard
     driver.goto(dashboard_url).await?;
 
-    tokio::time::sleep(std::time::Duration::from_secs(500)).await;
+    tokio::time::sleep(500.milliseconds()).await;
     Ok((driver, ()))
 }
