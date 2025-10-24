@@ -1,5 +1,5 @@
 pub mod form;
-pub mod general_info;
+pub mod info;
 pub mod section1;
 pub mod section2;
 pub mod section3;

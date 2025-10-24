@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::payload::{
-    general_info::GeneralInfo, section1::Section1, section2::Section2, section3::Section3,
+    info::GeneralInfo, section1::Section1, section2::Section2, section3::Section3,
     section4::Section4, section5::Section5, section6::Section6,
 };
 

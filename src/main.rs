@@ -16,10 +16,10 @@ async fn main() -> anyhow::Result<()> {
         report_type: "M1".to_string(),
         creation_status: "DANG_NHAP_LIEU".to_string(),
         payload: payload::form::Payload {
-            general_info: payload::general_info::GeneralInfo {
+            general_info: payload::info::GeneralInfo {
                 report_date: "2025-10-24".to_string(),
                 report_number: "RPT-001".to_string(),
-                amendment_supplement: payload::general_info::AmendmentSupplement {
+                amendment_supplement: payload::info::AmendmentSupplement {
                     change_type: 0,
                     report_number: "".to_string(),
                     report_date: "".to_string(),
