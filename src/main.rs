@@ -12,7 +12,7 @@ async fn main() -> anyhow::Result<()> {
 
     let form_payload = payload::form::Form {
         id: None,
-        internal_number: "SOME-REPORT-004".to_string(),
+        internal_number: "SOME-REPORT-005".to_string(),
         report_type: "M1".to_string(),
         creation_status: "DANG_NHAP_LIEU".to_string(),
         payload: payload::form::Payload {
@@ -64,7 +64,7 @@ async fn main() -> anyhow::Result<()> {
             },
             section_2: payload::section2::Section2 {
                 individuals: Some(vec![
-                    payload::section2::Individual {
+                    payload::entities::Individual {
                         id: Some(1761286439631),
                         existing_customer: Some("1".to_string()),
                         full_name: Some("Nguyễn Văn C".to_string()),
@@ -72,27 +72,27 @@ async fn main() -> anyhow::Result<()> {
                         age: Some("5".to_string()),
                         gender: Some("male".to_string()),
                         nationality: Some("VN".to_string()),
-                        occupation: Some(payload::section2::Occupation {
+                        occupation: Some(payload::entities::Occupation {
                             occupation_code: Some("2".to_string()),
                             description: Some("Học sinh/sinh viên".to_string()),
                             content: None,
                         }),
                         position: Some("Chuyên viên".to_string()),
-                        permanent_address: Some(payload::section2::AddrSimple {
+                        permanent_address: Some(payload::entities::AddrSimple {
                             street_address: Some("Hà Nội".to_string()),
                             district: Some("Hoàn Kiếm".to_string()),
                             city_province: Some("Hà Nội".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        current_address: Some(payload::section2::AddrSimple {
+                        current_address: Some(payload::entities::AddrSimple {
                             street_address: Some("Lý Thường Kiệt".to_string()),
                             district: Some("Hoàn Kiếm".to_string()),
                             city_province: Some("Hà Nội".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        identifications: Some(vec![payload::section2::Identification {
+                        identifications: Some(vec![payload::entities::Identification {
                             id_type: Some("101".to_string()),
                             id_number: Some("036100018836".to_string()),
                             issue_date: Some("2025-10-16T17:00:00.000Z".to_string()),
@@ -103,13 +103,11 @@ async fn main() -> anyhow::Result<()> {
                         phone_number: Some("0987654321".to_string()),
                         education_level: Some("Đại học".to_string()),
                         email: Some("abc@gmail.com".to_string()),
-                        accounts: Some(vec![payload::section2::Account {
+                        accounts: Some(vec![payload::entities::Account {
                             account_number: Some("0440234837421".to_string()),
-                            bank: Some(payload::section2::Bank {
-                                ma_ngan_hang: Some("01203001".to_string()),
-                                ten_ngan_hang: Some(
-                                    "Ngân hàng TMCP Ngoại thương Việt Nam".to_string(),
-                                ),
+                            bank: Some(payload::entities::Bank {
+                                bank_code: Some("01203001".to_string()),
+                                bank_name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
                             }),
                             currency_type: Some("VND".to_string()),
                             account_type: Some("CURRE".to_string()),
@@ -118,7 +116,7 @@ async fn main() -> anyhow::Result<()> {
                             authorized_persons: Some(vec![]),
                         }]),
                     },
-                    payload::section2::Individual {
+                    payload::entities::Individual {
                         id: Some(1761286873020),
                         existing_customer: Some("1".to_string()),
                         full_name: Some("Nguyễn Văn D".to_string()),
@@ -126,27 +124,27 @@ async fn main() -> anyhow::Result<()> {
                         age: Some("5".to_string()),
                         gender: Some("male".to_string()),
                         nationality: Some("VN".to_string()),
-                        occupation: Some(payload::section2::Occupation {
+                        occupation: Some(payload::entities::Occupation {
                             occupation_code: Some("9".to_string()),
                             description: Some("Lao động tự do".to_string()),
                             content: None,
                         }),
                         position: Some("jkfladjfl".to_string()),
-                        permanent_address: Some(payload::section2::AddrSimple {
+                        permanent_address: Some(payload::entities::AddrSimple {
                             street_address: Some("jfdasklf".to_string()),
                             district: Some("ádjfl;kadf".to_string()),
                             city_province: Some("fdasjdfkl".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        current_address: Some(payload::section2::AddrSimple {
+                        current_address: Some(payload::entities::AddrSimple {
                             street_address: Some("123412".to_string()),
                             district: Some("12343124".to_string()),
                             city_province: Some("hà Nội".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        identifications: Some(vec![payload::section2::Identification {
+                        identifications: Some(vec![payload::entities::Identification {
                             id_type: Some("103".to_string()),
                             id_number: Some("0791993012333".to_string()),
                             issue_date: Some("2025-09-30T17:00:00.000Z".to_string()),
@@ -157,13 +155,11 @@ async fn main() -> anyhow::Result<()> {
                         phone_number: Some("1324798013247".to_string()),
                         education_level: Some("Đại học".to_string()),
                         email: Some("abc@def.com".to_string()),
-                        accounts: Some(vec![payload::section2::Account {
+                        accounts: Some(vec![payload::entities::Account {
                             account_number: Some("123412343124".to_string()),
-                            bank: Some(payload::section2::Bank {
-                                ma_ngan_hang: Some("01203001".to_string()),
-                                ten_ngan_hang: Some(
-                                    "Ngân hàng TMCP Ngoại thương Việt Nam".to_string(),
-                                ),
+                            bank: Some(payload::entities::Bank {
+                                bank_code: Some("01203001".to_string()),
+                                bank_name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
                             }),
                             currency_type: Some("VND".to_string()),
                             account_type: Some("CURRE".to_string()),
@@ -173,41 +169,41 @@ async fn main() -> anyhow::Result<()> {
                         }]),
                     },
                 ]),
-                organizations: Some(vec![payload::section2::Organization {
+                organizations: Some(vec![payload::entities::Organization {
                     id: Some(1761286601844),
                     existing_customer: Some("1".to_string()),
                     name: Some("Công ty X".to_string()),
                     foreign_name: Some("X Ltd".to_string()),
                     short_name: Some("ABC".to_string()),
-                    organization_type: Some(payload::section2::CodeDesc {
-                        ma_loai_hinh: Some("3".to_string()),
-                        mo_ta: Some("Công ty cổ phần".to_string()),
+                    organization_type: Some(payload::entities::CodeDesc {
+                        type_code: Some("3".to_string()),
+                        description: Some("Công ty cổ phần".to_string()),
                     }),
-                    address: Some(payload::section2::AddrSimple {
+                    address: Some(payload::entities::AddrSimple {
                         street_address: Some("12342".to_string()),
                         district: Some("13424321".to_string()),
                         city_province: Some("Hà Nội".to_string()),
                         country: Some("VN".to_string()),
                         phone: None,
                     }),
-                    establishment_license: Some(payload::section2::License {
-                        so_giay_phep: Some("13243124321".to_string()),
-                        ngay_cap: Some("2025-09-30T17:00:00.000Z".to_string()),
-                        noi_cap: Some("Hà Nội".to_string()),
+                    establishment_license: Some(payload::entities::License {
+                        license_number: Some("13243124321".to_string()),
+                        issue_date: Some("2025-09-30T17:00:00.000Z".to_string()),
+                        issue_place: Some("Hà Nội".to_string()),
                     }),
-                    enterprise_code: Some(payload::section2::EnterpriseCode {
-                        ma_so: Some("0109577331".to_string()),
-                        ngay_cap: Some("2025-09-30T17:00:00.000Z".to_string()),
-                        noi_cap: Some("VN".to_string()),
+                    enterprise_code: Some(payload::entities::EnterpriseCode {
+                        code: Some("0109577331".to_string()),
+                        issue_date: Some("2025-09-30T17:00:00.000Z".to_string()),
+                        issue_place: Some("VN".to_string()),
                     }),
                     business_sector: Some("Hoá chất".to_string()),
                     phone_number: Some("0987654321".to_string()),
                     website: Some("https://abc.com".to_string()),
-                    accounts: Some(vec![payload::section2::Account {
+                    accounts: Some(vec![payload::entities::Account {
                         account_number: Some("12347190243".to_string()),
-                        bank: Some(payload::section2::Bank {
-                            ma_ngan_hang: Some("01203001".to_string()),
-                            ten_ngan_hang: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
+                        bank: Some(payload::entities::Bank {
+                            bank_code: Some("01203001".to_string()),
+                            bank_name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
                         }),
                         currency_type: Some("VND".to_string()),
                         account_type: Some("CURRE".to_string()),
@@ -215,33 +211,33 @@ async fn main() -> anyhow::Result<()> {
                         status: Some("ACTIV".to_string()),
                         authorized_persons: Some(vec![]),
                     }]),
-                    representatives: Some(vec![payload::section2::Representative {
+                    representatives: Some(vec![payload::entities::Representative {
                         id: Some(1761286984066),
-                        ho_ten: Some("ABC".to_string()),
-                        ngay_sinh: Some("1955-10-20T17:00:00.000Z".to_string()),
-                        nghe_nghiep: Some(payload::section2::Occupation {
+                        full_name: Some("ABC".to_string()),
+                        date_of_birth: Some("1955-10-20T17:00:00.000Z".to_string()),
+                        occupation: Some(payload::entities::Occupation {
                             occupation_code: Some("999".to_string()),
                             description: Some("Khác (tự nhập)".to_string()),
                             content: Some("dfasfdas".to_string()),
                         }),
-                        chuc_vu: Some("adsffda".to_string()),
-                        permanent_address: Some(payload::section2::AddrSimple {
+                        position: Some("adsffda".to_string()),
+                        permanent_address: Some(payload::entities::AddrSimple {
                             street_address: Some("sdafdasfd".to_string()),
                             district: Some("dầd".to_string()),
                             city_province: Some("ádfdasfd".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        current_address: Some(payload::section2::AddrSimple {
+                        current_address: Some(payload::entities::AddrSimple {
                             street_address: Some("313424312".to_string()),
                             district: Some("ádfadf".to_string()),
                             city_province: Some("Hà Nội".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        so_dien_thoai: Some("21341324".to_string()),
-                        quoc_tich: Some("VN".to_string()),
-                        identifications: Some(vec![payload::section2::Identification {
+                        phone_number: Some("21341324".to_string()),
+                        nationality: Some("VN".to_string()),
+                        identifications: Some(vec![payload::entities::Identification {
                             id_type: Some("103".to_string()),
                             id_number: Some("0791993012333".to_string()),
                             issue_date: Some("2025-09-30T17:00:00.000Z".to_string()),
@@ -251,35 +247,35 @@ async fn main() -> anyhow::Result<()> {
                         }]),
                     }]),
                 }]),
-                beneficial_owners: Some(payload::section2::BeneficialOwners {
-                    other_owners: Some(vec![payload::section2::PersonShort {
+                beneficial_owners: Some(payload::entities::BeneficialOwners {
+                    other_owners: Some(vec![payload::entities::PersonShort {
                         id: Some(1761286765722),
                         full_name: Some("12341243".to_string()),
                         date_of_birth: Some("2025-10-01T17:00:00.000Z".to_string()),
                         age: Some("5".to_string()),
                         gender: Some("male".to_string()),
                         nationality: Some("VN".to_string()),
-                        occupation: Some(payload::section2::Occupation {
+                        occupation: Some(payload::entities::Occupation {
                             occupation_code: Some("999".to_string()),
                             description: Some("Khác (tự nhập)".to_string()),
                             content: Some("adfasdfdsa".to_string()),
                         }),
                         position: Some("fdasfqewfreqw".to_string()),
-                        permanent_address: Some(payload::section2::AddrSimple {
+                        permanent_address: Some(payload::entities::AddrSimple {
                             street_address: Some("13244132".to_string()),
                             district: Some("12344312".to_string()),
                             city_province: Some("Hà Nội".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        current_address: Some(payload::section2::AddrSimple {
+                        current_address: Some(payload::entities::AddrSimple {
                             street_address: Some("1234132".to_string()),
                             district: Some("Hoàn Kiếm".to_string()),
                             city_province: Some("Hoàn Kiếm".to_string()),
                             country: Some("VN".to_string()),
                             phone: None,
                         }),
-                        identifications: Some(vec![payload::section2::Identification {
+                        identifications: Some(vec![payload::entities::Identification {
                             id_type: Some("103".to_string()),
                             id_number: Some("0791993012333".to_string()),
                             issue_date: Some("2025-09-30T17:00:00.000Z".to_string()),
@@ -290,36 +286,36 @@ async fn main() -> anyhow::Result<()> {
                         phone_number: Some("0987654321".to_string()),
                     }]),
                     individual_links: Some(vec![
-                        payload::section2::IndividualLink {
+                        payload::entities::IndividualLink {
                             name: Some("Nguyễn Văn C".to_string()),
                             identification_number: Some("036100018836".to_string()),
                             id: Some(1761286439631),
                             is_principal: Some(true),
-                            benefit_group: Some(payload::section2::GroupBenefits {
-                                main_group: Some(vec![payload::section2::PersonRef {
+                            benefit_group: Some(payload::entities::GroupBenefits {
+                                main_group: Some(vec![payload::entities::PersonRef {
                                     full_name: Some("Nguyễn Văn D".to_string()),
                                     identification_number: Some("0791993012333".to_string()),
                                     id: Some(1761286873020),
                                 }]),
-                                other_group: Some(vec![payload::section2::PersonRef {
+                                other_group: Some(vec![payload::entities::PersonRef {
                                     full_name: Some("12341243".to_string()),
                                     identification_number: Some("0791993012333".to_string()),
                                     id: Some(1761286765722),
                                 }]),
                             }),
                         },
-                        payload::section2::IndividualLink {
+                        payload::entities::IndividualLink {
                             name: Some("Nguyễn Văn D".to_string()),
                             identification_number: Some("0791993012333".to_string()),
                             id: Some(1761286873020),
                             is_principal: Some(true),
-                            benefit_group: Some(payload::section2::GroupBenefits {
-                                main_group: Some(vec![payload::section2::PersonRef {
+                            benefit_group: Some(payload::entities::GroupBenefits {
+                                main_group: Some(vec![payload::entities::PersonRef {
                                     full_name: Some("Nguyễn Văn C".to_string()),
                                     identification_number: Some("036100018836".to_string()),
                                     id: Some(1761286439631),
                                 }]),
-                                other_group: Some(vec![payload::section2::PersonRef {
+                                other_group: Some(vec![payload::entities::PersonRef {
                                     full_name: Some("12341243".to_string()),
                                     identification_number: Some("0791993012333".to_string()),
                                     id: Some(1761286765722),
@@ -327,24 +323,24 @@ async fn main() -> anyhow::Result<()> {
                             }),
                         },
                     ]),
-                    organization_links: Some(vec![payload::section2::OrganizationLink {
+                    organization_links: Some(vec![payload::entities::OrganizationLink {
                         id: Some(1761286601844),
                         name: Some("Công ty X".to_string()),
                         identification_number: Some("0109577331".to_string()),
-                        benefit_group: Some(payload::section2::GroupBenefits {
+                        benefit_group: Some(payload::entities::GroupBenefits {
                             main_group: Some(vec![
-                                payload::section2::PersonRef {
+                                payload::entities::PersonRef {
                                     full_name: Some("Nguyễn Văn C".to_string()),
                                     identification_number: Some("036100018836".to_string()),
                                     id: Some(1761286439631),
                                 },
-                                payload::section2::PersonRef {
+                                payload::entities::PersonRef {
                                     full_name: Some("Nguyễn Văn D".to_string()),
                                     identification_number: Some("0791993012333".to_string()),
                                     id: Some(1761286873020),
                                 },
                             ]),
-                            other_group: Some(vec![payload::section2::PersonRef {
+                            other_group: Some(vec![payload::entities::PersonRef {
                                 full_name: Some("12341243".to_string()),
                                 identification_number: Some("0791993012333".to_string()),
                                 id: Some(1761286765722),
