@@ -712,7 +712,19 @@ async fn main() -> anyhow::Result<()> {
                 ]),
                 detection_date: Some("2025-10-23T17:00:00.000Z".to_string()),
             },
-            section_5: Default::default(),
+            section_5: payload::section5::Section5 {
+                processed_tasks: Some(vec![
+                    payload::section5::ProcessedTask { code: Some("1".to_string()), description: Some("Từ chối thực hiện giao dịch".to_string()), documents: Some(vec![]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("2".to_string()), description: Some("Tạm khóa tài khoản".to_string()), documents: Some(vec![]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("3".to_string()), description: Some("Chấm dứt thiết lập giao dịch với khách hàng".to_string()), documents: Some(vec![]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("4".to_string()), description: Some("Giám sát sau giao dịch".to_string()), documents: Some(vec![]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("5".to_string()), description: Some("Đưa vào hệ thống cảnh báo của đối tượng báo cáo".to_string()), documents: Some(vec![]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("6".to_string()), description: Some("Ngân hàng đã có công văn gửi Cơ quan nhà nước có thẩm quyền".to_string()), documents: Some(vec![payload::section5::Document { doc_type: Some("0".to_string()), doc_number: Some("jrjqkerioeqwuriopq".to_string()), doc_date: Some("2025-10-23T17:00:00.000Z".to_string()), unit: Some("fjdafldajkl".to_string()) }]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("7".to_string()), description: Some("Ngân hàng nhận được công văn của Cơ quan nhà nước có thẩm quyền yêu cầu cung cấp thông tin, tài liệu".to_string()), documents: Some(vec![payload::section5::Document { doc_type: Some("1".to_string()), doc_number: Some("7498147183".to_string()), doc_date: Some("2025-10-23T17:00:00.000Z".to_string()), unit: Some("fsaldkfjklda".to_string()) }, payload::section5::Document { doc_type: Some("2".to_string()), doc_number: Some("7129347312098".to_string()), doc_date: Some("2025-10-18T17:00:00.000Z".to_string()), unit: Some("uruqoreuo".to_string()) }]), other_content: None },
+                    payload::section5::ProcessedTask { code: Some("0".to_string()), description: Some("Công việc khác".to_string()), documents: Some(vec![]), other_content: Some("Không có công việc khác".to_string()) },
+                    payload::section5::ProcessedTask { code: Some("8".to_string()), description: Some("Tạm ngừng cung cấp dịch vụ ngân hàng điện tử".to_string()), documents: Some(vec![]), other_content: None },
+                ]),
+            },
             section_6: Default::default(),
         },
     };
