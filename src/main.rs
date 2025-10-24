@@ -12,7 +12,7 @@ async fn main() -> anyhow::Result<()> {
 
     let form_payload = payload::form::Form {
         id: None,
-        internal_number: "SOME-REPORT-005".to_string(),
+        internal_number: "SOME-REPORT-010".to_string(),
         report_type: "M1".to_string(),
         creation_status: "DANG_NHAP_LIEU".to_string(),
         payload: payload::form::Payload {
@@ -248,8 +248,9 @@ async fn main() -> anyhow::Result<()> {
                     }]),
                 }]),
                 beneficial_owners: Some(payload::entities::BeneficialOwners {
-                    other_owners: Some(vec![payload::entities::PersonShort {
+                    other_owners: Some(vec![payload::entities::Individual {
                         id: Some(1761286765722),
+                        existing_customer: Default::default(),
                         full_name: Some("12341243".to_string()),
                         date_of_birth: Some("2025-10-01T17:00:00.000Z".to_string()),
                         age: Some("5".to_string()),
@@ -284,6 +285,9 @@ async fn main() -> anyhow::Result<()> {
                             place_of_issue: Some("Hà Nội".to_string()),
                         }]),
                         phone_number: Some("0987654321".to_string()),
+                        education_level: Default::default(),
+                        email: Default::default(),
+                        accounts: Default::default(),
                     }]),
                     individual_links: Some(vec![
                         payload::entities::IndividualLink {

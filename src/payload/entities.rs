@@ -67,38 +67,11 @@ pub struct Organization {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct BeneficialOwners {
     #[serde(rename = "chu_so_huu_khac")]
-    pub other_owners: Option<Vec<PersonShort>>,
+    pub other_owners: Option<Vec<Individual>>,
     #[serde(rename = "lien_ket_cshhl_ca_nhan")]
     pub individual_links: Option<Vec<IndividualLink>>,
     #[serde(rename = "lien_ket_cshhl_to_chuc")]
     pub organization_links: Option<Vec<OrganizationLink>>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct PersonShort {
-    pub id: Option<i64>,
-    #[serde(rename = "ho_ten")]
-    pub full_name: Option<String>,
-    #[serde(rename = "ngay_sinh")]
-    pub date_of_birth: Option<String>,
-    #[serde(rename = "do_tuoi")]
-    pub age: Option<String>,
-    #[serde(rename = "gioi_tinh")]
-    pub gender: Option<String>,
-    #[serde(rename = "quoc_tich")]
-    pub nationality: Option<String>,
-    #[serde(rename = "nghe_nghiep")]
-    pub occupation: Option<Occupation>,
-    #[serde(rename = "chuc_vu")]
-    pub position: Option<String>,
-    #[serde(rename = "dia_chi_thuong_tru")]
-    pub permanent_address: Option<AddrSimple>,
-    #[serde(rename = "noi_o_hien_tai")]
-    pub current_address: Option<AddrSimple>,
-    #[serde(rename = "thong_tin_dinh_danh")]
-    pub identifications: Option<Vec<Identification>>,
-    #[serde(rename = "so_dien_thoai")]
-    pub phone_number: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
