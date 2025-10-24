@@ -10,7 +10,7 @@ async fn main() -> anyhow::Result<()> {
     let port = 9515;
     let (_, auth_key) = launch_web_automation_task(get_auth_code, port).await?;
 
-    let tab0_payload = payload::tab0::Tab0 {
+    let tab0_payload = payload::tab0::Form {
         id: None,
         internal_number: "SOME-REPORT-002".to_string(),
         report_type: "M1".to_string(),
