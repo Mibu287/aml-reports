@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Form {
     pub id: Option<String>,
     #[serde(rename = "str_internal_number")]
@@ -11,7 +11,7 @@ pub struct Form {
     pub payload: Payload,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Payload {
     #[serde(rename = "Thong_tin_chung")]
     pub general_info: GeneralInfo,
@@ -29,7 +29,7 @@ pub struct Payload {
     pub section_6: Section6,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Section2 {
     #[serde(rename = "ca_nhan_thuc_hien_giao_dich")]
     pub individuals: Option<Vec<Individual>>,
@@ -44,7 +44,7 @@ pub struct Section2 {
     pub additional_info: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Individual {
     pub id: Option<i64>,
     #[serde(rename = "khach_hang_hien_huu")]
@@ -78,7 +78,7 @@ pub struct Individual {
     pub accounts: Option<Vec<Account>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Organization {
     pub id: Option<i64>,
     #[serde(rename = "khach_hang_hien_huu")]
@@ -108,7 +108,7 @@ pub struct Organization {
     pub representatives: Option<Vec<Representative>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BeneficialOwners {
     #[serde(rename = "chu_so_huu_khac")]
     pub other_owners: Option<Vec<PersonShort>>,
@@ -118,7 +118,7 @@ pub struct BeneficialOwners {
     pub organization_links: Option<Vec<OrganizationLink>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PersonShort {
     pub id: Option<i64>,
     #[serde(rename = "ho_ten")]
@@ -145,7 +145,7 @@ pub struct PersonShort {
     pub phone_number: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct IndividualLink {
     #[serde(rename = "ten")]
     pub name: Option<String>,
@@ -158,7 +158,7 @@ pub struct IndividualLink {
     pub benefit_group: Option<GroupBenefits>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OrganizationLink {
     pub id: Option<i64>,
     #[serde(rename = "ten")]
@@ -169,7 +169,7 @@ pub struct OrganizationLink {
     pub benefit_group: Option<GroupBenefits>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GroupBenefits {
     #[serde(rename = "nhom_thong_tin")]
     pub main_group: Option<Vec<PersonRef>>,
@@ -177,7 +177,7 @@ pub struct GroupBenefits {
     pub other_group: Option<Vec<PersonRef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PersonRef {
     #[serde(rename = "ho_ten")]
     pub full_name: Option<String>,
@@ -186,7 +186,7 @@ pub struct PersonRef {
     pub id: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Occupation {
     #[serde(rename = "ma_nghe_nghiep")]
     pub occupation_code: Option<String>,
@@ -196,7 +196,7 @@ pub struct Occupation {
     pub content: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AddrSimple {
     #[serde(rename = "so_nha")]
     pub street_address: Option<String>,
@@ -210,7 +210,7 @@ pub struct AddrSimple {
     pub phone: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Identification {
     #[serde(rename = "loai_dinh_danh")]
     pub id_type: Option<String>,
@@ -226,7 +226,7 @@ pub struct Identification {
     pub place_of_issue: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Account {
     #[serde(rename = "so_tai_khoan")]
     pub account_number: Option<String>,
@@ -244,33 +244,33 @@ pub struct Account {
     pub authorized_persons: Option<Vec<PersonRef>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Bank {
     pub ma_ngan_hang: Option<String>,
     pub ten_ngan_hang: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CodeDesc {
     pub ma_loai_hinh: Option<String>,
     pub mo_ta: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct License {
     pub so_giay_phep: Option<String>,
     pub ngay_cap: Option<String>,
     pub noi_cap: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EnterpriseCode {
     pub ma_so: Option<String>,
     pub ngay_cap: Option<String>,
     pub noi_cap: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Representative {
     pub id: Option<i64>,
     pub ho_ten: Option<String>,
@@ -287,7 +287,7 @@ pub struct Representative {
     pub identifications: Option<Vec<Identification>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GeneralInfo {
     #[serde(rename = "ngay_bao_cao")]
     pub report_date: String,
@@ -303,7 +303,7 @@ pub struct GeneralInfo {
     pub report_form: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AmendmentSupplement {
     #[serde(rename = "loai_thay_doi")]
     pub change_type: i32,
@@ -313,7 +313,7 @@ pub struct AmendmentSupplement {
     pub report_date: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Section1 {
     #[serde(rename = "doi_tuong_bao_cao")]
     pub reporting_entity: ReportingEntity,
@@ -323,7 +323,7 @@ pub struct Section1 {
     pub report_preparer: ReportPreparer,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ReportingEntity {
     #[serde(rename = "ten_doi_tuong_bao_cao")]
     pub name: String,
@@ -336,7 +336,7 @@ pub struct ReportingEntity {
     pub email: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Address {
     #[serde(rename = "so_nha")]
     pub street_address: String,
@@ -350,7 +350,7 @@ pub struct Address {
     pub country: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TransactionLocation {
     #[serde(rename = "ten_diem_phat_sinh_giao_dich")]
     pub transaction_point_name: String,
@@ -366,7 +366,7 @@ pub struct TransactionLocation {
     pub country: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ResponsiblePerson {
     #[serde(rename = "ho_ten")]
     pub full_name: String,
@@ -378,7 +378,7 @@ pub struct ResponsiblePerson {
     pub position: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ReportPreparer {
     #[serde(rename = "ho_ten")]
     pub full_name: String,
@@ -390,14 +390,14 @@ pub struct ReportPreparer {
     pub department: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Section3 {}
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Section4 {}
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Section5 {}
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Section6 {}
