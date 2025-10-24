@@ -1,8 +1,10 @@
+use std::{collections::HashMap, vec};
+
 use duration_extender::DurationExt;
 
 pub(crate) async fn get_auth_code(
     driver: thirtyfour::WebDriver,
-) -> anyhow::Result<(thirtyfour::WebDriver, ())> {
+) -> anyhow::Result<(thirtyfour::WebDriver, (String, String))> {
     const BASE_URL: &str = "https://amlstr.sbv.gov.vn";
     const SSO_URL: &str = "https://amlsso.sbv.gov.vn";
 
@@ -22,10 +24,13 @@ pub(crate) async fn get_auth_code(
     })
     .await??;
 
-    // Navigate to SSO URL to get cookies
+    // Navigate to SSO to trigger cookie creation
     driver.goto(SSO_URL).await?;
-    let cookies = tokio::time::timeout(std::time::Duration::from_secs(300), async {
+
+    tokio::time::timeout(300.seconds(), async {
         loop {
+            tokio::time::sleep(1.seconds()).await;
+
             let cookies = match driver.get_all_cookies().await {
                 Ok(cookies) => cookies,
                 Err(err) => {
@@ -35,20 +40,53 @@ pub(crate) async fn get_auth_code(
 
             for cookie in &cookies {
                 if cookie.name == "KC_RESTART" {
-                    return Ok(cookies);
+                    println!(
+                        "Found auth restart cookie: {}: {}",
+                        cookie.name, cookie.value
+                    );
+                    return Ok(());
                 }
             }
-
-            tokio::time::sleep(100.milliseconds()).await;
         }
     })
     .await??;
 
-    println!("Cookies: {:?}", cookies);
+    // Get local storage items
 
-    // Go back to dashboard
-    driver.goto(dashboard_url).await?;
+    let (auth_key, auth_value) = tokio::time::timeout(300.seconds(), async {
+        let report_url = format!("{}/report-str/report-two", BASE_URL);
 
-    tokio::time::sleep(500.milliseconds()).await;
-    Ok((driver, ()))
+        loop {
+            driver.goto(&report_url).await?;
+            tokio::time::sleep(1.seconds()).await;
+
+            let script: &str = r#"
+                let ls = window.localStorage, results = {}
+                for (var i = 0; i < ls.length; ++i) {
+                    results[ls.key(i)] = ls.getItem(ls.key(i));
+                }
+                return results;
+            "#;
+
+            let storage = driver.execute(script, vec![]).await?;
+
+            if let Ok(object) = storage.convert::<HashMap<String, String>>() {
+                for (key, value) in object {
+                    let auth_key_pattern = regex::Regex::new(r"^v\d+\.\d+\.\d+-auth\w+$").unwrap();
+                    if auth_key_pattern.is_match(&key) {
+                        return anyhow::Result::<(String, String)>::Ok((key, value));
+                    }
+                }
+            }
+        }
+    })
+    .await??;
+
+    println!(
+        "Found auth local storage item: {}: {}",
+        auth_key, auth_value
+    );
+
+    // tokio::time::sleep(1.hours()).await;
+    Ok((driver, (auth_key, auth_value)))
 }
