@@ -1,5 +1,6 @@
 mod auth;
 mod launch;
+mod payload;
 
 use auth::get_auth_code;
 use launch::launch_web_automation_task;
@@ -7,6 +8,74 @@ use launch::launch_web_automation_task;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let port = 9515;
-    let _auth_code = launch_web_automation_task(get_auth_code, port).await?;
+    let (_, auth_key) = launch_web_automation_task(get_auth_code, port).await?;
+
+    let tab0_payload = payload::tab0::Tab0 {
+        id: None,
+        internal_number: "SOME-REPORT-002".to_string(),
+        report_type: "M1".to_string(),
+        creation_status: "DANG_NHAP_LIEU".to_string(),
+        payload: payload::tab0::Payload {
+            general_info: payload::tab0::GeneralInfo {
+                report_date: "2024-06-01".to_string(),
+                report_number: "RPT-001".to_string(),
+                amendment_supplement: payload::tab0::AmendmentSupplement {
+                    change_type: 0,
+                    report_number: "".to_string(),
+                    report_date: "".to_string(),
+                },
+                reporting_entity_name: "Entity Name".to_string(),
+                reporting_entity_code: "ENT-001".to_string(),
+                report_form: "Form A".to_string(),
+            },
+            section_1: payload::tab0::Section1 {
+                reporting_entity: payload::tab0::ReportingEntity {
+                    name: "Entity Name".to_string(),
+                    code: "ENT-001".to_string(),
+                    address: payload::tab0::Address {
+                        street_address: "123 Main St".to_string(),
+                        phone: "555-1234".to_string(),
+                        district: "Central".to_string(),
+                        city_province: "Metropolis".to_string(),
+                        country: "Freedonia".to_string(),
+                    },
+                    transaction_location: payload::tab0::TransactionLocation {
+                        street_address: "123 Main St".to_string(),
+                        transaction_point_name: "Main Branch".to_string(),
+                        phone: "555-1234".to_string(),
+                        district: "Central".to_string(),
+                        city_province: "Metropolis".to_string(),
+                        country: "Freedonia".to_string(),
+                    },
+                    email: "entity@example.com".to_string(),
+                },
+                responsible_person: payload::tab0::ResponsiblePerson {
+                    full_name: "John Doe".to_string(),
+                    work_phone: "555-1234".to_string(),
+                    mobile_phone: "555-5678".to_string(),
+                    position: "Manager".to_string(),
+                },
+                report_preparer: payload::tab0::ReportPreparer {
+                    full_name: "Jane Smith".to_string(),
+                    work_phone: "123-456-7890".to_string(),
+                    mobile_phone: "098-765-4321".to_string(),
+                    department: "Compliance".to_string(),
+                },
+            },
+            section_2: payload::tab0::Section2 {},
+            section_3: payload::tab0::Section3 {},
+            section_4: payload::tab0::Section4 {},
+            section_5: payload::tab0::Section5 {},
+            section_6: payload::tab0::Section6 {},
+        },
+    };
+
+    reqwest::Client::new()
+        .post("https://amlstr.sbv.gov.vn/strcreator/api/str-creator/saveStrModel?tabNo=0")
+        .bearer_auth(auth_key)
+        .json(&tab0_payload)
+        .send()
+        .await?;
+
     Ok(())
 }
