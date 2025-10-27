@@ -280,6 +280,78 @@ impl BeneficialOwners {
     where
         RS: std::io::Seek + std::io::Read,
     {
-        Ok(None)
+        let sheet_key = "Phần II. Người đại diện";
+        let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
+
+        let beneficiaries = rows
+            .iter()
+            .map(|curr_row| {
+                let cell_value_func = |col_name: &str| -> Option<String> {
+                    let col_name = col_map
+                        .get(col_name)
+                        .expect(format!("{} column not found", col_name).as_str());
+
+                    let col_idx = col_name_to_index(col_name, base_coord.into())
+                        .expect(format!("Invalid column name {}", col_name).as_str());
+
+                    let value = curr_row[col_idx as usize].trim();
+
+                    if value.is_empty() {
+                        None
+                    } else {
+                        Some(value.to_string())
+                    }
+                };
+
+                Individual {
+                    id: None,
+                    existing_customer: Some("1".to_string()),
+                    full_name: cell_value_func("Tên khách hàng"),
+                    date_of_birth: cell_value_func("Ngày sinh"),
+                    age: None,
+                    gender: None,
+                    nationality: cell_value_func("Quốc tịch"),
+                    occupation: Some(Occupation {
+                        occupation_code: None,
+                        description: cell_value_func("Nghề nghiệp"),
+                        content: cell_value_func("Nếu Nghề nghiệp Khác"),
+                    }),
+                    position: None,
+                    permanent_address: Some(AddrSimple {
+                        street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
+                        city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
+                        district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
+                        country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)"),
+                        phone: None,
+                    }),
+                    current_address: Some(AddrSimple {
+                        street_address: cell_value_func("Nơi ở hiện tại (Số nhà)"),
+                        city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
+                        district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
+                        country: cell_value_func("Nơi ở hiện tại (Quốc gia)"),
+                        phone: None,
+                    }),
+                    identifications: Some(vec![Identification {
+                        id_type: cell_value_func("Loại định danh"),
+                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
+                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)"),
+                        issuing_authority: cell_value_func("Cơ quan cấp"),
+                        expiry_date: None,
+                        place_of_issue: cell_value_func("Nơi cấp"),
+                    }]),
+                    phone_number: None,
+                    education_level: None,
+                    email: None,
+                    accounts: None,
+                }
+            })
+            .collect::<Vec<_>>();
+
+        Ok(BeneficialOwners {
+            other_owners: beneficiaries.into(),
+            individual_links: None,
+            organization_links: None,
+        }
+        .into())
     }
 }
