@@ -22,5 +22,6 @@
     "Phần I.2: Thông tin về người lập báo cáo - Họ và tên": ["STR", "D24"],
     "Phần I.2: Thông tin về người lập báo cáo - Điện thoại nơi làm việc": ["STR", "D25"],
     "Phần I.2: Thông tin về người lập báo cáo - Điện thoại di động": ["STR", "F25"],
-    "Phần I.2: Thông tin về người lập báo cáo - Bộ phận công tác": ["STR", "D26"]
+    "Phần I.2: Thông tin về người lập báo cáo - Bộ phận công tác": ["STR", "D26"],
+    "Phần II: Thông tin bổ sung": ["STR", "D31"]
 }

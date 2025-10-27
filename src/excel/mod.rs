@@ -1,4 +1,5 @@
 mod section1;
+mod section2;
 
 use std::io::{Read, Seek};
 
@@ -8,6 +9,7 @@ use crate::{
         form::{Form, Payload},
         info::{Amendment, GeneralInfo},
         section1::Section1,
+        section2::Section2,
     },
     template::cell_value_from_key,
 };
@@ -35,7 +37,7 @@ impl Payload {
         Ok(Payload {
             general_info: GeneralInfo::from_excel(workbook)?,
             section_1: Section1::from_excel(workbook)?,
-            section_2: Default::default(),
+            section_2: Section2::from_excel(workbook)?,
             section_3: Default::default(),
             section_4: Default::default(),
             section_5: Default::default(),
