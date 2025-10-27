@@ -6,7 +6,8 @@ use crate::{
     payload::{
         self,
         form::{Form, Payload},
-        info::{Amendment, GeneralInfo}, section1::Section1,
+        info::{Amendment, GeneralInfo},
+        section1::Section1,
     },
     template::cell_value_from_key,
 };
@@ -56,9 +57,9 @@ impl GeneralInfo {
                 report_number: String::new(),
                 report_date: String::new(),
             },
-            reporting_entity_name: None,
-            reporting_entity_code: None,
-            report_form: None,
+            reporting_entity_name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
+            reporting_entity_code: Some("01203001".to_string()),
+            report_form: Some("M1".to_string()),
         })
     }
 }
@@ -72,7 +73,7 @@ where
 
     let date_value = regex::Regex::new(r"(?ms)(\d{2}).+(\d{2}).+(\d{4})")?
         .captures(&cell_value)
-        .map(|caps| format!("{}/{}/{}", &caps[2], &caps[1], &caps[3]));
+        .map(|caps| format!("{}-{}-{}", &caps[3], &caps[2], &caps[1]));
     Ok(date_value)
 }
 
