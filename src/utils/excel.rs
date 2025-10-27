@@ -1,3 +1,7 @@
+use std::io::{Read, Seek};
+
+use calamine::Reader;
+
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ExcelCoord {
     pub row: u32,
@@ -112,4 +116,22 @@ impl ExcelCoord {
 
 pub fn from_a1_to_coord(cell_name: &str, base: (u32, u32)) -> Option<(u32, u32)> {
     ExcelCoord::from_relative_a1_style(base, cell_name).map(|c| c.into())
+}
+
+pub fn read_cell_value<RS>(
+    workbook: &mut calamine::Xlsx<RS>,
+    sheet_name: &str,
+    cell_name: &str,
+) -> anyhow::Result<String>
+where
+    RS: Seek + Read,
+{
+    let range = workbook.worksheet_range(sheet_name)?;
+    let base_coord = range.start().unwrap_or((0, 0));
+    let cell_coord = from_a1_to_coord(cell_name, base_coord).unwrap_or_default();
+    let cell_value = range
+        .get_value((cell_coord.0, cell_coord.1))  
+        .map(|v| v.to_string())
+        .unwrap_or_default();
+    Ok(cell_value)
 }

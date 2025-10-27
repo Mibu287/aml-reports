@@ -12,16 +12,16 @@ async fn main() -> anyhow::Result<()> {
         creation_status: payload::form::CreationStatus::InProgress,
         payload: payload::form::Payload {
             general_info: payload::info::GeneralInfo {
-                report_date: "2025-10-24".to_string(),
-                report_number: "RPT-001".to_string(),
+                report_date: Some("2025-10-24".to_string()),
+                report_number: Some("RPT-001".to_string()),
                 amendment_supplement: payload::info::AmendmentSupplement {
                     change_type: 0,
                     report_number: "".to_string(),
                     report_date: "".to_string(),
                 },
-                reporting_entity_name: "Entity Name".to_string(),
-                reporting_entity_code: "ENT-001".to_string(),
-                report_form: "Form A".to_string(),
+                reporting_entity_name: Some("Entity Name".to_string()),
+                reporting_entity_code: Some("ENT-001".to_string()),
+                report_form: Some("Form A".to_string()),
             },
             section_1: payload::section1::Section1 {
                 reporting_entity: payload::section1::ReportingEntity {
