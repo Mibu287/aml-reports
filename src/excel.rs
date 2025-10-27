@@ -17,7 +17,7 @@ impl Form {
             internal_number: internal_number(workbook)?,
             report_type: "M1".to_string(),
             creation_status: payload::form::CreationStatus::InProgress,
-            payload: Default::default(),
+            payload: Payload::from_excel(workbook)?,
         })
     }
 }
@@ -65,7 +65,7 @@ where
     println!("cell_value: {}", cell_value);
     let date_value = regex::Regex::new(r"(?ms)(\d{2}).+(\d{2}).+(\d{4})")?
         .captures(&cell_value)
-        .map(|caps| format!("{}-{}-{}", &caps[1], &caps[0], &caps[2]));
+        .map(|caps| format!("{}/{}/{}", &caps[2], &caps[1], &caps[3]));
     Ok(date_value)
 }
 
