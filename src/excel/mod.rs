@@ -61,8 +61,16 @@ impl GeneralInfo {
                 report_number: String::new(),
                 report_date: String::new(),
             },
-            reporting_entity_name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
-            reporting_entity_code: Some("01203001".to_string()),
+            reporting_entity_name: cell_value_from_key(
+                "Phần I.1: Thông tin đối tượng báo cáo - Tên",
+                workbook,
+            )?
+            .into(),
+            reporting_entity_code: cell_value_from_key(
+                "Phần I.1: Thông tin đối tượng báo cáo - Mã",
+                workbook,
+            )?
+            .into(),
             report_form: Some("M1".to_string()),
         })
     }
