@@ -2,7 +2,7 @@ use calamine::Reader;
 use serde::{Deserialize, Serialize};
 use std::io::{Read, Seek};
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct CellAddress {
     pub sheet: String,
     pub cell: String,
