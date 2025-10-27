@@ -1,5 +1,5 @@
 use aml::payload;
-use calamine::{DataType, Reader, Xlsx, open_workbook};
+use calamine::{Xlsx, open_workbook};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
