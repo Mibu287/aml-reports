@@ -1,6 +1,9 @@
 mod section1;
 mod section2;
 mod section3;
+mod section4;
+mod section5;
+mod section6;
 
 use std::io::{Read, Seek};
 
