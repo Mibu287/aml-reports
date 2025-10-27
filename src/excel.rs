@@ -1,11 +1,13 @@
 use std::io::{Read, Seek};
 
-use crate::payload::{
-    self,
-    form::{Form, Payload},
-    info::GeneralInfo,
+use crate::{
+    payload::{
+        self,
+        form::{Form, Payload},
+        info::GeneralInfo,
+    },
+    template::read_cell_value_from_key,
 };
-use crate::utils::excel::read_cell_value;
 
 impl Form {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
@@ -59,10 +61,9 @@ fn report_date<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<S
 where
     RS: Seek + Read,
 {
-    let sheet_name = "STR";
-    let cell_name = "B3";
-    let cell_value = read_cell_value(workbook, sheet_name, cell_name)?;
-    println!("cell_value: {}", cell_value);
+    const CELL_KEY: &str = "Ngày báo cáo";
+    let cell_value = read_cell_value_from_key(CELL_KEY, workbook)?;
+
     let date_value = regex::Regex::new(r"(?ms)(\d{2}).+(\d{2}).+(\d{4})")?
         .captures(&cell_value)
         .map(|caps| format!("{}/{}/{}", &caps[2], &caps[1], &caps[3]));
@@ -73,8 +74,7 @@ fn internal_number<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Stri
 where
     RS: Seek + Read,
 {
-    let sheet_name = "STR";
-    let cell_name = "G3";
-    let cell_value = read_cell_value(workbook, sheet_name, cell_name)?;
+    const CELL_KEY: &str = "Mã báo cáo nội bộ";
+    let cell_value = read_cell_value_from_key(CELL_KEY, workbook)?;
     Ok(cell_value)
 }

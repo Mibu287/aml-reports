@@ -3,3 +3,4 @@ pub mod excel;
 pub mod launch;
 pub mod payload;
 pub mod utils;
+pub mod template;

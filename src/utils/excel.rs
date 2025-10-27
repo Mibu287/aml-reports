@@ -1,6 +1,13 @@
+use calamine::Reader;
+use serde::{Deserialize, Serialize};
 use std::io::{Read, Seek};
 
-use calamine::Reader;
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct CellAddress {
+    pub sheet: String,
+    pub cell: String,
+}
+
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ExcelCoord {
@@ -130,7 +137,7 @@ where
     let base_coord = range.start().unwrap_or((0, 0));
     let cell_coord = from_a1_to_coord(cell_name, base_coord).unwrap_or_default();
     let cell_value = range
-        .get_value((cell_coord.0, cell_coord.1))  
+        .get_value((cell_coord.0, cell_coord.1))
         .map(|v| v.to_string())
         .unwrap_or_default();
     Ok(cell_value)
