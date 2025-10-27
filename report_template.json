@@ -60,5 +60,62 @@
             "Trạng thái": "AG"
         }
     },
-    "Phần II: Thông tin bổ sung": ["STR", "D31"]
+    "Phần II: KHTC": {
+        "sheet": "Phần II. KHTC",
+        "dòng tiêu đề": 4,
+        "cột": {
+            "STT": "B",
+            "Chi nhánh": "C",
+            "Tên khách hàng": "D",
+            "CIF": "E",
+            "Loại hình tổ chức": "F",
+            "Loại hình tổ chức nếu chọn Khác": "G",
+            "MS doanh nghiệp/MS thuế": "H",
+            "Ngày thành lập (dd/mm/yyyy)": "I",
+            "Quốc gia thành lập": "J",
+            "Ngành nghề kinh doanh chính": "K",
+            "Số nhà": "L",
+            "Phường/Xã": "M",
+            "Tỉnh/TP": "N",
+            "Quốc gia": "O",
+            "Số điện thoại": "P",
+            "Địa chỉ trang thông tin điện tử của doanh nghiệp": "Q",
+            "Số tài khoản": "R",
+            "Mã Ngân hàng": "S",
+            "Tên Ngân hàng": "T",
+            "Loại tiền": "U",
+            "Loại TK": "V",
+            "Ngày mở": "W",
+            "Trạng thái": "X"
+        }
+    },
+    "Phần II. Người đại diện": {
+        "sheet": "Phần II. Người đại diện",
+        "dòng tiêu đề": 4,
+        "cột": {
+            "Tên khách hàng": "B",
+            "CIF": "C",
+            "Họ và tên": "D",
+            "Ngày sinh": "E",
+            "Điện thoại liên lạc": "F",
+            "Quốc tịch": "G",
+            "Nghề nghiệp": "H",
+            "Nếu Nghề nghiệp Khác": "I",
+            "Chức vụ/vị trí việc làm": "J",
+            "Địa chỉ đăng ký thường trú (Số nhà)": "K",
+            "Địa chỉ đăng ký thường trú (Phường/Xã)": "L",
+            "Địa chỉ đăng ký thường trú (Tỉnh/TP)": "M",
+            "Địa chỉ đăng ký thường trú (Quốc gia)": "N",
+            "Nơi ở hiện tại (Số nhà)": "O",
+            "Nơi ở hiện tại (Phường/Xã)": "P",
+            "Nơi ở hiện tại (Tỉnh/TP)": "Q",
+            "Nơi ở hiện tại (Quốc gia)": "R",
+            "Loại định danh": "S",
+            "CMND/CCCD/Hộ chiếu/Định danh cá nhân": "T",
+            "Ngày cấp (dd/mm/yyyy)": "U",
+            "Cơ quan cấp": "V",
+            "Nơi cấp": "W"
+        }
+    },
+    "Phần II: Thông tin bổ sung": ["STR", "B31"]
 }
