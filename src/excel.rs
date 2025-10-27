@@ -14,7 +14,7 @@ impl Form {
     where
         RS: Seek + Read,
     {
-        Ok(payload::form::Form {
+        Ok(Form {
             id: None,
             internal_number: internal_number(workbook)?,
             report_type: "M1".to_string(),
