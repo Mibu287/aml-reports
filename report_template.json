@@ -118,5 +118,6 @@
             "Nơi cấp": "W"
         }
     },
-    "Phần II: Thông tin bổ sung": ["STR", "B31"]
+    "Phần II: Thông tin bổ sung": ["STR", "B31"],
+    "Phần V: Công việc xử lý": "STR"
 }
