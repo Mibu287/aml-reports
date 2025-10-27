@@ -109,3 +109,7 @@ impl ExcelCoord {
         format!("{}{}", col_str, abs_row)
     }
 }
+
+pub fn from_a1_to_coord(cell_name: &str, base: (u32, u32)) -> Option<(u32, u32)> {
+    ExcelCoord::from_relative_a1_style(base, cell_name).map(|c| c.into())
+}
