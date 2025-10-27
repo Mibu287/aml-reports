@@ -27,6 +27,7 @@
         "sheet": "Phần II. KHCN",
         "dòng tiêu đề": 4,
         "cột": {
+            "STT": "B",
             "Chi nhánh": "C",
             "Tên khách hàng": "D",
             "CIF": "E",
@@ -60,7 +61,7 @@
             "Trạng thái": "AG"
         }
     },
-    "Phần II: KHTC": {
+    "Phần II. KHTC": {
         "sheet": "Phần II. KHTC",
         "dòng tiêu đề": 4,
         "cột": {
