@@ -120,6 +120,18 @@ impl ExcelCoord {
     }
 }
 
+pub fn col_name_to_index(col_name: &str, base: Option<(u32, u32)>) -> Option<u32> {
+    let mut col_index = 0;
+    for c in col_name.chars() {
+        if c.is_ascii_alphabetic() {
+            col_index = col_index * 26 + (c.to_ascii_uppercase() as u32 - ('A' as u32 - 1));
+        } else {
+            return None;
+        }
+    }
+    Some(col_index - base.unwrap_or_default().1 - 1)
+}
+
 pub fn from_a1_to_coord(cell_name: &str, base: (u32, u32)) -> Option<(u32, u32)> {
     ExcelCoord::from_relative_a1_style(base, cell_name).map(|c| c.into())
 }
