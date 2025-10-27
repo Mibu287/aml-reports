@@ -25,15 +25,15 @@ async fn main() -> anyhow::Result<()> {
             },
             section_1: payload::section1::Section1 {
                 reporting_entity: payload::section1::ReportingEntity {
-                    name: "Entity Name".to_string(),
-                    code: "ENT-001".to_string(),
-                    address: payload::section1::Address {
+                    name: Some("Entity Name".to_string()),
+                    code: Some("ENT-001".to_string()),
+                    address: Some(payload::section1::Address {
                         street_address: "123 Main St".to_string(),
                         phone: "555-1234".to_string(),
                         district: "Central".to_string(),
                         city_province: "Metropolis".to_string(),
                         country: "Freedonia".to_string(),
-                    },
+                    }),
                     transaction_location: payload::section1::TransactionLocation {
                         street_address: "123 Main St".to_string(),
                         transaction_point_name: "Main Branch".to_string(),

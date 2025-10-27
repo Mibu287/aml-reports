@@ -17,7 +17,7 @@ pub fn load_template() -> anyhow::Result<HashMap<String, CellAddress>> {
 pub static REPORT_TEMPLATE: LazyLock<HashMap<String, CellAddress>> =
     LazyLock::new(|| load_template().expect("Failed to load report template"));
 
-pub fn read_cell_value_from_key(
+pub fn cell_value_from_key(
     key: &str,
     workbook: &mut calamine::Xlsx<impl Seek + Read>,
 ) -> anyhow::Result<String> {

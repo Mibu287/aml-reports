@@ -1,3 +1,5 @@
+mod section1;
+
 use std::io::{Read, Seek};
 
 use crate::{
@@ -6,7 +8,7 @@ use crate::{
         form::{Form, Payload},
         info::{Amendment, GeneralInfo},
     },
-    template::read_cell_value_from_key,
+    template::cell_value_from_key,
 };
 
 impl Form {
@@ -66,7 +68,7 @@ where
     RS: Seek + Read,
 {
     const CELL_KEY: &str = "Ngày báo cáo";
-    let cell_value = read_cell_value_from_key(CELL_KEY, workbook)?;
+    let cell_value = cell_value_from_key(CELL_KEY, workbook)?;
 
     let date_value = regex::Regex::new(r"(?ms)(\d{2}).+(\d{2}).+(\d{4})")?
         .captures(&cell_value)
@@ -79,6 +81,6 @@ where
     RS: Seek + Read,
 {
     const CELL_KEY: &str = "Mã báo cáo nội bộ";
-    let cell_value = read_cell_value_from_key(CELL_KEY, workbook)?;
+    let cell_value = cell_value_from_key(CELL_KEY, workbook)?;
     Ok(cell_value)
 }
