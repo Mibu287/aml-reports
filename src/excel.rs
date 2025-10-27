@@ -4,7 +4,7 @@ use crate::{
     payload::{
         self,
         form::{Form, Payload},
-        info::GeneralInfo,
+        info::{Amendment, GeneralInfo},
     },
     template::read_cell_value_from_key,
 };
@@ -49,7 +49,11 @@ impl GeneralInfo {
         Ok(GeneralInfo {
             report_date: report_date(workbook)?,
             report_number: None,
-            amendment_supplement: Default::default(),
+            amendment: Amendment {
+                change_type: 0,
+                report_number: String::new(),
+                report_date: String::new(),
+            },
             reporting_entity_name: None,
             reporting_entity_code: None,
             report_form: None,

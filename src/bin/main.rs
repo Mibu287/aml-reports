@@ -14,7 +14,7 @@ async fn main() -> anyhow::Result<()> {
             general_info: payload::info::GeneralInfo {
                 report_date: Some("2025-10-24".to_string()),
                 report_number: Some("RPT-001".to_string()),
-                amendment_supplement: payload::info::AmendmentSupplement {
+                amendment: payload::info::Amendment {
                     change_type: 0,
                     report_number: "".to_string(),
                     report_date: "".to_string(),

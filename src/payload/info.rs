@@ -7,7 +7,7 @@ pub struct GeneralInfo {
     #[serde(rename = "so_bao_cao")]
     pub report_number: Option<String>,
     #[serde(rename = "sua_doi_bo_sung")]
-    pub amendment_supplement: AmendmentSupplement,
+    pub amendment: Amendment,
     #[serde(rename = "ten_doi_tuong_bao_cao")]
     pub reporting_entity_name: Option<String>,
     #[serde(rename = "ma_doi_tuong_bao_cao")]
@@ -17,7 +17,7 @@ pub struct GeneralInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct AmendmentSupplement {
+pub struct Amendment {
     #[serde(rename = "loai_thay_doi")]
     pub change_type: i32,
     #[serde(rename = "so_bao_cao")]
