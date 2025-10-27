@@ -7,6 +7,10 @@ edition = "2024"
 name = "aml-reports"
 path = "src/main.rs"
 
+[[bin]]
+name = "read-excel"
+path = "src/read_excel.rs"
+
 [dependencies]
 Thirtyfour-chromedriver = "0.2.0"
 anyhow = "1.*.*"
