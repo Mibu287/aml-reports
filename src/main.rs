@@ -1,9 +1,4 @@
-mod auth;
-mod launch;
-mod payload;
-
-use auth::get_auth_code;
-use launch::launch_web_automation_task;
+use aml::{auth::get_auth_code, launch::launch_web_automation_task, payload};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

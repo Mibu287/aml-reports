@@ -1,5 +1,5 @@
 [package]
-name = "anti-money-laundering"
+name = "aml"
 version = "0.1.0"
 edition = "2024"
 
