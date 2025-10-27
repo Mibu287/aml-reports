@@ -5,6 +5,11 @@ use crate::payload::{
     section4::Section4, section5::Section5, section6::Section6,
 };
 
+#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+pub enum CreationStatus {
+    #[serde(rename = "DANG_NHAP_LIEU")]
+    InProgress,
+}
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Form {
     pub id: Option<String>,
@@ -12,7 +17,7 @@ pub struct Form {
     pub internal_number: String,
     #[serde(rename = "str_type")]
     pub report_type: String,
-    pub creation_status: String,
+    pub creation_status: CreationStatus,
     pub payload: Payload,
 }
 

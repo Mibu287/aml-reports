@@ -12,9 +12,9 @@ async fn main() -> anyhow::Result<()> {
 
     let form_payload = payload::form::Form {
         id: None,
-        internal_number: "SOME-REPORT-010".to_string(),
+        internal_number: "SOME-REPORT-011".to_string(),
         report_type: "M1".to_string(),
-        creation_status: "DANG_NHAP_LIEU".to_string(),
+        creation_status: payload::form::CreationStatus::InProgress,
         payload: payload::form::Payload {
             general_info: payload::info::GeneralInfo {
                 report_date: "2025-10-24".to_string(),
