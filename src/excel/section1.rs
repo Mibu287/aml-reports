@@ -2,7 +2,7 @@ use std::io::{Read, Seek};
 
 use crate::{
     payload::section1::{
-        ReportPreparer, ReportingEntity, ResponsiblePerson, Section1, TransactionLocation,
+        Address, ReportPreparer, ReportingEntity, ResponsiblePerson, Section1, TransactionLocation,
     },
     template::cell_value_from_key,
 };
@@ -26,9 +26,15 @@ impl ReportingEntity {
         RS: Seek + Read,
     {
         Ok(Self {
-            name: None,
-            code: None,
-            address: None,
+            name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
+            code: Some("01203001".to_string()),
+            address: Some(Address {
+                street_address: "198 Trần Quang Khải".to_string(),
+                district: "Lý Thái Tổ".to_string(),
+                city_province: "Hà Nội".to_string(),
+                country: "VN".to_string(),
+                phone: "02439343137".to_string(),
+            }),
             transaction_location: TransactionLocation {
                 transaction_point_name: cell_value_from_key(
                     "Phần I: Tên điểm phát sinh giao dịch hoặc đơn vị quản lý tài khoản",
