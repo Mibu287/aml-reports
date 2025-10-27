@@ -1,5 +1,3 @@
-use std::{cell, ops::Add};
-
 use calamine::{DataType, Reader};
 
 use crate::{
@@ -8,7 +6,6 @@ use crate::{
             Account, AddrSimple, Bank, BeneficialOwners, Identification, Individual,
             IndividualLink, Occupation, Organization, OrganizationLink,
         },
-        section1::Address,
         section2::Section2,
     },
     template::{cell_value_from_key, table_config_from_key},
