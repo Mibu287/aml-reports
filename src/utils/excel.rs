@@ -8,7 +8,6 @@ pub struct CellAddress {
     pub cell: String,
 }
 
-
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ExcelCoord {
     pub row: u32,
