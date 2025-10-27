@@ -19,8 +19,8 @@ impl Section2 {
     {
         Ok(Self {
             individuals: Individual::from_excel(workbook)?,
-            organizations: None,
-            beneficial_owners: None,
+            organizations: Organization::from_excel(workbook)?,
+            beneficial_owners: BeneficialOwners::from_excel(workbook)?,
             additional_info: Some(cell_value_from_key("Phần II: Thông tin bổ sung", workbook)?),
         })
     }
@@ -153,5 +153,23 @@ impl Individual {
         }
 
         Ok(Some(persons))
+    }
+}
+
+impl Organization {
+    fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
+    where
+        RS: std::io::Seek + std::io::Read,
+    {
+        Ok(None)
+    }
+}
+
+impl BeneficialOwners {
+    fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
+    where
+        RS: std::io::Seek + std::io::Read,
+    {
+        Ok(None)
     }
 }
