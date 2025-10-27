@@ -5,12 +5,13 @@ use crate::payload::{
     section4::Section4, section5::Section5, section6::Section6,
 };
 
-#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, Copy, Clone, Default)]
 pub enum CreationStatus {
+    #[default]
     #[serde(rename = "DANG_NHAP_LIEU")]
     InProgress,
 }
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Form {
     pub id: Option<String>,
     #[serde(rename = "str_internal_number")]
@@ -21,7 +22,7 @@ pub struct Form {
     pub payload: Payload,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Payload {
     #[serde(rename = "Thong_tin_chung")]
     pub general_info: GeneralInfo,

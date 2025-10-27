@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct GeneralInfo {
     #[serde(rename = "ngay_bao_cao")]
     pub report_date: String,
@@ -16,7 +16,7 @@ pub struct GeneralInfo {
     pub report_form: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct AmendmentSupplement {
     #[serde(rename = "loai_thay_doi")]
     pub change_type: i32,
