@@ -26,30 +26,63 @@ impl ReportingEntity {
         RS: Seek + Read,
     {
         Ok(Self {
-            name: Some("Ngân hàng TMCP Ngoại thương Việt Nam".to_string()),
-            code: Some("01203001".to_string()),
+            name: Some(cell_value_from_key(
+                "Phần I.1: Thông tin đối tượng báo cáo - Tên",
+                workbook,
+            )?),
+            code: Some(cell_value_from_key(
+                "Phần I.1: Thông tin đối tượng báo cáo - Mã",
+                workbook,
+            )?),
             address: Some(Address {
-                street_address: "198 Trần Quang Khải".to_string(),
-                district: "Lý Thái Tổ".to_string(),
-                city_province: "Hà Nội".to_string(),
-                country: "VN".to_string(),
-                phone: "02439343137".to_string(),
+                street_address: cell_value_from_key(
+                    "Phần I.1: Thông tin đối tượng báo cáo - Địa chỉ",
+                    workbook,
+                )?,
+                district: cell_value_from_key(
+                    "Phần I.1: Thông tin đối tượng báo cáo - Phường/Xã",
+                    workbook,
+                )?,
+                city_province: cell_value_from_key(
+                    "Phần I.1: Thông tin đối tượng báo cáo - Tỉnh/Thành phố",
+                    workbook,
+                )?,
+                country: cell_value_from_key(
+                    "Phần I.1: Thông tin đối tượng báo cáo - Quốc gia",
+                    workbook,
+                )?,
+                phone: cell_value_from_key(
+                    "Phần I.1: Thông tin đối tượng báo cáo - Điện thoại",
+                    workbook,
+                )?,
             }),
             transaction_location: TransactionLocation {
                 transaction_point_name: cell_value_from_key(
-                    "Phần I: Tên điểm phát sinh giao dịch hoặc đơn vị quản lý tài khoản",
+                    "Phần I.1: Tên điểm phát sinh giao dịch hoặc đơn vị quản lý tài khoản",
                     workbook,
                 )?,
                 street_address: cell_value_from_key(
-                    "Phần I: Địa chỉ điểm phát sinh giao dịch hoặc địa chỉ đơn vị quản lý tài khoản",
+                    "Phần I.1: Địa chỉ điểm phát sinh giao dịch hoặc địa chỉ đơn vị quản lý tài khoản",
                     workbook,
                 )?,
-                district: cell_value_from_key("Phần I: Phường/Xã", workbook)?,
-                city_province: cell_value_from_key("Phần I: Tỉnh/Thành phố", workbook)?,
-                country: cell_value_from_key("Phần I: Quốc gia", workbook)?,
-                phone: cell_value_from_key("Phần I: Điện thoại", workbook)?,
+                district: cell_value_from_key(
+                    "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Phường/Xã",
+                    workbook,
+                )?,
+                city_province: cell_value_from_key(
+                    "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Tỉnh/Thành phố",
+                    workbook,
+                )?,
+                country: cell_value_from_key(
+                    "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Quốc gia",
+                    workbook,
+                )?,
+                phone: cell_value_from_key(
+                    "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Điện thoại",
+                    workbook,
+                )?,
             },
-            email: cell_value_from_key("Phần I: Địa chỉ email của đơn vị", workbook)?,
+            email: cell_value_from_key("Phần I.1: Địa chỉ email của đơn vị", workbook)?,
         })
     }
 }
@@ -61,19 +94,19 @@ impl ResponsiblePerson {
     {
         Ok(Self {
             full_name: cell_value_from_key(
-                "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Họ và tên",
+                "Phần I.2: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Họ và tên",
                 workbook,
             )?,
             work_phone: cell_value_from_key(
-                "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Điện thoại nơi làm việc",
+                "Phần I.2: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Điện thoại nơi làm việc",
                 workbook,
             )?,
             mobile_phone: cell_value_from_key(
-                "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Điện thoại di động",
+                "Phần I.2: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Điện thoại di động",
                 workbook,
             )?,
             position: cell_value_from_key(
-                "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Chức vụ",
+                "Phần I.2: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Chức vụ",
                 workbook,
             )?,
         })
@@ -87,19 +120,19 @@ impl ReportPreparer {
     {
         Ok(Self {
             full_name: cell_value_from_key(
-                "Phần I: Thông tin về người lập báo cáo - Họ và tên",
+                "Phần I.2: Thông tin về người lập báo cáo - Họ và tên",
                 workbook,
             )?,
             work_phone: cell_value_from_key(
-                "Phần I: Thông tin về người lập báo cáo - Điện thoại nơi làm việc",
+                "Phần I.2: Thông tin về người lập báo cáo - Điện thoại nơi làm việc",
                 workbook,
             )?,
             mobile_phone: cell_value_from_key(
-                "Phần I: Thông tin về người lập báo cáo - Điện thoại di động",
+                "Phần I.2: Thông tin về người lập báo cáo - Điện thoại di động",
                 workbook,
             )?,
             department: cell_value_from_key(
-                "Phần I: Thông tin về người lập báo cáo - Bộ phận công tác",
+                "Phần I.2: Thông tin về người lập báo cáo - Bộ phận công tác",
                 workbook,
             )?,
         })

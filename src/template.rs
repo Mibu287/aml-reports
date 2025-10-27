@@ -9,7 +9,7 @@ use std::{
 const TEMPLATE_FILE: &str = "report_template.json";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
+#[serde(untagged)]
 pub enum CellAddressOrValue {
     Address(CellAddress),
     Value(String),
