@@ -9,7 +9,7 @@ use crate::{
     payload::{
         entities::{
             Account, AddrSimple, Bank, BeneficialOwners, CodeDesc, EnterpriseCode, Identification,
-            Individual, IndividualLink, License, Occupation, Organization, OrganizationLink,
+            Individual, License, Occupation, Organization,
         },
         section2::Section2,
     },
