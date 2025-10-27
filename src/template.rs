@@ -9,19 +9,29 @@ use std::{
 const TEMPLATE_FILE: &str = "report_template.json";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(untagged)]
-pub enum CellAddressOrValue {
-    Address(CellAddress),
-    Value(String),
+pub struct Table {
+    pub sheet: String,
+    #[serde(rename = "dòng tiêu đề")]
+    pub header_row: u32,
+    #[serde(rename = "cột")]
+    pub columns: HashMap<String, String>,
 }
 
-pub fn load_template() -> anyhow::Result<HashMap<String, CellAddressOrValue>> {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum ExcelParam {
+    Address(CellAddress),
+    Value(String),
+    Table(Table),
+}
+
+pub fn load_template() -> anyhow::Result<HashMap<String, ExcelParam>> {
     let template = std::fs::read_to_string(TEMPLATE_FILE)?;
-    let parsed_result: HashMap<String, CellAddressOrValue> = serde_json::from_str(&template)?;
+    let parsed_result: HashMap<String, ExcelParam> = serde_json::from_str(&template)?;
     Ok(parsed_result)
 }
 
-pub static REPORT_TEMPLATE: LazyLock<HashMap<String, CellAddressOrValue>> =
+pub static REPORT_TEMPLATE: LazyLock<HashMap<String, ExcelParam>> =
     LazyLock::new(|| load_template().expect("Failed to load report template"));
 
 pub fn cell_value_from_key(
@@ -32,11 +42,30 @@ pub fn cell_value_from_key(
         .get(key)
         .expect(format!("Cell `{}` not found", key).as_str())
     {
-        CellAddressOrValue::Address(addr) => addr,
-        CellAddressOrValue::Value(val) => return Ok(val.clone()),
+        ExcelParam::Address(addr) => addr,
+        ExcelParam::Value(val) => return Ok(val.clone()),
+        ExcelParam::Table(_) => {
+            return Err(anyhow::anyhow!(
+                "Expected cell address for key `{}`, found table definition",
+                key
+            ));
+        }
     };
 
     let cell_value =
         crate::utils::excel::read_cell_value(workbook, &cell_addr.sheet, &cell_addr.cell)?;
     Ok(cell_value)
+}
+
+pub fn table_config_from_key(key: &str) -> anyhow::Result<Table> {
+    match REPORT_TEMPLATE
+        .get(key)
+        .expect(format!("Table `{}` not found", key).as_str())
+    {
+        ExcelParam::Table(table) => Ok(table.clone()),
+        _ => Err(anyhow::anyhow!(
+            "Expected table definition for key `{}`",
+            key
+        )),
+    }
 }
