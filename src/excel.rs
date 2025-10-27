@@ -45,30 +45,27 @@ impl GeneralInfo {
         RS: Seek + Read,
     {
         Ok(GeneralInfo {
-            report_date: Default::default(),
-            report_number: Default::default(),
+            report_date: report_date(workbook)?,
+            report_number: None,
             amendment_supplement: Default::default(),
-            reporting_entity_name: Default::default(),
-            reporting_entity_code: Default::default(),
-            report_form: Default::default(),
+            reporting_entity_name: None,
+            reporting_entity_code: None,
+            report_form: None,
         })
     }
 }
 
-fn report_date<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<String>
+fn report_date<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<String>>
 where
     RS: Seek + Read,
 {
     let sheet_name = "STR";
     let cell_name = "B3";
     let cell_value = read_cell_value(workbook, sheet_name, cell_name)?;
-    regex::Regex::new(r"(\d{2})-(\d{2})-(\d{4})")
-        .unwrap()
+    let date_value = regex::Regex::new(r"(\d{2})-(\d{2})-(\d{4})")?
         .captures(&cell_value)
-        .ok_or_else(|| {
-            anyhow::anyhow!("Invalid date format in cell {}: {}", cell_name, cell_value)
-        })?;
-    Ok(cell_value)
+        .map(|caps| format!("{}-{}-{}", &caps[1], &caps[0], &caps[2]));
+    Ok(date_value)
 }
 
 fn internal_number<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<String>
