@@ -62,7 +62,8 @@ where
     let sheet_name = "STR";
     let cell_name = "B3";
     let cell_value = read_cell_value(workbook, sheet_name, cell_name)?;
-    let date_value = regex::Regex::new(r"(\d{2})-(\d{2})-(\d{4})")?
+    println!("cell_value: {}", cell_value);
+    let date_value = regex::Regex::new(r"(?ms)(\d{2}).+(\d{2}).+(\d{4})")?
         .captures(&cell_value)
         .map(|caps| format!("{}-{}-{}", &caps[1], &caps[0], &caps[2]));
     Ok(date_value)
