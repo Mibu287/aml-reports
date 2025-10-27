@@ -15,6 +15,9 @@ use crate::{
         section1::Section1,
         section2::Section2,
         section3::Section3,
+        section4::Section4,
+        section5::Section5,
+        section6::Section6,
     },
     template::cell_value_from_key,
 };
@@ -44,9 +47,9 @@ impl Payload {
             section_1: Section1::from_excel(workbook)?,
             section_2: Section2::from_excel(workbook)?,
             section_3: Section3::from_excel(workbook)?,
-            section_4: Default::default(),
-            section_5: Default::default(),
-            section_6: Default::default(),
+            section_4: Section4::from_excel(workbook)?,
+            section_5: Section5::from_excel(workbook)?,
+            section_6: Section6::from_excel(workbook)?,
         })
     }
 }
