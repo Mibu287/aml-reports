@@ -1,4 +1,19 @@
 {
-  "Mã báo cáo nội bộ": ["STR", "G3"],
-  "Ngày báo cáo": ["STR", "B3"]
+    "Mã báo cáo nội bộ": ["STR", "G3"],
+    "Ngày báo cáo": ["STR", "B3"],
+    "Phần I: Tên điểm phát sinh giao dịch hoặc đơn vị quản lý tài khoản": ["STR", "F13"],
+    "Phần I: Địa chỉ điểm phát sinh giao dịch hoặc địa chỉ đơn vị quản lý tài khoản": ["STR", "F14"],
+    "Phần I: Phường/Xã": ["STR", "D15"],
+    "Phần I: Tỉnh/Thành phố": ["STR", "F15"],
+    "Phần I: Quốc gia": ["STR", "H15"],
+    "Phần I: Điện thoại": ["STR", "D16"],
+    "Phần I: Địa chỉ email của đơn vị": ["STR", "D17"],
+    "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Họ và tên": ["STR", "D20"],
+    "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Điện thoại nơi làm việc": ["STR", "D21"],
+    "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Điện thoại di động": ["STR", "F21"],
+    "Phần I: Thông tin về người chịu trách nhiệm về phòng, chống rửa tiền - Chức vụ": ["STR", "D22"],
+    "Phần I: Thông tin về người lập báo cáo - Họ và tên": ["STR", "D24"],
+    "Phần I: Thông tin về người lập báo cáo - Điện thoại nơi làm việc": ["STR", "D25"],
+    "Phần I: Thông tin về người lập báo cáo - Điện thoại di động": ["STR", "F25"],
+    "Phần I: Thông tin về người lập báo cáo - Bộ phận công tác": ["STR", "D26"]
 }

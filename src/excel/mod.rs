@@ -6,7 +6,7 @@ use crate::{
     payload::{
         self,
         form::{Form, Payload},
-        info::{Amendment, GeneralInfo},
+        info::{Amendment, GeneralInfo}, section1::Section1,
     },
     template::cell_value_from_key,
 };
@@ -33,7 +33,7 @@ impl Payload {
     {
         Ok(Payload {
             general_info: GeneralInfo::from_excel(workbook)?,
-            section_1: Default::default(),
+            section_1: Section1::from_excel(workbook)?,
             section_2: Default::default(),
             section_3: Default::default(),
             section_4: Default::default(),
