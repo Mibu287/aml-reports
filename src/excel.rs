@@ -1,8 +1,4 @@
-use calamine::Reader;
-use std::{
-    fs::read,
-    io::{Read, Seek},
-};
+use std::io::{Read, Seek};
 
 use crate::payload::{
     self,
