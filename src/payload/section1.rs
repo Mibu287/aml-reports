@@ -13,11 +13,11 @@ pub struct Section1 {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ReportingEntity {
     #[serde(rename = "ten_doi_tuong_bao_cao")]
-    pub name: String,
+    pub name: Option<String>,
     #[serde(rename = "ma_doi_tuong_bao_cao")]
-    pub code: String,
+    pub code: Option<String>,
     #[serde(rename = "dia_chi")]
-    pub address: Address,
+    pub address: Option<Address>,
     #[serde(rename = "dia_diem_phat_sinh")]
     pub transaction_location: TransactionLocation,
     pub email: String,
