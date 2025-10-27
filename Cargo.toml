@@ -10,6 +10,7 @@ path = "src/main.rs"
 [dependencies]
 Thirtyfour-chromedriver = "0.2.0"
 anyhow = "1.*.*"
+calamine = { version = "0.31.0", features = ["dates", "chrono"] }
 duration-extender = "0.5.0"
 indicatif = { version = "0.18.*", features = ["tokio"] }
 regex = "1.12.2"
