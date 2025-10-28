@@ -3,11 +3,13 @@ use std::{
     io::{Read, Seek},
 };
 
+use anyhow::Ok;
 use calamine::{DataType, Reader};
 
 use crate::{
-    payload::section4::{Clause, ReportType, Section4, SuspiciousIndicator},
-    template::{cell_value_from_key, mapping_from_key},
+    payload::section4::{Analysis, Clause, LegalBasis, ReportType, Section4, SuspiciousIndicator},
+    template::{cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key},
+    utils::excel::read_cell_value,
 };
 
 impl Section4 {
@@ -18,7 +20,7 @@ impl Section4 {
         Ok(Section4 {
             report_type: ReportType::from_excel(workbook)?.into(),
             transaction_info: None,
-            analysis: None,
+            analysis: Analysis::from_excel(workbook)?.into(),
             conclusions: None,
             detection_date: None,
         })
@@ -79,5 +81,54 @@ impl ReportType {
             clauses: reports.into(),
             suspicious_indicators: indicators.into(),
         })
+    }
+}
+
+impl Analysis {
+    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Ok(Analysis {
+            detail: None,
+            legal_bases: LegalBasis::from_excel(workbook)?.into(),
+        })
+    }
+}
+
+impl LegalBasis {
+    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Vec<Self>>
+    where
+        RS: Seek + Read,
+    {
+        let sheet_key = "Phần IV: Thông tin về giao dịch đáng ngờ";
+        let sheet_name = cell_value_from_key(sheet_key, workbook)?;
+
+        let legal_basis_key = "Phần IV: Cơ sở hợp lý để nghi ngờ";
+
+        let legal_basis = legal_basis_mapping_from_key(legal_basis_key)?
+            .into_iter()
+            .map(|(field, basis)| {
+                let notice_number = basis
+                    .document_number
+                    .and_then(|cell_name| read_cell_value(workbook, &sheet_name, &cell_name).ok())
+                    .map(|s| if s.is_empty() { None } else { Some(s) })
+                    .flatten();
+
+                let basis_text = basis
+                    .basis
+                    .and_then(|cell_name| read_cell_value(workbook, &sheet_name, &cell_name).ok())
+                    .map(|s| if s.is_empty() { None } else { Some(s) })
+                    .flatten();
+
+                LegalBasis {
+                    report_type: field.into(),
+                    notice_number: notice_number,
+                    basis: basis_text,
+                }
+            })
+            .collect::<Vec<_>>();
+
+        Ok(legal_basis)
     }
 }

@@ -18,11 +18,20 @@ pub struct Table {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LegalBasis {
+    #[serde(rename = "số văn bản")]
+    pub document_number: Option<String>,
+    #[serde(rename = "cơ sở")]
+    pub basis: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum ExcelParam {
     Address(CellAddress),
     Value(String),
     Table(Table),
+    LegalBasis(HashMap<String, LegalBasis>),
     Mapping(HashMap<String, String>),
 }
 
@@ -45,6 +54,12 @@ pub fn cell_value_from_key(
     {
         ExcelParam::Address(addr) => addr,
         ExcelParam::Value(val) => return Ok(val.clone()),
+        ExcelParam::LegalBasis(_) => {
+            return Err(anyhow::anyhow!(
+                "Expected cell address for key `{}`, found legal basis definition",
+                key
+            ));
+        }
         ExcelParam::Table(_) => {
             return Err(anyhow::anyhow!(
                 "Expected cell address for key `{}`, found table definition",
@@ -85,6 +100,19 @@ pub fn mapping_from_key(key: &str) -> anyhow::Result<HashMap<String, String>> {
         ExcelParam::Mapping(mapping) => Ok(mapping.clone()),
         _ => Err(anyhow::anyhow!(
             "Expected mapping definition for key `{}`",
+            key
+        )),
+    }
+}
+
+pub fn legal_basis_mapping_from_key(key: &str) -> anyhow::Result<HashMap<String, LegalBasis>> {
+    match REPORT_TEMPLATE
+        .get(key)
+        .expect(format!("Legal basis `{}` not found", key).as_str())
+    {
+        ExcelParam::LegalBasis(mapping) => Ok(mapping.clone()),
+        _ => Err(anyhow::anyhow!(
+            "Expected legal basis definition for key `{}`",
             key
         )),
     }
