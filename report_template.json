@@ -127,5 +127,6 @@
         }
     },
     "Phần II: Thông tin bổ sung": ["STR", "B31"],
-    "Phần V: Công việc xử lý": "STR"
+    "Phần V: Công việc xử lý": "STR",
+    "Dấu tick": "R"
 }

@@ -16,7 +16,9 @@ impl Section5 {
         RS: Seek + Read,
     {
         let sheet_name = cell_value_from_key("Phần V: Công việc xử lý", workbook)?;
+        let checked_box = cell_value_from_key("Dấu tick", workbook)?;
         let range = workbook.worksheet_range(&sheet_name)?;
+        
         let selection = range
             .rows()
             .into_iter()
@@ -29,7 +31,7 @@ impl Section5 {
                 let value = row
                     .get(1)
                     .map(|c| c.get_string().unwrap_or_default().trim().to_string())
-                    .map(|c| !c.is_empty())
+                    .map(|c| c == checked_box) // R is for checkedbox (font: Wingdings 2)
                     .unwrap_or_default();
 
                 (key, value)
