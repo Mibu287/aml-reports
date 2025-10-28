@@ -23,6 +23,7 @@ pub enum ExcelParam {
     Address(CellAddress),
     Value(String),
     Table(Table),
+    Mapping(HashMap<String, String>),
 }
 
 pub fn load_template() -> anyhow::Result<HashMap<String, ExcelParam>> {
@@ -50,6 +51,12 @@ pub fn cell_value_from_key(
                 key
             ));
         }
+        ExcelParam::Mapping(_) => {
+            return Err(anyhow::anyhow!(
+                "Expected cell address for key `{}`, found mapping definition",
+                key
+            ));
+        }
     };
 
     let cell_value =
@@ -65,6 +72,19 @@ pub fn table_config_from_key(key: &str) -> anyhow::Result<Table> {
         ExcelParam::Table(table) => Ok(table.clone()),
         _ => Err(anyhow::anyhow!(
             "Expected table definition for key `{}`",
+            key
+        )),
+    }
+}
+
+pub fn mapping_from_key(key: &str) -> anyhow::Result<HashMap<String, String>> {
+    match REPORT_TEMPLATE
+        .get(key)
+        .expect(format!("Mapping `{}` not found", key).as_str())
+    {
+        ExcelParam::Mapping(mapping) => Ok(mapping.clone()),
+        _ => Err(anyhow::anyhow!(
+            "Expected mapping definition for key `{}`",
             key
         )),
     }
