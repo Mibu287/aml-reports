@@ -9,7 +9,7 @@ use calamine::{DataType, Reader};
 use crate::{
     payload::section4::{Analysis, Clause, LegalBasis, ReportType, Section4, SuspiciousIndicator},
     template::{cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key},
-    utils::excel::read_cell_value,
+    utils::{datetime::ConvertDateFormat, excel::read_cell_value},
 };
 
 impl Section4 {
@@ -22,7 +22,12 @@ impl Section4 {
             transaction_info: None,
             analysis: Analysis::from_excel(workbook)?.into(),
             conclusions: None,
-            detection_date: None,
+            detection_date: cell_value_from_key(
+                "Phần IV: Ngày phát hiện giao dịch đáng ngờ",
+                workbook,
+            )
+            .ok()
+            .convert_date_vn_to_iso(),
         })
     }
 }

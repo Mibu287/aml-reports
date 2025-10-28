@@ -166,5 +166,6 @@
         "diem_c": { "số văn bản": null, "cơ sở": "B98" },
         "diem_d": { "số văn bản": null, "cơ sở": "B101" }
     },
+    "Phần IV: Ngày phát hiện giao dịch đáng ngờ": ["STR", "D135"],
     "Dấu tick": "R"
 }
