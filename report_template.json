@@ -128,5 +128,37 @@
     },
     "Phần II: Thông tin bổ sung": ["STR", "B31"],
     "Phần V: Công việc xử lý": "STR",
+    "Phần IV: Thông tin về giao dịch đáng ngờ": "STR",
+    "Phần IV: Loại báo cáo giao dịch đáng ngờ": {
+        "d26_k1_diem_a": "a. Báo cáo giao dịch đáng ngờ theo điểm a khoản 1 Điều 26 Luật Phòng, chống rửa tiền",
+        "d26_k1_diem_b": "b. Báo cáo giao dịch đáng ngờ theo điểm b khoản 1 Điều 26 Luật Phòng, chống rửa tiền: Đối tượng báo cáo có trách nhiệm báo cáo giao dịch đáng ngờ cho Ngân hàng Nhà nước Việt Nam khi có cơ sở hợp lý để nghi ngờ tài sản trong giao dịch liên quan đến rửa tiền được xác định từ việc xem xét, thu thập và phân tích thông tin khi khách hàng, giao dịch có một hoặc nhiều dấu hiệu đáng ngờ quy định tại các điều 27, 28, 29, 30, 31, 32 và 33 của Luật này và có thể từ các dấu hiệu khác do đối tượng báo cáo xác định.",
+        "diem_c": "c. Báo cáo giao dịch đáng ngờ về tài trợ khủng bố khi có căn cứ để nghi ngờ hoặc phát hiện các bên liên quan đến giao dịch thuộc Danh sách đen HOẶC có dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định",
+        "diem_d": "d. Báo cáo giao dịch đáng ngờ về tài trợ phổ biến vũ khí hủy diệt hàng loạt khi có căn cứ để nghi ngờ hoặc phát hiện các bên liên quan đến giao dịch thuộc Danh sách đen HOẶC có dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định"
+    },
+    "Phần IV: Dấu hiệu đáng ngờ": {
+        "d27_k1": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 1: Khách hàng từ chối cung cấp thông tin hoặc cung cấp thông tin nhận biết khách hàng không chính xác, không đầy đủ, không nhất quán.",
+        "d27_k2": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 2: Khách hàng thuyết phục đối tượng báo cáo không báo cáo giao dịch cho cơ quan nhà nước có thẩm quyền.",
+        "d27_k3": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 3: Không thể xác định được khách hàng theo thông tin khách hàng cung cấp hoặc giao dịch liên quan đến một bên không xác định được danh tính.",
+        "d27_k4": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 4: Số điện thoại do khách hàng cung cấp không thể liên lạc được hoặc không tồn tại số điện thoại này sau khi mở tài khoản hoặc thực hiện giao dịch.",
+        "d27_k5": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 5: Giao dịch được thực hiện theo lệnh hoặc theo ủy quyền của tổ chức, cá nhân có trong Danh sách cảnh báo.",
+        "d27_k6": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 6: Giao dịch mà qua thông tin nhận biết khách hàng hoặc qua xem xét về cơ sở kinh tế và pháp lý của giao dịch có thể xác định được mối liên hệ giữa các bên tham gia giao dịch với các hoạt động phạm tội hoặc có liên quan đến tổ chức, cá nhân có trong Danh sách cảnh báo.",
+        "d27_k7": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 7: Tổ chức, cá nhân tham gia giao dịch với số tiền lớn không phù hợp với hoạt động kinh doanh, thu nhập của tổ chức, cá nhân này.",
+        "d27_k8": "Dấu hiệu đáng ngờ theo Điều 27 - khoản 8: Khách hàng yêu cầu đối tượng báo cáo thực hiện giao dịch không đúng trình tự, thủ tục theo quy định của pháp luật.",
+        "d28_k1": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 1: Có sự thay đổi đột biến trong doanh số giao dịch trên tài khoản; tiền vào và rút ra nhanh khỏi tài khoản; doanh số giao dịch lớn trong ngày nhưng số dư tài khoản rất nhỏ hoặc bằng không.",
+        "d28_k2": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 2: Các giao dịch chuyển tiền có giá trị nhỏ từ nhiều tài khoản khác nhau về một tài khoản hoặc ngược lại trong một thời gian ngắn; tiền được chuyển qua nhiều tài khoản; các bên liên quan không quan tâm đến phí giao dịch; thực hiện nhiều giao dịch, mỗi giao dịch gần mức giá trị lớn phải báo cáo.",
+        "d28_k3": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 3: Sử dụng thư tín dụng và các phương thức tài trợ thương mại khác có giá trị lớn bất thường, tỷ lệ chiết khấu với giá trị cao so với bình thường.",
+        "d28_k4": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 4: Khách hàng mở nhiều tài khoản tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài ở khu vực địa lý khác nơi khách hàng cư trú, làm việc hoặc có hoạt động kinh doanh.",
+        "d28_k5": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 5: Tài khoản của khách hàng đột nhiên nhận được một khoản tiền gửi hoặc chuyển tiền có giá trị lớn bất thường.",
+        "d28_k6": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 6: Chuyển số tiền lớn từ tài khoản của doanh nghiệp ra nước ngoài sau khi nhận được nhiều khoản tiền nhỏ được chuyển vào bằng chuyển tiền điện tử, séc, hối phiếu.",
+        "d28_k7": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 7: Tổ chức kinh tế có vốn đầu tư nước ngoài chuyển tiền ra nước ngoài ngay sau khi nhận được vốn đầu tư hoặc chuyển tiền ra nước ngoài không phù hợp với hoạt động kinh doanh; nhà đầu tư nước ngoài chuyển tiền ra nước ngoài ngay sau khi nhận được tiền từ nước ngoài chuyển vào tài khoản mở tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hoạt động tại Việt Nam.",
+        "d28_k8": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 8: Khách hàng thường xuyên đổi tiền có mệnh giá nhỏ sang mệnh giá lớn.",
+        "d28_k9": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 9: Giao dịch gửi tiền, rút tiền hay chuyển tiền được thực hiện bởi tổ chức hoặc cá nhân liên quan đến tội phạm tạo ra tài sản bất hợp pháp đã được đăng tải trên phương tiện thông tin đại chúng.",
+        "d28_k10": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 10: Khách hàng yêu cầu vay số tiền tối đa được phép trên cơ sở bảo đảm bằng hợp đồng bảo hiểm nhân thọ đóng phí một lần ngay sau khi thanh toán phí bảo hiểm.",
+        "d28_k11": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 11: Thông tin về nguồn gốc tài sản sử dụng để tài trợ, đầu tư, cho vay hoặc ủy thác đầu tư của khách hàng không rõ ràng, minh bạch.",
+        "d28_k12": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 12: Thông tin về nguồn gốc tài sản bảo đảm của khách hàng đề nghị vay vốn không đầy đủ, không chính xác.",
+        "d28_k13": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 13: Có dấu hiệu nghi ngờ khách hàng sử dụng tài khoản cá nhân để thực hiện giao dịch liên quan đến hoạt động của tổ chức hoặc giao dịch thay cho đối tượng cá nhân khác.",
+        "d28_k14": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 14: Các giao dịch trực tuyến qua tài khoản liên tục thay đổi về thiết bị đăng nhập hoặc địa chỉ giao thức Internet (sau đây gọi là địa chỉ IP) ở nước ngoài.",
+        "khac": "Dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định"
+    },
     "Dấu tick": "R"
 }
