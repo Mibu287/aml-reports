@@ -79,43 +79,54 @@ where
     ))
 }
 
+fn get_cell_value(
+    col_name: &str,
+    col_map: &HashMap<String, String>,
+    base_coord: (u32, u32),
+    curr_row: &Vec<String>,
+) -> Option<String> {
+    let col_name = col_map
+        .get(col_name)
+        .expect(format!("{} column not found", col_name).as_str());
+
+    let col_idx = col_name_to_index(col_name, base_coord.into())
+        .expect(format!("Invalid column name {}", col_name).as_str());
+
+    let value = curr_row[col_idx as usize].trim();
+
+    if value.is_empty() {
+        None
+    } else {
+        Some(value.to_string())
+    }
+}
+
 impl Individual {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
     where
         RS: std::io::Seek + std::io::Read,
     {
+        let accounts = Account::from_excel(workbook)?;
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, "Phần II. KHCN")?;
 
-        let mut row_idx = 0;
-        let mut persons: Vec<Individual> = vec![];
-        while row_idx < rows.len() {
-            let curr_row = &rows[row_idx];
+        let persons = rows
+            .into_iter()
+            .map(|curr_row| {
+                let cell_value_func =
+                    |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-            let cell_value_func = |col_name: &str| -> Option<String> {
-                let col_name = col_map
-                    .get(col_name)
-                    .expect(format!("{} column not found", col_name).as_str());
+                let cif_value = cell_value_func("CIF").unwrap_or_default();
 
-                let col_idx = col_name_to_index(col_name, base_coord.into())
-                    .expect(format!("Invalid column name {}", col_name).as_str());
-
-                let value = curr_row[col_idx as usize].trim();
-
-                if value.is_empty() {
-                    None
-                } else {
-                    Some(value.to_string())
-                }
-            };
-
-            let cif_value = cell_value_func("CIF");
-
-            if !cif_value.is_none() {
-                persons.push(Individual {
-                    id: None,
-                    existing_customer: Some("1".to_string()),
+                Individual {
+                    id: cif_value.parse::<i64>().ok(),
+                    existing_customer: if cif_value.is_empty() {
+                        None
+                    } else {
+                        "1".to_string().into()
+                    },
                     full_name: cell_value_func("Tên khách hàng"),
-                    date_of_birth: cell_value_func("Ngày tháng năm sinh").convert_date_vn_to_iso(),
+                    date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")
+                        .convert_date_vn_to_iso(),
                     age: None,
                     gender: cell_value_func("Giới tính"),
                     nationality: cell_value_func("Quốc tịch"),
@@ -153,30 +164,12 @@ impl Individual {
                     phone_number: cell_value_func("Số điện thoại"),
                     education_level: None,
                     email: cell_value_func("Email"),
-                    accounts: Some(vec![]),
-                });
-            }
+                    accounts: accounts.get(&cif_value).cloned(),
+                }
+            })
+            .collect::<Vec<_>>();
 
-            let account = Account {
-                account_number: cell_value_func("Số tài khoản"),
-                bank: Some(Bank {
-                    bank_name: cell_value_func("Tên Ngân hàng"),
-                    bank_code: cell_value_func("Mã Ngân hàng"),
-                }),
-                currency_type: cell_value_func("Loại tiền"),
-                account_type: cell_value_func("Loại TK"),
-                open_date: cell_value_func("Ngày mở").convert_date_vn_to_iso(),
-                status: cell_value_func("Trạng thái"),
-                authorized_persons: None,
-            };
-
-            persons
-                .last_mut()
-                .map(|p| p.accounts.as_mut().map(|accounts| accounts.push(account)));
-            row_idx += 1;
-        }
-
-        Ok(Some(persons))
+        Ok(persons.into())
     }
 }
 
@@ -185,41 +178,26 @@ impl Organization {
     where
         RS: std::io::Seek + std::io::Read,
     {
+        let accounts = Account::from_excel(workbook)?;
+
         let sheet_key = "Phần II. KHTC";
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
 
-        let mut row_idx = 0;
-        let mut orgs: Vec<Organization> = vec![];
+        let orgs = rows
+            .into_iter()
+            .map(|curr_row| {
+                let cell_value_func =
+                    |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-        while row_idx < rows.len() {
-            let curr_row = &rows[row_idx];
+                let cif_value = cell_value_func("CIF").unwrap_or_default();
 
-            let cell_value_func = |col_name: &str| -> Option<String> {
-                let col_name = col_map
-                    .get(col_name)
-                    .expect(format!("{} column not found", col_name).as_str());
-
-                let col_idx = col_name_to_index(col_name, base_coord.into())
-                    .expect(format!("Invalid column name {}", col_name).as_str());
-
-                let value = curr_row[col_idx as usize].trim();
-
-                if value.is_empty() {
-                    None
-                } else {
-                    Some(value.to_string())
-                }
-            };
-
-            let cif_value = cell_value_func("CIF");
-
-            if !cif_value.is_none() {
-                orgs.push(Organization {
-                    id: cell_value_func("STT").map(|v| {
-                        v.parse::<i64>()
-                            .expect(format!("Column STT in sheet `{}` invalid", sheet_key).as_str())
-                    }),
-                    existing_customer: "1".to_string().into(),
+                Organization {
+                    id: cif_value.parse::<i64>().ok(),
+                    existing_customer: if cif_value.is_empty() {
+                        None
+                    } else {
+                        "1".to_string().into()
+                    },
                     name: cell_value_func("Tên khách hàng"),
                     foreign_name: None,
                     short_name: None,
@@ -237,46 +215,74 @@ impl Organization {
                     }
                     .into(),
                     establishment_license: License {
-                        license_number: cell_value_func("MS doanh nghiệp/MS thuế"),
-                        issue_date: cell_value_func("Ngày thành lập (dd/mm/yyyy)")
+                        license_number: cell_value_func("Giấy phép thành lập số"),
+                        issue_date: cell_value_func("Ngày cấp giấy phép (dd/mm/yyyy)")
                             .convert_date_vn_to_iso(),
-                        issue_place: cell_value_func("Quốc gia thành lập"),
+                        issue_place: cell_value_func("Nơi cấp giấy phép"),
                     }
                     .into(),
                     enterprise_code: EnterpriseCode {
                         code: cell_value_func("MS doanh nghiệp/MS thuế"),
-                        issue_date: cell_value_func("Ngày thành lập (dd/mm/yyyy)")
+                        issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")
                             .convert_date_vn_to_iso(),
-                        issue_place: cell_value_func("Quốc gia thành lập"),
+                        issue_place: cell_value_func("Quốc gia cấp MST"),
                     }
                     .into(),
                     business_sector: cell_value_func("Ngành nghề kinh doanh chính"),
                     phone_number: cell_value_func("Số điện thoại"),
-                    website: None,
-                    accounts: vec![].into(),
+                    website: cell_value_func("Địa chỉ trang thông tin điện tử của doanh nghiệp"),
+                    accounts: accounts.get(&cif_value).cloned().into(),
                     representatives: None,
-                });
-            }
-
-            let account = Account {
-                account_number: cell_value_func("Số tài khoản"),
-                bank: Some(Bank {
-                    bank_name: cell_value_func("Tên Ngân hàng"),
-                    bank_code: cell_value_func("Mã Ngân hàng"),
-                }),
-                currency_type: cell_value_func("Loại tiền"),
-                account_type: cell_value_func("Loại TK"),
-                open_date: cell_value_func("Ngày mở").convert_date_vn_to_iso(),
-                status: cell_value_func("Trạng thái"),
-                authorized_persons: None,
-            };
-
-            orgs.last_mut()
-                .map(|p| p.accounts.as_mut().map(|accounts| accounts.push(account)));
-            row_idx += 1;
-        }
+                }
+            })
+            .collect::<Vec<_>>();
 
         Ok(orgs.into())
+    }
+}
+
+impl Account {
+    fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+    ) -> anyhow::Result<HashMap<String, Vec<Self>>>
+    where
+        RS: std::io::Seek + std::io::Read,
+    {
+        let sheet_key = "Phần II. Tài khoản";
+        let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
+
+        let accounts = rows
+            .into_iter()
+            .map(|curr_row| {
+                let cell_value_func =
+                    |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
+
+                let cif_value = cell_value_func("CIF").unwrap_or_default();
+
+                let account = Account {
+                    account_number: cell_value_func("Số tài khoản"),
+                    bank: Some(Bank {
+                        bank_name: cell_value_func("Tên Ngân hàng"),
+                        bank_code: cell_value_func("Mã Ngân hàng"),
+                    }),
+                    currency_type: cell_value_func("Loại tiền"),
+                    account_type: cell_value_func("Loại TK"),
+                    open_date: cell_value_func("Ngày mở").convert_date_vn_to_iso(),
+                    status: cell_value_func("Trạng thái"),
+                    authorized_persons: None,
+                };
+
+                (cif_value, account)
+            })
+            .fold(
+                HashMap::<String, Vec<Account>>::new(),
+                |mut acc, (cif, account)| {
+                    acc.entry(cif).or_default().push(account);
+                    acc
+                },
+            );
+
+        Ok(accounts)
     }
 }
 
