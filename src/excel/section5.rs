@@ -18,7 +18,7 @@ impl Section5 {
         let sheet_name = cell_value_from_key("Phần V: Công việc xử lý", workbook)?;
         let checked_box = cell_value_from_key("Dấu tick", workbook)?;
         let range = workbook.worksheet_range(&sheet_name)?;
-        
+
         let selection = range
             .rows()
             .into_iter()
