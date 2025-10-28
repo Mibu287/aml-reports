@@ -115,7 +115,13 @@ impl Individual {
                     id: None,
                     existing_customer: Some("1".to_string()),
                     full_name: cell_value_func("Tên khách hàng"),
-                    date_of_birth: cell_value_func("Ngày tháng năm sinh"),
+                    date_of_birth: cell_value_func("Ngày tháng năm sinh")
+                        .map(|v| {
+                            chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                .ok()
+                                .map(|d| d.format("%Y-%m-%d").to_string())
+                        })
+                        .flatten(),
                     age: None,
                     gender: cell_value_func("Giới tính"),
                     nationality: cell_value_func("Quốc tịch"),
@@ -141,10 +147,28 @@ impl Individual {
                     }),
                     identifications: Some(vec![Identification {
                         id_type: cell_value_func("Loại định danh"),
-                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
-                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)"),
+                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")
+                            .map(|v| {
+                                chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                    .ok()
+                                    .map(|d| d.format("%Y-%m-%d").to_string())
+                            })
+                            .flatten(),
+                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
+                            .map(|v| {
+                                chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                    .ok()
+                                    .map(|d| d.format("%Y-%m-%d").to_string())
+                            })
+                            .flatten(),
                         issuing_authority: cell_value_func("Cơ quan cấp"),
-                        expiry_date: cell_value_func("Ngày hết hạn (dd/mm/yyyy)"),
+                        expiry_date: cell_value_func("Ngày hết hạn (dd/mm/yyyy)")
+                            .map(|v| {
+                                chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                    .ok()
+                                    .map(|d| d.format("%Y-%m-%d").to_string())
+                            })
+                            .flatten(),
                         place_of_issue: cell_value_func("Nơi cấp"),
                     }]),
                     phone_number: cell_value_func("Số điện thoại"),
@@ -162,7 +186,13 @@ impl Individual {
                 }),
                 currency_type: cell_value_func("Loại tiền"),
                 account_type: cell_value_func("Loại TK"),
-                open_date: cell_value_func("Ngày mở"),
+                open_date: cell_value_func("Ngày mở")
+                    .map(|v| {
+                        chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                            .ok()
+                            .map(|d| d.format("%Y-%m-%d").to_string())
+                    })
+                    .flatten(),
                 status: cell_value_func("Trạng thái"),
                 authorized_persons: None,
             };
@@ -235,13 +265,25 @@ impl Organization {
                     .into(),
                     establishment_license: License {
                         license_number: cell_value_func("MS doanh nghiệp/MS thuế"),
-                        issue_date: cell_value_func("Ngày thành lập (dd/mm/yyyy)"),
+                        issue_date: cell_value_func("Ngày thành lập (dd/mm/yyyy)")
+                            .map(|v| {
+                                chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                    .ok()
+                                    .map(|d| d.format("%Y-%m-%d").to_string())
+                            })
+                            .flatten(),
                         issue_place: cell_value_func("Quốc gia thành lập"),
                     }
                     .into(),
                     enterprise_code: EnterpriseCode {
                         code: cell_value_func("MS doanh nghiệp/MS thuế"),
-                        issue_date: cell_value_func("Ngày thành lập (dd/mm/yyyy)"),
+                        issue_date: cell_value_func("Ngày thành lập (dd/mm/yyyy)")
+                            .map(|v| {
+                                chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                    .ok()
+                                    .map(|d| d.format("%Y-%m-%d").to_string())
+                            })
+                            .flatten(),
                         issue_place: cell_value_func("Quốc gia thành lập"),
                     }
                     .into(),
@@ -261,7 +303,13 @@ impl Organization {
                 }),
                 currency_type: cell_value_func("Loại tiền"),
                 account_type: cell_value_func("Loại TK"),
-                open_date: cell_value_func("Ngày mở"),
+                open_date: cell_value_func("Ngày mở")
+                    .map(|v| {
+                        chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                            .ok()
+                            .map(|d| d.format("%Y-%m-%d").to_string())
+                    })
+                    .flatten(),
                 status: cell_value_func("Trạng thái"),
                 authorized_persons: None,
             };
@@ -307,7 +355,13 @@ impl BeneficialOwners {
                     id: None,
                     existing_customer: Some("1".to_string()),
                     full_name: cell_value_func("Tên khách hàng"),
-                    date_of_birth: cell_value_func("Ngày sinh"),
+                    date_of_birth: cell_value_func("Ngày sinh")
+                        .map(|v| {
+                            chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                .ok()
+                                .map(|d| d.format("%Y-%m-%d").to_string())
+                        })
+                        .flatten(),
                     age: None,
                     gender: None,
                     nationality: cell_value_func("Quốc tịch"),
@@ -334,7 +388,13 @@ impl BeneficialOwners {
                     identifications: Some(vec![Identification {
                         id_type: cell_value_func("Loại định danh"),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
-                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)"),
+                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
+                            .map(|v| {
+                                chrono::NaiveDate::parse_from_str(&v, "%d/%m/%Y")
+                                    .ok()
+                                    .map(|d| d.format("%Y-%m-%d").to_string())
+                            })
+                            .flatten(),
                         issuing_authority: cell_value_func("Cơ quan cấp"),
                         expiry_date: None,
                         place_of_issue: cell_value_func("Nơi cấp"),
