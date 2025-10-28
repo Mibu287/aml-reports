@@ -7,7 +7,9 @@ use anyhow::Ok;
 use calamine::{DataType, Reader};
 
 use crate::{
-    payload::section4::{Analysis, Clause, LegalBasis, ReportType, Section4, SuspiciousIndicator},
+    payload::section4::{
+        Analysis, Clause, ConclusionEntry, LegalBasis, ReportType, Section4, SuspiciousIndicator,
+    },
     template::{
         cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, value_list_from_key,
     },
@@ -23,7 +25,7 @@ impl Section4 {
             report_type: ReportType::from_excel(workbook)?.into(),
             transaction_info: None,
             analysis: Analysis::from_excel(workbook)?.into(),
-            conclusions: None,
+            conclusions: ConclusionEntry::from_excel(workbook)?.into(),
             detection_date: cell_value_from_key(
                 "Phần IV: Ngày phát hiện giao dịch đáng ngờ",
                 workbook,
@@ -153,5 +155,64 @@ impl LegalBasis {
             .collect::<Vec<_>>();
 
         Ok(legal_basis)
+    }
+}
+
+impl ConclusionEntry {
+    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Vec<Self>>
+    where
+        RS: Seek + Read,
+    {
+        let sheet_key = "Phần IV: Thông tin về giao dịch đáng ngờ";
+        let sheet_name = cell_value_from_key(sheet_key, workbook)?;
+
+        let checked_box = cell_value_from_key("Dấu tick", workbook)?;
+        let range = workbook.worksheet_range(&sheet_name)?;
+
+        let selection = range
+            .rows()
+            .into_iter()
+            .map(|row| {
+                let crime_code = row
+                    .get(0)
+                    .map(|c| c.get_string().unwrap_or_default().trim().to_string())
+                    .unwrap_or(Default::default());
+
+                let is_selected = row
+                    .get(1)
+                    .map(|c| c.get_string().unwrap_or_default().trim().to_string())
+                    .map(|c| c == checked_box)
+                    .unwrap_or_default();
+
+                let other_content = row
+                    .get(2)
+                    .map(|c| c.get_string().unwrap_or_default().trim().to_string())
+                    .unwrap_or(Default::default());
+
+                (crime_code, (is_selected, other_content))
+            })
+            .filter(|(crime_code, (is_selected, other_content))| {
+                !crime_code.is_empty() && (*is_selected || !other_content.is_empty())
+            })
+            .collect::<HashMap<_, _>>();
+
+        let conclusion_key =
+            "Phần IV: Nhận định về loại tội phạm có thể liên quan đến giao dịch đáng ngờ";
+
+        let conclusions = mapping_from_key(conclusion_key)?
+            .into_iter()
+            .filter(|(k, _)| selection.get(k).map(|(v, _)| v).copied().unwrap_or(false))
+            .map(|(crime_code, crime_desc)| {
+                let crime_desc_key = format!("{}_desc", crime_code);
+                let other_content = selection.get(&crime_desc_key).map(|(_, v)| v).cloned();
+                ConclusionEntry {
+                    crime_code: crime_code.into(),
+                    description: crime_desc.into(),
+                    other_content: other_content,
+                }
+            })
+            .collect::<Vec<_>>();
+
+        Ok(conclusions)
     }
 }
