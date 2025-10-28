@@ -31,7 +31,7 @@ impl Section5 {
                 let value = row
                     .get(1)
                     .map(|c| c.get_string().unwrap_or_default().trim().to_string())
-                    .map(|c| c == checked_box) // R is for checkedbox (font: Wingdings 2)
+                    .map(|c| c == checked_box)
                     .unwrap_or_default();
 
                 (key, value)
