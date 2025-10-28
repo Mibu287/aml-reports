@@ -160,6 +160,48 @@
         "d28_k14": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 14: Các giao dịch trực tuyến qua tài khoản liên tục thay đổi về thiết bị đăng nhập hoặc địa chỉ giao thức Internet (sau đây gọi là địa chỉ IP) ở nước ngoài.",
         "khac": "Dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định"
     },
+    "Phần IV. Ghi Có": {
+        "sheet": "Phần IV. Ghi Có",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "Tên KH": "A",
+            "CIF": "B",
+            "Số tài khoản": "C",
+            "Tên cá nhân/ tổ chức đối ứng": "D",
+            "Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân": "E",
+            "Số tài khoản áp dụng cho TH chuyển khoản": "F",
+            "Mã ngân hàng chuyển tiền": "G",
+            "Tên ngân hàng chuyển tiền": "H",
+            "Loại tiền": "I",
+            "Tổng số tiền nguyên tệ": "J",
+            "Tổng số tiền quy đổi (VND)": "K",
+            "Tổng số lượng giao dịch": "L",
+            "Giao dịch từ ngày": "M",
+            "Giao dịch đến ngày": "N",
+            "Tóm tắt nội dung giao dịch": "O"
+        }
+    },
+    "Phần IV. Ghi Nợ": {
+        "sheet": "Phần IV. Ghi Nợ",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "Tên KH": "A",
+            "CIF": "B",
+            "Số tài khoản": "C",
+            "Tên cá nhân/ tổ chức đối ứng": "D",
+            "Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân": "E",
+            "Số tài khoản áp dụng cho TH chuyển khoản": "F",
+            "Mã ngân hàng chuyển tiền": "G",
+            "Tên ngân hàng chuyển tiền": "H",
+            "Loại tiền": "I",
+            "Tổng số tiền nguyên tệ": "J",
+            "Tổng số tiền quy đổi (VND)": "K",
+            "Tổng số lượng giao dịch": "L",
+            "Giao dịch từ ngày": "M",
+            "Giao dịch đến ngày": "N",
+            "Tóm tắt nội dung giao dịch": "O"
+        }
+    },
     "Phần IV: Mô tả, phân tích chi tiết": ["B83", "B84", "B85", "B86", "B87"],
     "Phần IV: Cơ sở hợp lý để nghi ngờ": {
         "diem_a": { "số văn bản": "F90", "cơ sở": "B92" },
