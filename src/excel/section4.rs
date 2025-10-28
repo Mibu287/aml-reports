@@ -8,12 +8,17 @@ use calamine::{DataType, Reader};
 
 use crate::{
     payload::section4::{
-        Analysis, Clause, ConclusionEntry, LegalBasis, ReportType, Section4, SuspiciousIndicator,
+        Analysis, Clause, ConclusionEntry, FlowEntryIn, FlowEntryOut, LegalBasis, MoneyFlow,
+        ReportType, Section4, SuspiciousIndicator, TransactionInfo,
     },
     template::{
-        cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, value_list_from_key,
+        cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, table_config_from_key,
+        value_list_from_key,
     },
-    utils::{datetime::ConvertDateFormat, excel::read_cell_value},
+    utils::{
+        datetime::ConvertDateFormat,
+        excel::{col_name_to_index, read_cell_value},
+    },
 };
 
 impl Section4 {
@@ -23,7 +28,7 @@ impl Section4 {
     {
         Ok(Section4 {
             report_type: ReportType::from_excel(workbook)?.into(),
-            transaction_info: None,
+            transaction_info: TransactionInfo::from_excel(workbook)?.into(),
             analysis: Analysis::from_excel(workbook)?.into(),
             conclusions: ConclusionEntry::from_excel(workbook)?.into(),
             detection_date: cell_value_from_key(
@@ -214,5 +219,158 @@ impl ConclusionEntry {
             .collect::<Vec<_>>();
 
         Ok(conclusions)
+    }
+}
+
+impl TransactionInfo {
+    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Ok(Self {
+            status: None,
+            time_range: None,
+            amounts: None,
+            total_converted_amount: None,
+            money_flows: MoneyFlow::from_excel(workbook)?.into(),
+        })
+    }
+}
+
+fn get_cell_value(
+    col_name: &str,
+    col_map: &HashMap<String, String>,
+    base_coord: (u32, u32),
+    curr_row: &Vec<String>,
+) -> Option<String> {
+    let col_name = col_map
+        .get(col_name)
+        .expect(format!("{} column not found", col_name).as_str());
+
+    let col_idx = col_name_to_index(col_name, base_coord.into())
+        .expect(format!("Invalid column name {}", col_name).as_str());
+
+    let value = curr_row[col_idx as usize].trim();
+
+    if value.is_empty() {
+        None
+    } else {
+        Some(value.to_string())
+    }
+}
+
+fn read_table_from_sheet<RS>(
+    workbook: &mut calamine::Xlsx<RS>,
+    sheet_key: &str,
+) -> anyhow::Result<(Vec<Vec<String>>, HashMap<String, String>, (u32, u32))>
+where
+    RS: Seek + Read,
+{
+    let table_config = table_config_from_key(sheet_key)?;
+    let range = workbook.worksheet_range(&table_config.sheet)?;
+    let header_row_idx = table_config.header_row - range.start().unwrap_or_default().0 - 1;
+    let end_row_idx = {
+        let mut end_row_idx = 0;
+        for (row_idx, row_content) in range.rows().enumerate() {
+            if row_idx as u32 <= header_row_idx {
+                end_row_idx = row_idx;
+                continue;
+            }
+
+            if row_content.iter().all(|value| value.is_empty()) {
+                break;
+            }
+
+            end_row_idx = row_idx;
+        }
+        end_row_idx
+    };
+
+    let rows: Vec<Vec<String>> = range
+        .rows()
+        .enumerate()
+        .filter(|(row_idx, _)| {
+            row_idx.clone() as u32 > header_row_idx && row_idx.clone() <= end_row_idx
+        })
+        .map(|(_, row_content)| {
+            row_content
+                .iter()
+                .map(|v| v.as_string().unwrap_or_default())
+                .collect::<Vec<String>>()
+        })
+        .collect();
+
+    Ok((
+        rows,
+        table_config.columns,
+        range.start().unwrap_or_default(),
+    ))
+}
+
+impl MoneyFlow {
+    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Vec<Self>>
+    where
+        RS: Seek + Read,
+    {
+        let inflow_sheet_key = "Phần IV. Ghi Có";
+        let outflow_sheet_key = "Phần IV. Ghi Nợ";
+
+        let (inflow_rows, inflow_columns, inflow_base_coord) =
+            read_table_from_sheet(workbook, inflow_sheet_key)?;
+
+        inflow_rows.into_iter().map(|curr_row| {
+            let cell_value_func = |col_name: &str| {
+                get_cell_value(col_name, &inflow_columns, inflow_base_coord, &curr_row)
+            };
+
+            let cif = cell_value_func("CIF").unwrap_or_default();
+
+            let entry = FlowEntryIn {
+                source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
+                source_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
+                source_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
+                source_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
+                source_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
+                total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
+                total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
+                total_transactions: cell_value_func("Tổng số lượng giao dịch"),
+                tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
+                tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                currency: cell_value_func("Loại tiền"),
+                content: cell_value_func("Tóm tắt nội dung giao dịch"),
+            };
+
+            (cif, entry)
+        });
+
+        let (outflow_rows, outflow_columns, outflow_base_coord) =
+            read_table_from_sheet(workbook, outflow_sheet_key)?;
+
+        outflow_rows.into_iter().map(|curr_row| {
+            let cell_value_func = |col_name: &str| {
+                get_cell_value(col_name, &outflow_columns, outflow_base_coord, &curr_row)
+            };
+
+            let cif = cell_value_func("CIF").unwrap_or_default();
+
+            let entry = FlowEntryOut {
+                dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
+                dest_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
+                dest_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
+                dest_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
+                dest_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
+                total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
+                total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
+                total_transactions: cell_value_func("Tổng số lượng giao dịch"),
+                tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
+                tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                currency: cell_value_func("Loại tiền"),
+                content: cell_value_func("Tóm tắt nội dung giao dịch"),
+            };
+
+            (cif, entry)
+        });
+
+        Ok(vec![])
     }
 }
