@@ -123,7 +123,7 @@ pub struct FlowEntryIn {
     #[serde(rename = "tong_so_tien_quy_doi")]
     pub total_converted: Option<String>,
     #[serde(rename = "tong_so_giao_dich")]
-    pub total_transactions: Option<i64>,
+    pub total_transactions: Option<String>,
     #[serde(rename = "giao_dich_tu_ngay")]
     pub tx_from: Option<String>,
     #[serde(rename = "giao_dich_den_ngay")]
@@ -151,7 +151,7 @@ pub struct FlowEntryOut {
     #[serde(rename = "tong_so_tien_quy_doi")]
     pub total_converted: Option<String>,
     #[serde(rename = "tong_so_giao_dich")]
-    pub total_transactions: Option<i64>,
+    pub total_transactions: Option<String>,
     #[serde(rename = "giao_dich_tu_ngay")]
     pub tx_from: Option<String>,
     #[serde(rename = "giao_dich_den_ngay")]

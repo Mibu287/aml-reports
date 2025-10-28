@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     io::{Read, Seek},
 };
 
@@ -318,59 +318,153 @@ impl MoneyFlow {
         let (inflow_rows, inflow_columns, inflow_base_coord) =
             read_table_from_sheet(workbook, inflow_sheet_key)?;
 
-        inflow_rows.into_iter().map(|curr_row| {
-            let cell_value_func = |col_name: &str| {
-                get_cell_value(col_name, &inflow_columns, inflow_base_coord, &curr_row)
-            };
+        let mut inflow_entries = inflow_rows
+            .into_iter()
+            .map(|curr_row| {
+                let cell_value_func = |col_name: &str| {
+                    get_cell_value(col_name, &inflow_columns, inflow_base_coord, &curr_row)
+                };
 
-            let cif = cell_value_func("CIF").unwrap_or_default();
+                let cif = cell_value_func("CIF").unwrap_or_default();
 
-            let entry = FlowEntryIn {
-                source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
-                source_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
-                source_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
-                source_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
-                source_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
-                total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
-                total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
-                total_transactions: cell_value_func("Tổng số lượng giao dịch"),
-                tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
-                tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
-                currency: cell_value_func("Loại tiền"),
-                content: cell_value_func("Tóm tắt nội dung giao dịch"),
-            };
+                let entry = FlowEntryIn {
+                    source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
+                    source_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
+                    source_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
+                    source_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
+                    source_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
+                    total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
+                    total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
+                    total_transactions: cell_value_func("Tổng số lượng giao dịch"),
+                    tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
+                    tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                    currency: cell_value_func("Loại tiền"),
+                    content: cell_value_func("Tóm tắt nội dung giao dịch"),
+                };
 
-            (cif, entry)
-        });
+                (cif, entry)
+            })
+            .fold(
+                HashMap::<String, Vec<FlowEntryIn>>::new(),
+                |mut acc, (cif, entry)| {
+                    acc.entry(cif).or_insert_with(Vec::new).push(entry);
+                    acc
+                },
+            );
 
         let (outflow_rows, outflow_columns, outflow_base_coord) =
             read_table_from_sheet(workbook, outflow_sheet_key)?;
 
-        outflow_rows.into_iter().map(|curr_row| {
-            let cell_value_func = |col_name: &str| {
-                get_cell_value(col_name, &outflow_columns, outflow_base_coord, &curr_row)
-            };
+        let mut outflow_entries = outflow_rows
+            .into_iter()
+            .map(|curr_row| {
+                let cell_value_func = |col_name: &str| {
+                    get_cell_value(col_name, &outflow_columns, outflow_base_coord, &curr_row)
+                };
 
-            let cif = cell_value_func("CIF").unwrap_or_default();
+                let cif = cell_value_func("CIF").unwrap_or_default();
 
-            let entry = FlowEntryOut {
-                dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
-                dest_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
-                dest_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
-                dest_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
-                dest_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
-                total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
-                total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
-                total_transactions: cell_value_func("Tổng số lượng giao dịch"),
-                tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
-                tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
-                currency: cell_value_func("Loại tiền"),
-                content: cell_value_func("Tóm tắt nội dung giao dịch"),
-            };
+                let entry = FlowEntryOut {
+                    dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
+                    dest_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
+                    dest_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
+                    dest_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
+                    dest_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
+                    total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
+                    total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
+                    total_transactions: cell_value_func("Tổng số lượng giao dịch"),
+                    tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
+                    tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                    currency: cell_value_func("Loại tiền"),
+                    content: cell_value_func("Tóm tắt nội dung giao dịch"),
+                };
 
-            (cif, entry)
-        });
+                (cif, entry)
+            })
+            .fold(
+                HashMap::<String, Vec<FlowEntryOut>>::new(),
+                |mut acc, (cif, entry)| {
+                    acc.entry(cif).or_insert_with(Vec::new).push(entry);
+                    acc
+                },
+            );
 
-        Ok(vec![])
+        let unique_cifs = inflow_entries
+            .keys()
+            .chain(outflow_entries.keys())
+            .cloned()
+            .collect::<HashSet<_>>();
+
+        let cashflow_by_cifs = unique_cifs
+            .into_iter()
+            .map(|cif| {
+                let inflows = inflow_entries.remove(&cif).unwrap_or_default();
+                let outflows = outflow_entries.remove(&cif).unwrap_or_default();
+                (cif.clone(), (inflows, outflows))
+            })
+            .fold(HashMap::new(), |mut acc, (cif, (inflows, outflows))| {
+                acc.insert(cif, (inflows, outflows));
+                acc
+            });
+
+        let results = cashflow_by_cifs
+            .into_iter()
+            .map(|(cif, (inflows, outflows))| MoneyFlow {
+                id: cif.parse::<i64>().ok(),
+                subject_name: None,
+                identification: None,
+                account_number: None,
+                bank_name: None,
+                bank_code: None,
+                total_converted_in: inflows
+                    .iter()
+                    .fold(0_f64, |acc, entry| {
+                        acc + entry
+                            .total_converted
+                            .as_ref()
+                            .and_then(|s| s.replace(",", "").parse::<f64>().ok())
+                            .unwrap_or(0.0)
+                    })
+                    .to_string()
+                    .into(),
+                total_converted_out: outflows
+                    .iter()
+                    .fold(0_f64, |acc, entry| {
+                        acc + entry
+                            .total_converted
+                            .as_ref()
+                            .and_then(|s| s.replace(",", "").parse::<f64>().ok())
+                            .unwrap_or(0.0)
+                    })
+                    .to_string()
+                    .into(),
+                total_transactions_in: inflows
+                    .iter()
+                    .fold(0_i64, |acc, entry| {
+                        acc + entry
+                            .total_transactions
+                            .as_ref()
+                            .and_then(|s| s.replace(",", "").parse::<i64>().ok())
+                            .unwrap_or(0_i64)
+                    })
+                    .to_string()
+                    .into(),
+                total_transactions_out: outflows
+                    .iter()
+                    .fold(0_i64, |acc, entry| {
+                        acc + entry
+                            .total_transactions
+                            .as_ref()
+                            .and_then(|s| s.replace(",", "").parse::<i64>().ok())
+                            .unwrap_or(0_i64)
+                    })
+                    .to_string()
+                    .into(),
+                inflows: inflows.into(),
+                outflows: outflows.into(),
+            })
+            .collect::<Vec<_>>();
+
+        Ok(results)
     }
 }
