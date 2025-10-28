@@ -6,8 +6,6 @@ use std::{
     sync::LazyLock,
 };
 
-const TEMPLATE_FILE: &str = "report_template.json";
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Table {
     pub sheet: String,
@@ -37,8 +35,8 @@ pub enum ExcelParam {
 }
 
 pub fn load_template() -> anyhow::Result<HashMap<String, ExcelParam>> {
-    let template = std::fs::read_to_string(TEMPLATE_FILE)?;
-    let parsed_result: HashMap<String, ExcelParam> = serde_json::from_str(&template)?;
+    const TEMPLATE: &str = include_str!("report_template.json");
+    let parsed_result: HashMap<String, ExcelParam> = serde_json::from_str(TEMPLATE)?;
     Ok(parsed_result)
 }
 
