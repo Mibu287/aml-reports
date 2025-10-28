@@ -8,7 +8,9 @@ use calamine::{DataType, Reader};
 
 use crate::{
     payload::section4::{Analysis, Clause, LegalBasis, ReportType, Section4, SuspiciousIndicator},
-    template::{cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key},
+    template::{
+        cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, value_list_from_key,
+    },
     utils::{datetime::ConvertDateFormat, excel::read_cell_value},
 };
 
@@ -94,8 +96,24 @@ impl Analysis {
     where
         RS: Seek + Read,
     {
+        let sheet_key = "Phần IV: Thông tin về giao dịch đáng ngờ";
+        let sheet_name = cell_value_from_key(sheet_key, workbook)?;
+
+        let detail_key = "Phần IV: Mô tả, phân tích chi tiết";
+        let detail_analysis = value_list_from_key(detail_key)?
+            .into_iter()
+            .map(|cell_name| read_cell_value(workbook, &sheet_name, &cell_name).unwrap_or_default())
+            .filter(|v| !v.is_empty())
+            .fold(String::new(), |mut acc, s| {
+                if !acc.is_empty() {
+                    acc.push_str("\n");
+                }
+                acc.push_str(&s);
+                acc
+            });
+
         Ok(Analysis {
-            detail: None,
+            detail: detail_analysis.into(),
             legal_bases: LegalBasis::from_excel(workbook)?.into(),
         })
     }

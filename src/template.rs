@@ -33,6 +33,7 @@ pub enum ExcelParam {
     Table(Table),
     LegalBasis(HashMap<String, LegalBasis>),
     Mapping(HashMap<String, String>),
+    List(Vec<String>),
 }
 
 pub fn load_template() -> anyhow::Result<HashMap<String, ExcelParam>> {
@@ -69,6 +70,12 @@ pub fn cell_value_from_key(
         ExcelParam::Mapping(_) => {
             return Err(anyhow::anyhow!(
                 "Expected cell address for key `{}`, found mapping definition",
+                key
+            ));
+        }
+        ExcelParam::List(_) => {
+            return Err(anyhow::anyhow!(
+                "Expected cell address for key `{}`, found list definition",
                 key
             ));
         }
@@ -113,6 +120,19 @@ pub fn legal_basis_mapping_from_key(key: &str) -> anyhow::Result<HashMap<String,
         ExcelParam::LegalBasis(mapping) => Ok(mapping.clone()),
         _ => Err(anyhow::anyhow!(
             "Expected legal basis definition for key `{}`",
+            key
+        )),
+    }
+}
+
+pub fn value_list_from_key(key: &str) -> anyhow::Result<Vec<String>> {
+    match REPORT_TEMPLATE
+        .get(key)
+        .expect(format!("List `{}` not found", key).as_str())
+    {
+        ExcelParam::List(list) => Ok(list.clone()),
+        _ => Err(anyhow::anyhow!(
+            "Expected list definition for key `{}`",
             key
         )),
     }

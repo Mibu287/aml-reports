@@ -160,6 +160,7 @@
         "d28_k14": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 14: Các giao dịch trực tuyến qua tài khoản liên tục thay đổi về thiết bị đăng nhập hoặc địa chỉ giao thức Internet (sau đây gọi là địa chỉ IP) ở nước ngoài.",
         "khac": "Dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định"
     },
+    "Phần IV: Mô tả, phân tích chi tiết": ["B83", "B84", "B85", "B86", "B87"],
     "Phần IV: Cơ sở hợp lý để nghi ngờ": {
         "diem_a": { "số văn bản": "F90", "cơ sở": "B92" },
         "diem_b": { "số văn bản": null, "cơ sở": "B95" },
