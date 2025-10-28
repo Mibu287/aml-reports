@@ -9,7 +9,7 @@ use crate::{
     payload::{
         entities::{
             Account, AddrSimple, Bank, BeneficialOwners, CodeDesc, EnterpriseCode, Identification,
-            Individual, License, Occupation, Organization,
+            Individual, License, Occupation, Organization, Representative,
         },
         section2::Section2,
     },
@@ -20,7 +20,7 @@ use crate::{
 impl Section2 {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
     where
-        RS: std::io::Seek + std::io::Read,
+        RS: Seek + Read,
     {
         Ok(Self {
             individuals: Individual::from_excel(workbook)?,
@@ -104,7 +104,7 @@ fn get_cell_value(
 impl Individual {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
     where
-        RS: std::io::Seek + std::io::Read,
+        RS: Read + Seek,
     {
         let accounts = Account::from_excel(workbook)?;
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, "Phần II. KHCN")?;
@@ -176,9 +176,10 @@ impl Individual {
 impl Organization {
     fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
     where
-        RS: std::io::Seek + std::io::Read,
+        RS: Read + Seek,
     {
         let accounts = Account::from_excel(workbook)?;
+        let rep_persons = Representative::from_excel(workbook)?;
 
         let sheet_key = "Phần II. KHTC";
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
@@ -232,7 +233,7 @@ impl Organization {
                     phone_number: cell_value_func("Số điện thoại"),
                     website: cell_value_func("Địa chỉ trang thông tin điện tử của doanh nghiệp"),
                     accounts: accounts.get(&cif_value).cloned().into(),
-                    representatives: None,
+                    representatives: rep_persons.get(&cif_value).cloned().into(),
                 }
             })
             .collect::<Vec<_>>();
@@ -246,7 +247,7 @@ impl Account {
         workbook: &mut calamine::Xlsx<RS>,
     ) -> anyhow::Result<HashMap<String, Vec<Self>>>
     where
-        RS: std::io::Seek + std::io::Read,
+        RS: Read + Seek,
     {
         let sheet_key = "Phần II. Tài khoản";
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
@@ -286,62 +287,53 @@ impl Account {
     }
 }
 
-impl BeneficialOwners {
-    fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
+impl Representative {
+    fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+    ) -> anyhow::Result<HashMap<String, Vec<Self>>>
     where
-        RS: std::io::Seek + std::io::Read,
+        RS: Read + Seek,
     {
         let sheet_key = "Phần II. Người đại diện";
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
 
-        let beneficiaries = rows
-            .iter()
+        let representatives = rows
+            .into_iter()
             .map(|curr_row| {
-                let cell_value_func = |col_name: &str| -> Option<String> {
-                    let col_name = col_map
-                        .get(col_name)
-                        .expect(format!("{} column not found", col_name).as_str());
+                let cell_value_func =
+                    |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-                    let col_idx = col_name_to_index(col_name, base_coord.into())
-                        .expect(format!("Invalid column name {}", col_name).as_str());
+                let cif_value = cell_value_func("CIF").unwrap_or_default();
 
-                    let value = curr_row[col_idx as usize].trim();
-
-                    if value.is_empty() {
-                        None
-                    } else {
-                        Some(value.to_string())
-                    }
-                };
-
-                Individual {
-                    id: None,
-                    existing_customer: Some("1".to_string()),
-                    full_name: cell_value_func("Tên khách hàng"),
+                let rep = Representative {
+                    id: cif_value.parse::<i64>().ok(),
+                    full_name: cell_value_func("Họ và tên"),
                     date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
-                    age: None,
-                    gender: None,
-                    nationality: cell_value_func("Quốc tịch"),
-                    occupation: Some(Occupation {
+                    occupation: Occupation {
                         occupation_code: None,
                         description: cell_value_func("Nghề nghiệp"),
                         content: cell_value_func("Nếu Nghề nghiệp Khác"),
-                    }),
-                    position: None,
-                    permanent_address: Some(AddrSimple {
+                    }
+                    .into(),
+                    position: cell_value_func("Chức vụ/vị trí việc làm"),
+                    permanent_address: AddrSimple {
                         street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
                         city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
                         district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
                         country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)"),
                         phone: None,
-                    }),
-                    current_address: Some(AddrSimple {
+                    }
+                    .into(),
+                    current_address: AddrSimple {
                         street_address: cell_value_func("Nơi ở hiện tại (Số nhà)"),
                         city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
                         district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
                         country: cell_value_func("Nơi ở hiện tại (Quốc gia)"),
                         phone: None,
-                    }),
+                    }
+                    .into(),
+                    phone_number: cell_value_func("Điện thoại liên lạc"),
+                    nationality: cell_value_func("Quốc tịch"),
                     identifications: Some(vec![Identification {
                         id_type: cell_value_func("Loại định danh"),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
@@ -351,19 +343,27 @@ impl BeneficialOwners {
                         expiry_date: None,
                         place_of_issue: cell_value_func("Nơi cấp"),
                     }]),
-                    phone_number: None,
-                    education_level: None,
-                    email: None,
-                    accounts: None,
-                }
-            })
-            .collect::<Vec<_>>();
+                };
 
-        Ok(BeneficialOwners {
-            other_owners: beneficiaries.into(),
-            individual_links: None,
-            organization_links: None,
-        }
-        .into())
+                (cif_value, rep)
+            })
+            .fold(
+                HashMap::<String, Vec<Representative>>::new(),
+                |mut acc, (cif, rep)| {
+                    acc.entry(cif).or_default().push(rep);
+                    acc
+                },
+            );
+
+        Ok(representatives)
+    }
+}
+
+impl BeneficialOwners {
+    fn from_excel<RS>(_workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
+    where
+        RS: Seek + Read,
+    {
+        Ok(None)
     }
 }
