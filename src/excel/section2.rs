@@ -7,8 +7,8 @@ use calamine::{DataType, Reader};
 
 use crate::{
     codes::{
-        bank_account_status::BankAccountStatusCode,
-        bank_account_type::BankAccountTypeCode, country::CountryCode,
+        account_status::BankAccountStatusCode,
+        account_type::BankAccountTypeCode, country::CountryCode,
         gender::GenderCode, occupation::OccupationCode,
         personal_id::PersonalIdCode,
     },
