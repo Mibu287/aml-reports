@@ -1,10 +1,20 @@
 use aml::{auth::get_auth_code, launch::launch_web_automation_task, payload::form::Form};
 use duration_extender::DurationExt;
 use indicatif::ProgressStyle;
+use indicatif_log_bridge::LogWrapper;
 use std::io::{self, BufRead};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let multi_progress = {
+        let logger =
+            env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+                .build();
+        let multi_progress = indicatif::MultiProgress::new();
+        LogWrapper::new(multi_progress.clone(), logger).try_init()?;
+        multi_progress
+    };
+
     let port = 9515;
     let (_auth_key_name, auth_key_value) = launch_web_automation_task(get_auth_code, port).await?;
 
@@ -22,7 +32,8 @@ async fn main() -> anyhow::Result<()> {
 
     let api_url = "https://amlstr.sbv.gov.vn/strcreator/api/str-creator/saveStrModel?tabNo=0";
 
-    let progress_bar = indicatif::ProgressBar::new_spinner()
+    let progress_bar = multi_progress
+        .add(indicatif::ProgressBar::new_spinner())
         .with_message("Processing file...")
         .with_style(ProgressStyle::with_template(
             "[{elapsed_precise}] {bar:60.green/white} {pos:>7}/{len:7} {msg}",
@@ -43,30 +54,30 @@ async fn main() -> anyhow::Result<()> {
 
         let _resp = match status {
             Err(err) => {
-                progress_bar.println(format!(
+                log::error!(
                     "Error submitting form for file {:?}: {}",
                     excel_file.path(),
                     err
-                ));
+                );
                 continue;
             }
             Ok(r) => match r.status().is_success() {
                 false => {
-                    progress_bar.println(format!(
+                    log::error!(
                         "Failed to submit form for file {:?}: HTTP {}",
                         excel_file.path(),
                         r.status()
-                    ));
+                    );
                     continue;
                 }
                 true => r,
             },
         };
 
-        progress_bar.println(format!(
+        log::info!(
             "Successfully submitted form for file {:?}",
             excel_file.path()
-        ));
+        );
 
         tokio::time::sleep(500.milliseconds()).await;
         progress_bar.inc(1);
