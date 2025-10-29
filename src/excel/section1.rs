@@ -1,7 +1,7 @@
 use std::io::{Read, Seek};
 
 use crate::{
-    codes::country_codes::CountryCode,
+    codes::country::CountryCode,
     payload::section1::{
         Address, ReportPreparer, ReportingEntity, ResponsiblePerson, Section1, TransactionLocation,
     },

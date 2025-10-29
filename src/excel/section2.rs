@@ -7,10 +7,10 @@ use calamine::{DataType, Reader};
 
 use crate::{
     codes::{
-        bank_account_status_codes::BankAccountStatusCode,
-        bank_account_type_codes::BankAccountTypeCode, country_codes::CountryCode,
-        gender_codes::GenderCode, occupation_codes::OccupationCode,
-        personal_id_codes::PersonalIdCode,
+        bank_account_status::BankAccountStatusCode,
+        bank_account_type::BankAccountTypeCode, country::CountryCode,
+        gender::GenderCode, occupation::OccupationCode,
+        personal_id::PersonalIdCode,
     },
     payload::{
         entities::{
