@@ -9,7 +9,7 @@ use calamine::{DataType, Reader};
 use crate::{
     payload::section4::{
         Analysis, Clause, ConclusionEntry, FlowEntryIn, FlowEntryOut, LegalBasis, MoneyFlow,
-        ReportType, Section4, SuspiciousIndicator, TransactionInfo,
+        ReportType, Section4, SuspiciousIndicator, TimeRange, TransactionInfo,
     },
     template::{
         cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, table_config_from_key,
@@ -227,9 +227,33 @@ impl TransactionInfo {
     where
         RS: Seek + Read,
     {
+        let checked_box = cell_value_from_key("Dấu tick", workbook)?;
+        let status_value =
+            cell_value_from_key("Phần IV: Trạng thái của giao dịch đáng ngờ", workbook)?;
+        let status = match status_value == checked_box {
+            true => "1".to_string().into(),
+            false => None,
+        };
+
+        let from_date = cell_value_from_key(
+            "Phần IV: Thông tin về giao dịch đáng ngờ - Từ ngày",
+            workbook,
+        )?
+        .convert_date_vn_to_iso();
+
+        let to_date = cell_value_from_key(
+            "Phần IV: Thông tin về giao dịch đáng ngờ - Đến ngày",
+            workbook,
+        )?
+        .convert_date_vn_to_iso();
+
         Ok(Self {
-            status: None,
-            time_range: None,
+            status: status,
+            time_range: TimeRange {
+                from: from_date,
+                to: to_date,
+            }
+            .into(),
             amounts: None,
             total_converted_amount: None,
             money_flows: MoneyFlow::from_excel(workbook)?.into(),
@@ -318,7 +342,7 @@ impl MoneyFlow {
         let (inflow_rows, inflow_columns, inflow_base_coord) =
             read_table_from_sheet(workbook, inflow_sheet_key)?;
 
-        let mut inflow_entries = inflow_rows
+        let (inflow_cifs, mut inflow_entries) = inflow_rows
             .into_iter()
             .map(|curr_row| {
                 let cell_value_func = |col_name: &str| {
@@ -326,6 +350,9 @@ impl MoneyFlow {
                 };
 
                 let cif = cell_value_func("CIF").unwrap_or_default();
+                let cif_name = cell_value_func("Tên KH").unwrap_or_default();
+                let cif_id = cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân")
+                    .unwrap_or_default();
 
                 let entry = FlowEntryIn {
                     source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
@@ -342,20 +369,24 @@ impl MoneyFlow {
                     content: cell_value_func("Tóm tắt nội dung giao dịch"),
                 };
 
-                (cif, entry)
+                (cif, entry, (cif_name, cif_id))
             })
             .fold(
-                HashMap::<String, Vec<FlowEntryIn>>::new(),
-                |mut acc, (cif, entry)| {
-                    acc.entry(cif).or_insert_with(Vec::new).push(entry);
-                    acc
+                (
+                    HashMap::<String, (String, String)>::new(),
+                    HashMap::<String, Vec<FlowEntryIn>>::new(),
+                ),
+                |(mut cifs, mut flows), (cif, entry, (cif_name, cif_id))| {
+                    cifs.insert(cif.clone(), (cif_name, cif_id));
+                    flows.entry(cif).or_insert_with(Vec::new).push(entry);
+                    (cifs, flows)
                 },
             );
 
         let (outflow_rows, outflow_columns, outflow_base_coord) =
             read_table_from_sheet(workbook, outflow_sheet_key)?;
 
-        let mut outflow_entries = outflow_rows
+        let (outflow_cifs, mut outflow_entries) = outflow_rows
             .into_iter()
             .map(|curr_row| {
                 let cell_value_func = |col_name: &str| {
@@ -363,6 +394,9 @@ impl MoneyFlow {
                 };
 
                 let cif = cell_value_func("CIF").unwrap_or_default();
+                let cif_name = cell_value_func("Tên KH").unwrap_or_default();
+                let cif_id = cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân")
+                    .unwrap_or_default();
 
                 let entry = FlowEntryOut {
                     dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
@@ -379,13 +413,17 @@ impl MoneyFlow {
                     content: cell_value_func("Tóm tắt nội dung giao dịch"),
                 };
 
-                (cif, entry)
+                (cif, entry, (cif_name, cif_id))
             })
             .fold(
-                HashMap::<String, Vec<FlowEntryOut>>::new(),
-                |mut acc, (cif, entry)| {
-                    acc.entry(cif).or_insert_with(Vec::new).push(entry);
-                    acc
+                (
+                    HashMap::<String, (String, String)>::new(),
+                    HashMap::<String, Vec<FlowEntryOut>>::new(),
+                ),
+                |(mut cifs, mut flows), (cif, entry, (cif_name, cif_id))| {
+                    cifs.insert(cif.clone(), (cif_name, cif_id));
+                    flows.entry(cif).or_insert_with(Vec::new).push(entry);
+                    (cifs, flows)
                 },
             );
 
@@ -394,6 +432,11 @@ impl MoneyFlow {
             .chain(outflow_entries.keys())
             .cloned()
             .collect::<HashSet<_>>();
+
+        let cif_infos = inflow_cifs
+            .into_iter()
+            .chain(outflow_cifs.into_iter())
+            .collect::<HashMap<_, _>>();
 
         let cashflow_by_cifs = unique_cifs
             .into_iter()
@@ -411,8 +454,8 @@ impl MoneyFlow {
             .into_iter()
             .map(|(cif, (inflows, outflows))| MoneyFlow {
                 id: cif.parse::<i64>().ok(),
-                subject_name: None,
-                identification: None,
+                subject_name: cif_infos.get(&cif).map(|(name, _)| name.clone()),
+                identification: cif_infos.get(&cif).map(|(_, id)| id.clone()),
                 account_number: None,
                 bank_name: None,
                 bank_code: None,
