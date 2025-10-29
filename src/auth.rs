@@ -40,10 +40,6 @@ pub async fn get_auth_code(
 
             for cookie in &cookies {
                 if cookie.name == "KC_RESTART" {
-                    println!(
-                        "Found auth restart cookie: {}: {}",
-                        cookie.name, cookie.value
-                    );
                     return Ok(());
                 }
             }
