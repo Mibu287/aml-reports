@@ -1,17 +1,29 @@
 [package]
-name = "anti-money-laundering"
+name = "aml"
 version = "0.1.0"
 edition = "2024"
 
 [[bin]]
 name = "aml-reports"
-path = "src/main.rs"
+path = "src/bin/main.rs"
+
+[[bin]]
+name = "read-excel"
+path = "src/bin/read_excel.rs"
 
 [dependencies]
+Thirtyfour-chromedriver = "0.2.0"
 anyhow = "1.*.*"
-indicatif = { version = "0.18.*", features = ["tokio"] }
+calamine = { version = "0.31.0", features = ["dates", "chrono"] }
+chrono = "0.4.42"
+duration-extender = "0.5.0"
+indicatif = { version = "0.18", features = ["tokio"] }
+regex = "1.12.2"
 reqwest = "0.12.*"
+scopeguard = "1.2.0"
 serde = { version = "1.*.*", features = ["serde_derive", "derive"] }
+serde_json = "1.0.145"
+thirtyfour = "0.35.*"
 tokio = { version = "1.48.*", features = ["full", "macros", "rt"] }
 
 [profile.release]
