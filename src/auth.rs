@@ -82,11 +82,5 @@ pub async fn get_auth_code(
     })
     .await??;
 
-    println!(
-        "Found auth local storage item: {}: {}",
-        auth_key, auth_value
-    );
-
-    // tokio::time::sleep(1.hours()).await;
     Ok((driver, (auth_key, auth_value)))
 }
