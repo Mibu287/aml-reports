@@ -6,6 +6,7 @@ use std::{
 use calamine::{DataType, Reader};
 
 use crate::{
+    excel::occupation_codes::OccupationCode,
     payload::{
         entities::{
             Account, AddrSimple, Bank, BeneficialOwners, CodeDesc, EnterpriseCode, Identification,
@@ -130,11 +131,13 @@ impl Individual {
                     age: None,
                     gender: cell_value_func("Giới tính"),
                     nationality: cell_value_func("Quốc tịch"),
-                    occupation: Some(Occupation {
-                        occupation_code: None,
+                    occupation: Occupation {
+                        occupation_code: cell_value_func("Nghề nghiệp")
+                            .map(|v| v.to_occupation_code_owned()),
                         description: cell_value_func("Nghề nghiệp"),
                         content: cell_value_func("Nếu Nghề nghiệp Khác"),
-                    }),
+                    }
+                    .into(),
                     position: None,
                     permanent_address: Some(AddrSimple {
                         street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
@@ -310,7 +313,8 @@ impl Representative {
                     full_name: cell_value_func("Họ và tên"),
                     date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
                     occupation: Occupation {
-                        occupation_code: None,
+                        occupation_code: cell_value_func("Nghề nghiệp")
+                            .map(|v| v.to_occupation_code_owned()),
                         description: cell_value_func("Nghề nghiệp"),
                         content: cell_value_func("Nếu Nghề nghiệp Khác"),
                     }
