@@ -6,7 +6,7 @@ use std::{
 use calamine::{DataType, Reader};
 
 use crate::{
-    excel::{
+    codes::{
         bank_account_status_codes::BankAccountStatusCode,
         bank_account_type_codes::BankAccountTypeCode, country_codes::CountryCode,
         gender_codes::GenderCode, occupation_codes::OccupationCode,
