@@ -7,9 +7,13 @@ async fn main() -> anyhow::Result<()> {
 
     let excel_files = std::fs::read_dir("input")?
         .filter_map(|entry| entry.ok())
+        .filter(|entry| entry.path().extension().and_then(|s| s.to_str()) == Some("xlsx"))
         .filter(|entry| {
-            entry.path().extension().and_then(|s| s.to_str()) == Some("xlsx")
-                && !entry.file_name().to_str().unwrap_or("").starts_with("~$")
+            !entry
+                .file_name()
+                .to_str()
+                .unwrap_or_default()
+                .starts_with("~$")
         })
         .collect::<Vec<_>>();
 
