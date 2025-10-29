@@ -6,7 +6,7 @@ use std::{
 use calamine::{DataType, Reader};
 
 use crate::{
-    excel::occupation_codes::OccupationCode,
+    excel::{occupation_codes::OccupationCode, personal_id_codes::PersonalIdCode},
     payload::{
         entities::{
             Account, AddrSimple, Bank, BeneficialOwners, CodeDesc, EnterpriseCode, Identification,
@@ -154,7 +154,8 @@ impl Individual {
                         phone: None,
                     }),
                     identifications: Some(vec![Identification {
-                        id_type: cell_value_func("Loại định danh"),
+                        id_type: cell_value_func("Loại định danh")
+                            .map(|v| v.to_personal_id_code_owned()),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")
                             .convert_date_vn_to_iso(),
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
@@ -339,7 +340,8 @@ impl Representative {
                     phone_number: cell_value_func("Điện thoại liên lạc"),
                     nationality: cell_value_func("Quốc tịch"),
                     identifications: Some(vec![Identification {
-                        id_type: cell_value_func("Loại định danh"),
+                        id_type: cell_value_func("Loại định danh")
+                            .map(|v| v.to_personal_id_code_owned()),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
                             .convert_date_vn_to_iso(),
