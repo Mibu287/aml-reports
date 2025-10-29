@@ -1,3 +1,6 @@
+mod country_codes;
+mod occupation_codes;
+
 mod section1;
 mod section2;
 mod section3;
