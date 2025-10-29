@@ -1,6 +1,7 @@
 use aml::{auth::get_auth_code, launch::launch_web_automation_task, payload::form::Form};
 use duration_extender::DurationExt;
 use indicatif::ProgressStyle;
+use std::io::{self, BufRead};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -76,6 +77,10 @@ async fn main() -> anyhow::Result<()> {
     }
 
     progress_bar.finish_with_message("DONE!!!");
+
+    println!("Press Enter to exit...");
+    let stdin = io::stdin();
+    let _ = stdin.lock().lines().next();
 
     Ok(())
 }
