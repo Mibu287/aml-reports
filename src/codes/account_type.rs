@@ -1,4 +1,4 @@
-const BANK_ACCOUNT_TYPE_CODES: [(&str, &str); 9] = [
+const ACCOUNT_TYPE_CODES: [(&str, &str); 9] = [
     ("CURRE", "TK thanh toán"),
     ("SAVIN", "TK tiết kiệm"),
     ("TERMD", "Tiền gửi có kỳ hạn"),
@@ -10,13 +10,13 @@ const BANK_ACCOUNT_TYPE_CODES: [(&str, &str); 9] = [
     ("CHECK", "TK séc"),
 ];
 
-pub trait BankAccountTypeCode {
+pub trait AccountTypeCode {
     fn to_account_type_code(&self) -> String;
 }
 
-impl BankAccountTypeCode for String {
+impl AccountTypeCode for String {
     fn to_account_type_code(&self) -> String {
-        let account_type_code = BANK_ACCOUNT_TYPE_CODES
+        let account_type_code = ACCOUNT_TYPE_CODES
             .into_iter()
             .find_map(|(type_code, type_name)| {
                 if type_name.eq_ignore_ascii_case(self) {
@@ -28,5 +28,14 @@ impl BankAccountTypeCode for String {
             .unwrap_or_default();
 
         account_type_code
+    }
+}
+
+impl AccountTypeCode for Option<String> {
+    fn to_account_type_code(&self) -> String {
+        match self {
+            Some(value) => value.to_account_type_code(),
+            None => String::new(),
+        }
     }
 }

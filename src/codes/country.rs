@@ -274,3 +274,12 @@ impl CountryCode for String {
         country_code
     }
 }
+
+impl CountryCode for Option<String> {
+    fn to_country_code(&self) -> String {
+        match self {
+            Some(country_name) => country_name.to_country_code(),
+            None => String::new(),
+        }
+    }
+}

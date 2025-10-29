@@ -1,4 +1,4 @@
-const BANK_ACCOUNT_STATUS_CODES: [(&str, &str); 5] = [
+const ACCOUNT_STATUS_CODES: [(&str, &str); 5] = [
     ("ACTIV", "Đang hoạt động"),
     ("CLOSE", "Đã đóng"),
     ("BLOCK", "Bị phong tỏa"),
@@ -6,13 +6,13 @@ const BANK_ACCOUNT_STATUS_CODES: [(&str, &str); 5] = [
     ("HOLDS", "Đang treo"),
 ];
 
-pub trait BankAccountStatusCode {
+pub trait AccountStatusCode {
     fn to_account_status_code(&self) -> String;
 }
 
-impl BankAccountStatusCode for String {
+impl AccountStatusCode for String {
     fn to_account_status_code(&self) -> String {
-        let status_code = BANK_ACCOUNT_STATUS_CODES
+        let status_code = ACCOUNT_STATUS_CODES
             .into_iter()
             .find_map(|(status_code, status_name)| {
                 if status_name.eq_ignore_ascii_case(self) {
@@ -27,7 +27,7 @@ impl BankAccountStatusCode for String {
     }
 }
 
-impl BankAccountStatusCode for Option<String> {
+impl AccountStatusCode for Option<String> {
     fn to_account_status_code(&self) -> String {
         match self {
             Some(status) => status.to_account_status_code(),
