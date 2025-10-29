@@ -160,6 +160,9 @@
         "d28_k14": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 14: Các giao dịch trực tuyến qua tài khoản liên tục thay đổi về thiết bị đăng nhập hoặc địa chỉ giao thức Internet (sau đây gọi là địa chỉ IP) ở nước ngoài.",
         "khac": "Dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định"
     },
+    "Phần IV: Trạng thái của giao dịch đáng ngờ": ["STR", "B67"],
+    "Phần IV: Thông tin về giao dịch đáng ngờ - Từ ngày": ["STR", "D70"],
+    "Phần IV: Thông tin về giao dịch đáng ngờ - Đến ngày": ["STR", "F70"],
     "Phần IV. Ghi Có": {
         "sheet": "Phần IV. Ghi Có",
         "dòng tiêu đề": 1,
