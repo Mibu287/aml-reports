@@ -365,7 +365,8 @@ impl MoneyFlow {
                     total_transactions: cell_value_func("Tổng số lượng giao dịch"),
                     tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
                     tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
-                    currency: cell_value_func("Loại tiền"),
+                    currency: cell_value_func("Loại tiền")
+                        .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
                     content: cell_value_func("Tóm tắt nội dung giao dịch"),
                 };
 
@@ -409,7 +410,8 @@ impl MoneyFlow {
                     total_transactions: cell_value_func("Tổng số lượng giao dịch"),
                     tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
                     tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
-                    currency: cell_value_func("Loại tiền"),
+                    currency: cell_value_func("Loại tiền")
+                        .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
                     content: cell_value_func("Tóm tắt nội dung giao dịch"),
                 };
 
