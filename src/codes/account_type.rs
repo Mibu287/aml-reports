@@ -11,27 +11,22 @@ const BANK_ACCOUNT_TYPE_CODES: [(&str, &str); 9] = [
 ];
 
 pub trait BankAccountTypeCode {
-    fn to_bank_account_type_code(&self) -> Option<&'static str>;
-    fn to_bank_account_type_code_owned(&self) -> String {
-        self.to_bank_account_type_code()
-            .unwrap_or_default()
-            .to_string()
-    }
+    fn to_account_type_code(&self) -> String;
 }
 
 impl BankAccountTypeCode for String {
-    fn to_bank_account_type_code(&self) -> Option<&'static str> {
-        let bank_account_type_code =
-            BANK_ACCOUNT_TYPE_CODES
-                .into_iter()
-                .find_map(|(type_code, type_name)| {
-                    if type_name.eq_ignore_ascii_case(self) {
-                        Some(type_code)
-                    } else {
-                        None
-                    }
-                });
+    fn to_account_type_code(&self) -> String {
+        let account_type_code = BANK_ACCOUNT_TYPE_CODES
+            .into_iter()
+            .find_map(|(type_code, type_name)| {
+                if type_name.eq_ignore_ascii_case(self) {
+                    Some(type_code.to_string())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default();
 
-        bank_account_type_code
+        account_type_code
     }
 }

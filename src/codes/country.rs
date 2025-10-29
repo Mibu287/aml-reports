@@ -255,23 +255,21 @@ const COUNTRY_CODES: [(&str, &str); 253] = [
 ];
 
 pub trait CountryCode {
-    fn to_country_code(&self) -> Option<&'static str>;
-    fn to_country_code_owned(&self) -> String {
-        self.to_country_code().unwrap_or_default().to_string()
-    }
+    fn to_country_code(&self) -> String;
 }
 
 impl CountryCode for String {
-    fn to_country_code(&self) -> Option<&'static str> {
+    fn to_country_code(&self) -> String {
         let country_code = COUNTRY_CODES
             .into_iter()
             .find_map(|(country_code, country_name)| {
                 if country_name.eq_ignore_ascii_case(self) {
-                    Some(country_code)
+                    Some(country_code.to_string())
                 } else {
                     None
                 }
-            });
+            })
+            .unwrap_or_default();
 
         country_code
     }

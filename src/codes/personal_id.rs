@@ -13,22 +13,31 @@ const PERSONAL_ID_CODES: [(&'static str, &'static str); 11] = [
 ];
 
 pub trait PersonalIdCode {
-    fn to_personal_id_code(&self) -> Option<&'static str>;
-    fn to_personal_id_code_owned(&self) -> String {
-        self.to_personal_id_code().unwrap_or_default().to_string()
-    }
+    fn to_personal_id_code(&self) -> String;
 }
 
 impl PersonalIdCode for String {
-    fn to_personal_id_code(&self) -> Option<&'static str> {
-        let personal_id_code = PERSONAL_ID_CODES.into_iter().find_map(|(code, id_type)| {
-            if id_type.eq_ignore_ascii_case(self) {
-                Some(code)
-            } else {
-                None
-            }
-        });
+    fn to_personal_id_code(&self) -> String {
+        let personal_id_code = PERSONAL_ID_CODES
+            .into_iter()
+            .find_map(|(code, id_type)| {
+                if id_type.eq_ignore_ascii_case(self) {
+                    Some(code.to_string())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default();
 
         personal_id_code
+    }
+}
+
+impl PersonalIdCode for Option<String> {
+    fn to_personal_id_code(&self) -> String {
+        match self {
+            Some(id_type) => id_type.to_personal_id_code(),
+            None => Default::default(),
+        }
     }
 }

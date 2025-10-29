@@ -7,9 +7,8 @@ use calamine::{DataType, Reader};
 
 use crate::{
     codes::{
-        account_status::BankAccountStatusCode,
-        account_type::BankAccountTypeCode, country::CountryCode,
-        gender::GenderCode, occupation::OccupationCode,
+        account_status::BankAccountStatusCode, account_type::BankAccountTypeCode,
+        country::CountryCode, gender::GenderCode, occupation::OccupationCode,
         personal_id::PersonalIdCode,
     },
     payload::{
@@ -134,11 +133,11 @@ impl Individual {
                     date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")
                         .convert_date_vn_to_iso(),
                     age: None,
-                    gender: cell_value_func("Giới tính").map(|v| v.to_gender_code_owned()),
+                    gender: cell_value_func("Giới tính").map(|v| v.to_gender_code()),
                     nationality: cell_value_func("Quốc tịch"),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")
-                            .map(|v| v.to_occupation_code_owned()),
+                            .map(|v| v.to_occupation_code()),
                         description: cell_value_func("Nghề nghiệp"),
                         content: cell_value_func("Nếu Nghề nghiệp Khác"),
                     }
@@ -149,7 +148,7 @@ impl Individual {
                         city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
                         district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
                         country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")
-                            .map(|v| v.to_country_code_owned()),
+                            .map(|v| v.to_country_code()),
                         phone: None,
                     }),
                     current_address: Some(AddrSimple {
@@ -157,12 +156,11 @@ impl Individual {
                         city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
                         district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
                         country: cell_value_func("Nơi ở hiện tại (Quốc gia)")
-                            .map(|v| v.to_country_code_owned()),
+                            .map(|v| v.to_country_code()),
                         phone: None,
                     }),
                     identifications: Some(vec![Identification {
-                        id_type: cell_value_func("Loại định danh")
-                            .map(|v| v.to_personal_id_code_owned()),
+                        id_type: cell_value_func("Loại định danh").map(|v| v.to_personal_id_code()),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
                             .convert_date_vn_to_iso(),
@@ -221,7 +219,7 @@ impl Organization {
                         street_address: cell_value_func("Số nhà"),
                         district: cell_value_func("Phường/Xã"),
                         city_province: cell_value_func("Tỉnh/TP"),
-                        country: cell_value_func("Quốc gia").map(|v| v.to_country_code_owned()),
+                        country: cell_value_func("Quốc gia").map(|v| v.to_country_code()),
                         phone: cell_value_func("Số điện thoại"),
                     }
                     .into(),
@@ -279,11 +277,9 @@ impl Account {
                     }),
                     currency_type: cell_value_func("Loại tiền")
                         .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
-                    account_type: cell_value_func("Loại TK")
-                        .map(|v| v.to_bank_account_type_code_owned()),
+                    account_type: cell_value_func("Loại TK").map(|v| v.to_account_type_code()),
                     open_date: cell_value_func("Ngày mở").convert_date_vn_to_iso(),
-                    status: cell_value_func("Trạng thái")
-                        .map(|v| v.to_bank_account_status_code_owned()),
+                    status: cell_value_func("Trạng thái").map(|v| v.to_account_status_code()),
                     authorized_persons: None,
                 };
 
@@ -325,7 +321,7 @@ impl Representative {
                     date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")
-                            .map(|v| v.to_occupation_code_owned()),
+                            .map(|v| v.to_occupation_code()),
                         description: cell_value_func("Nghề nghiệp"),
                         content: cell_value_func("Nếu Nghề nghiệp Khác"),
                     }
@@ -336,7 +332,7 @@ impl Representative {
                         city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
                         district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
                         country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")
-                            .map(|v| v.to_country_code_owned()),
+                            .map(|v| v.to_country_code()),
                         phone: None,
                     }
                     .into(),
@@ -345,15 +341,14 @@ impl Representative {
                         city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
                         district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
                         country: cell_value_func("Nơi ở hiện tại (Quốc gia)")
-                            .map(|v| v.to_country_code_owned()),
+                            .map(|v| v.to_country_code()),
                         phone: None,
                     }
                     .into(),
                     phone_number: cell_value_func("Điện thoại liên lạc"),
-                    nationality: cell_value_func("Quốc tịch").map(|v| v.to_country_code_owned()),
+                    nationality: cell_value_func("Quốc tịch").map(|v| v.to_country_code()),
                     identifications: Some(vec![Identification {
-                        id_type: cell_value_func("Loại định danh")
-                            .map(|v| v.to_personal_id_code_owned()),
+                        id_type: cell_value_func("Loại định danh").map(|v| v.to_personal_id_code()),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
                             .convert_date_vn_to_iso(),

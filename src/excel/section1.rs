@@ -52,7 +52,7 @@ impl ReportingEntity {
                     "Phần I.1: Thông tin đối tượng báo cáo - Quốc gia",
                     workbook,
                 )?
-                .to_country_code_owned(),
+                .to_country_code(),
                 phone: cell_value_from_key(
                     "Phần I.1: Thông tin đối tượng báo cáo - Điện thoại",
                     workbook,
@@ -79,7 +79,7 @@ impl ReportingEntity {
                     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Quốc gia",
                     workbook,
                 )?
-                .to_country_code_owned(),
+                .to_country_code(),
                 phone: cell_value_from_key(
                     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Điện thoại",
                     workbook,

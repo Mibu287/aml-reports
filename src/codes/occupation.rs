@@ -15,22 +15,31 @@ pub const OCCUPATION_CODES: [(&'static str, &'static str); 13] = [
 ];
 
 pub trait OccupationCode {
-    fn to_occupation_code(&self) -> Option<&'static str>;
-    fn to_occupation_code_owned(&self) -> String {
-        self.to_occupation_code().unwrap_or_default().to_string()
-    }
+    fn to_occupation_code(&self) -> String;
 }
 
 impl OccupationCode for String {
-    fn to_occupation_code(&self) -> Option<&'static str> {
-        let occupation_code = OCCUPATION_CODES.into_iter().find_map(|(code, occupation)| {
-            if occupation.eq_ignore_ascii_case(self) {
-                Some(code)
-            } else {
-                None
-            }
-        });
+    fn to_occupation_code(&self) -> String {
+        let occupation_code = OCCUPATION_CODES
+            .into_iter()
+            .find_map(|(code, occupation)| {
+                if occupation.eq_ignore_ascii_case(self) {
+                    Some(code.to_string())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default();
 
         occupation_code
+    }
+}
+
+impl OccupationCode for Option<String> {
+    fn to_occupation_code(&self) -> String {
+        match self {
+            Some(occupation) => occupation.to_occupation_code(),
+            None => Default::default(),
+        }
     }
 }
