@@ -4,3 +4,4 @@ pub mod country;
 pub mod gender;
 pub mod occupation;
 pub mod personal_id;
+pub mod utils;

@@ -1,3 +1,5 @@
+use crate::codes::utils::search_for_code;
+
 pub const OCCUPATION_CODES: [(&'static str, &'static str); 13] = [
     ("1", "Công chức/viên chức"),
     ("2", "Học sinh/sinh viên"),
@@ -20,18 +22,7 @@ pub trait OccupationCode {
 
 impl OccupationCode for String {
     fn to_occupation_code(&self) -> String {
-        let occupation_code = OCCUPATION_CODES
-            .into_iter()
-            .find_map(|(code, occupation)| {
-                if occupation.eq_ignore_ascii_case(self) {
-                    Some(code.to_string())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
-
-        occupation_code
+        search_for_code(&OCCUPATION_CODES, &self)
     }
 }
 

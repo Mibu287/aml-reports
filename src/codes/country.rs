@@ -1,3 +1,5 @@
+use crate::codes::utils::search_for_code;
+
 const COUNTRY_CODES: [(&str, &str); 253] = [
     ("AD", "ANDORRA"),
     ("AE", "UNITED ARAB EMIRATES"),
@@ -260,18 +262,7 @@ pub trait CountryCode {
 
 impl CountryCode for String {
     fn to_country_code(&self) -> String {
-        let country_code = COUNTRY_CODES
-            .into_iter()
-            .find_map(|(country_code, country_name)| {
-                if country_name.eq_ignore_ascii_case(self) {
-                    Some(country_code.to_string())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
-
-        country_code
+        search_for_code(&COUNTRY_CODES, self)
     }
 }
 

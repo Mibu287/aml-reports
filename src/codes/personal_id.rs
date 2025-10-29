@@ -1,3 +1,5 @@
+use crate::codes::utils::search_for_code;
+
 const PERSONAL_ID_CODES: [(&'static str, &'static str); 11] = [
     ("101", "CMTND"),
     ("100", "CCCD"),
@@ -18,18 +20,7 @@ pub trait PersonalIdCode {
 
 impl PersonalIdCode for String {
     fn to_personal_id_code(&self) -> String {
-        let personal_id_code = PERSONAL_ID_CODES
-            .into_iter()
-            .find_map(|(code, id_type)| {
-                if id_type.eq_ignore_ascii_case(self) {
-                    Some(code.to_string())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
-
-        personal_id_code
+        search_for_code(&PERSONAL_ID_CODES, self)
     }
 }
 

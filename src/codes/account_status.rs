@@ -1,3 +1,5 @@
+use crate::codes::utils::search_for_code;
+
 const ACCOUNT_STATUS_CODES: [(&str, &str); 5] = [
     ("ACTIV", "Đang hoạt động"),
     ("CLOSE", "Đã đóng"),
@@ -12,18 +14,7 @@ pub trait AccountStatusCode {
 
 impl AccountStatusCode for String {
     fn to_account_status_code(&self) -> String {
-        let status_code = ACCOUNT_STATUS_CODES
-            .into_iter()
-            .find_map(|(status_code, status_name)| {
-                if status_name.eq_ignore_ascii_case(self) {
-                    Some(status_code.to_string())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
-
-        status_code
+        search_for_code(&ACCOUNT_STATUS_CODES, self)
     }
 }
 
