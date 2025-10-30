@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::payload::{
@@ -20,6 +22,8 @@ pub struct Form {
     pub report_type: String,
     pub creation_status: CreationStatus,
     pub payload: Payload,
+    #[serde(flatten)]
+    pub others: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

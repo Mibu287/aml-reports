@@ -27,12 +27,19 @@ impl Form {
     where
         RS: Seek + Read,
     {
+        let payload = Payload::from_excel(workbook)?;
+        let detection_date = payload.section_4.detection_date.clone().unwrap_or_default();
+        let others_info = [("ngay_phat_hien".to_string(), detection_date.clone())]
+            .into_iter()
+            .collect();
+
         Ok(Form {
             id: None,
             internal_number: internal_number(workbook)?,
             report_type: "M1".to_string(),
             creation_status: payload::form::CreationStatus::InProgress,
-            payload: Payload::from_excel(workbook)?,
+            payload: payload.into(),
+            others: others_info,
         })
     }
 }
