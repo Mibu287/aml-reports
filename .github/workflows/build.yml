@@ -15,12 +15,12 @@ env:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build on ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}-${{ matrix.arch }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        arch: [amd64]
+        arch: [amd64, arm]
         include:
           - os: ubuntu-latest
             artifact_name: aml-reports
