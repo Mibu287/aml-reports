@@ -8,8 +8,8 @@ use calamine::{DataType, Reader};
 use crate::{
     codes::{
         account_status::AccountStatusCode, account_type::AccountTypeCode, age_range::AgeRangeCode,
-        country::CountryCode, gender::GenderCode, occupation::OccupationCode,
-        personal_id::PersonalIdCode,
+        corporate_type::CorporateTypeCode, country::CountryCode, gender::GenderCode,
+        occupation::OccupationCode, personal_id::PersonalIdCode,
     },
     payload::{
         entities::{
@@ -215,7 +215,9 @@ impl Organization {
                     foreign_name: None,
                     short_name: None,
                     organization_type: CodeDesc {
-                        type_code: cell_value_func("Loại hình tổ chức"),
+                        type_code: cell_value_func("Loại hình tổ chức")
+                            .to_corporate_type_code()
+                            .into(),
                         description: cell_value_func("Loại hình tổ chức nếu chọn Khác"),
                     }
                     .into(),
