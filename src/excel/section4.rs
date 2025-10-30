@@ -8,8 +8,8 @@ use calamine::{DataType, Reader};
 
 use crate::{
     payload::section4::{
-        Analysis, Clause, ConclusionEntry, FlowEntryIn, FlowEntryOut, LegalBasis, MoneyFlow,
-        ReportType, Section4, SuspiciousIndicator, TimeRange, TransactionInfo,
+        AmountEntry, Analysis, Clause, ConclusionEntry, FlowEntryIn, FlowEntryOut, LegalBasis,
+        MoneyFlow, ReportType, Section4, SuspiciousIndicator, TimeRange, TransactionInfo,
     },
     template::{
         cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, table_config_from_key,
@@ -247,6 +247,76 @@ impl TransactionInfo {
         )?
         .convert_date_vn_to_iso();
 
+        let moneyflow_details = MoneyFlow::from_excel(workbook)?;
+
+        let amount_by_currency = moneyflow_details
+            .iter()
+            .map(|flow| {
+                let inflows = flow
+                    .inflows
+                    .iter()
+                    .map(|f| {
+                        f.iter()
+                            .map(|e| (e.currency.as_ref(), e.total_amount.as_ref()))
+                    })
+                    .flatten();
+
+                let outflows = flow
+                    .outflows
+                    .iter()
+                    .map(|f| {
+                        f.iter()
+                            .map(|e| (e.currency.as_ref(), e.total_amount.as_ref()))
+                    })
+                    .flatten();
+
+                let all_flows = inflows.chain(outflows);
+                all_flows
+            })
+            .flatten()
+            .fold(
+                HashMap::<String, f64>::new(),
+                |mut acc, (currency_opt, amount_opt)| {
+                    let currency = currency_opt.cloned().unwrap_or_default();
+                    let original_amount = amount_opt
+                        .cloned()
+                        .unwrap_or_default()
+                        .parse::<f64>()
+                        .ok()
+                        .unwrap_or(0.0);
+
+                    *acc.entry(currency).or_insert(0.0) += original_amount;
+                    acc
+                },
+            )
+            .into_iter()
+            .map(|(currency, total_amount)| AmountEntry {
+                currency: currency.into(),
+                amount: total_amount.into(),
+            })
+            .collect::<Vec<_>>();
+
+        let total_converted_amount = moneyflow_details
+            .iter()
+            .map(|flow| {
+                let total_in = flow
+                    .total_converted_in
+                    .as_ref()
+                    .map(|v| v.parse::<f64>().ok())
+                    .flatten()
+                    .unwrap_or_default();
+
+                let total_out = flow
+                    .total_converted_out
+                    .as_ref()
+                    .map(|v| v.parse::<f64>().ok())
+                    .flatten()
+                    .unwrap_or_default();
+
+                total_in + total_out
+            })
+            .sum::<f64>();
+
         Ok(Self {
             status: status,
             time_range: TimeRange {
@@ -254,9 +324,9 @@ impl TransactionInfo {
                 to: to_date,
             }
             .into(),
-            amounts: None,
-            total_converted_amount: None,
-            money_flows: MoneyFlow::from_excel(workbook)?.into(),
+            amounts: amount_by_currency.into(),
+            total_converted_amount: total_converted_amount.into(),
+            money_flows: moneyflow_details.into(),
         })
     }
 }
