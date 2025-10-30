@@ -7,8 +7,9 @@ use calamine::{DataType, Reader};
 
 use crate::{
     codes::{
-        account_status::AccountStatusCode, account_type::AccountTypeCode, country::CountryCode,
-        gender::GenderCode, occupation::OccupationCode, personal_id::PersonalIdCode,
+        account_status::AccountStatusCode, account_type::AccountTypeCode, age_range::AgeRangeCode,
+        country::CountryCode, gender::GenderCode, occupation::OccupationCode,
+        personal_id::PersonalIdCode,
     },
     payload::{
         entities::{
@@ -131,7 +132,8 @@ impl Individual {
                     full_name: cell_value_func("Tên khách hàng"),
                     date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")
                         .convert_date_vn_to_iso(),
-                    age: None,
+                    age_range: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")
+                        .to_age_range_code(),
                     gender: cell_value_func("Giới tính").to_gender_code().into(),
                     nationality: cell_value_func("Quốc tịch").to_country_code().into(),
                     occupation: Occupation {

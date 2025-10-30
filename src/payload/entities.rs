@@ -10,7 +10,7 @@ pub struct Individual {
     #[serde(rename = "ngay_sinh")]
     pub date_of_birth: Option<String>,
     #[serde(rename = "do_tuoi")]
-    pub age: Option<String>,
+    pub age_range: Option<String>,
     #[serde(rename = "gioi_tinh")]
     pub gender: Option<String>,
     #[serde(rename = "quoc_tich")]
