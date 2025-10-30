@@ -186,7 +186,7 @@ impl Individual {
 }
 
 impl Organization {
-    fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
+    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
     where
         RS: Read + Seek,
     {
@@ -257,7 +257,7 @@ impl Organization {
 }
 
 impl Account {
-    fn from_excel<RS>(
+    pub fn from_excel<RS>(
         workbook: &mut calamine::Xlsx<RS>,
     ) -> anyhow::Result<HashMap<String, Vec<Self>>>
     where

@@ -7,9 +7,12 @@ use anyhow::Ok;
 use calamine::{DataType, Reader};
 
 use crate::{
-    payload::section4::{
-        AmountEntry, Analysis, Clause, ConclusionEntry, FlowEntryIn, FlowEntryOut, LegalBasis,
-        MoneyFlow, ReportType, Section4, SuspiciousIndicator, TimeRange, TransactionInfo,
+    payload::{
+        entities::{Account, Individual, Organization},
+        section4::{
+            AmountEntry, Analysis, Clause, ConclusionEntry, FlowEntryIn, FlowEntryOut, LegalBasis,
+            MoneyFlow, ReportType, Section4, SuspiciousIndicator, TimeRange, TransactionInfo,
+        },
     },
     template::{
         cell_value_from_key, legal_basis_mapping_from_key, mapping_from_key, table_config_from_key,
@@ -409,6 +412,42 @@ impl MoneyFlow {
         let inflow_sheet_key = "Phần IV. Ghi Có";
         let outflow_sheet_key = "Phần IV. Ghi Nợ";
 
+        let bank_accounts = Account::from_excel(workbook)?;
+        let persons = Individual::from_excel(workbook)?.unwrap_or_default();
+        let orgs = Organization::from_excel(workbook)?.unwrap_or_default();
+
+        let person_ids = persons.iter().map(|p| {
+            let cif = p.id;
+            let id_number = p
+                .identifications
+                .as_ref()
+                .map(|v| v.first())
+                .flatten()
+                .map(|id| id.id_number.clone())
+                .flatten()
+                .unwrap_or_default();
+
+            (cif, id_number)
+        });
+
+        let org_ids = orgs.iter().map(|org| {
+            let cif = org.id;
+            let id_number = org
+                .enterprise_code
+                .clone()
+                .unwrap_or_default()
+                .code
+                .unwrap_or_default();
+
+            (cif, id_number)
+        });
+
+        let customer_ids = person_ids
+            .chain(org_ids)
+            .filter(|(cif, _)| cif.is_some())
+            .map(|(cif, id_number)| (cif.unwrap_or_default().to_string(), id_number))
+            .collect::<HashMap<_, _>>();
+
         let (inflow_rows, inflow_columns, inflow_base_coord) =
             read_table_from_sheet(workbook, inflow_sheet_key)?;
 
@@ -421,8 +460,7 @@ impl MoneyFlow {
 
                 let cif = cell_value_func("CIF").unwrap_or_default();
                 let cif_name = cell_value_func("Tên KH").unwrap_or_default();
-                let cif_id = cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân")
-                    .unwrap_or_default();
+                let cif_id = customer_ids.get(&cif).cloned().unwrap_or_default();
 
                 let entry = FlowEntryIn {
                     source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
@@ -466,8 +504,7 @@ impl MoneyFlow {
 
                 let cif = cell_value_func("CIF").unwrap_or_default();
                 let cif_name = cell_value_func("Tên KH").unwrap_or_default();
-                let cif_id = cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân")
-                    .unwrap_or_default();
+                let cif_id = customer_ids.get(&cif).cloned().unwrap_or_default();
 
                 let entry = FlowEntryOut {
                     dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
@@ -498,6 +535,9 @@ impl MoneyFlow {
                     (cifs, flows)
                 },
             );
+
+        println!("Inflow CIFs: {:#?}", inflow_cifs);
+        println!("Outflow CIFs: {:#?}", outflow_cifs);
 
         let unique_cifs = inflow_entries
             .keys()
