@@ -412,46 +412,76 @@ impl MoneyFlow {
         let inflow_sheet_key = "Phần IV. Ghi Có";
         let outflow_sheet_key = "Phần IV. Ghi Nợ";
 
-        let bank_accounts = Account::from_excel(workbook)?;
-        let persons = Individual::from_excel(workbook)?.unwrap_or_default();
-        let orgs = Organization::from_excel(workbook)?.unwrap_or_default();
-
-        let person_ids = persons.iter().map(|p| {
-            let cif = p.id;
-            let id_number = p
-                .identifications
-                .as_ref()
-                .map(|v| v.first())
+        let bank_accounts = {
+            Account::from_excel(workbook)?
+                .into_iter()
+                .map(|(cif, accounts)| {
+                    accounts.into_iter().map(move |account| {
+                        let bank_info = account.bank.unwrap_or_default();
+                        let account_no = account.account_number.clone().unwrap_or_default();
+                        ((cif.clone(), account_no), bank_info)
+                    })
+                })
                 .flatten()
-                .map(|id| id.id_number.clone())
-                .flatten()
-                .unwrap_or_default();
+                .collect::<HashMap<_, _>>()
+        };
 
-            (cif, id_number)
-        });
+        let customer_infos = {
+            let persons = Individual::from_excel(workbook)?.unwrap_or_default();
+            let orgs = Organization::from_excel(workbook)?.unwrap_or_default();
 
-        let org_ids = orgs.iter().map(|org| {
-            let cif = org.id;
-            let id_number = org
-                .enterprise_code
-                .clone()
-                .unwrap_or_default()
-                .code
-                .unwrap_or_default();
+            let person_ids = persons.iter().map(|p| {
+                let cif = p.id;
+                let name = p.full_name.clone().unwrap_or_default();
+                let id_number = p
+                    .identifications
+                    .as_ref()
+                    .map(|v| v.first())
+                    .flatten()
+                    .map(|id| id.id_number.clone())
+                    .flatten()
+                    .unwrap_or_default();
 
-            (cif, id_number)
-        });
+                (cif, name, id_number)
+            });
 
-        let customer_ids = person_ids
-            .chain(org_ids)
-            .filter(|(cif, _)| cif.is_some())
-            .map(|(cif, id_number)| (cif.unwrap_or_default().to_string(), id_number))
-            .collect::<HashMap<_, _>>();
+            let org_ids = orgs.iter().map(|org| {
+                let cif = org.id;
+                let name = org.name.clone().unwrap_or_default();
+                let id_number = org
+                    .enterprise_code
+                    .clone()
+                    .unwrap_or_default()
+                    .code
+                    .unwrap_or_default();
+
+                (cif, name, id_number)
+            });
+
+            #[derive(Clone, Default)]
+            struct CustomerInfo {
+                name: String,
+                id_number: String,
+            }
+
+            let customer_infos = person_ids
+                .chain(org_ids)
+                .filter(|(cif, _, _)| cif.is_some())
+                .map(|(cif, name, id_number)| {
+                    (
+                        cif.unwrap_or_default().to_string(),
+                        CustomerInfo { name, id_number },
+                    )
+                })
+                .collect::<HashMap<_, _>>();
+
+            customer_infos
+        };
 
         let (inflow_rows, inflow_columns, inflow_base_coord) =
             read_table_from_sheet(workbook, inflow_sheet_key)?;
 
-        let (inflow_cifs, mut inflow_entries) = inflow_rows
+        let mut inflow_entries = inflow_rows
             .into_iter()
             .map(|curr_row| {
                 let cell_value_func = |col_name: &str| {
@@ -459,8 +489,7 @@ impl MoneyFlow {
                 };
 
                 let cif = cell_value_func("CIF").unwrap_or_default();
-                let cif_name = cell_value_func("Tên KH").unwrap_or_default();
-                let cif_id = customer_ids.get(&cif).cloned().unwrap_or_default();
+                let account_number = cell_value_func("Số tài khoản").unwrap_or_default();
 
                 let entry = FlowEntryIn {
                     source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
@@ -478,24 +507,23 @@ impl MoneyFlow {
                     content: cell_value_func("Tóm tắt nội dung giao dịch"),
                 };
 
-                (cif, entry, (cif_name, cif_id))
+                (cif, account_number, entry)
             })
             .fold(
-                (
-                    HashMap::<String, (String, String)>::new(),
-                    HashMap::<String, Vec<FlowEntryIn>>::new(),
-                ),
-                |(mut cifs, mut flows), (cif, entry, (cif_name, cif_id))| {
-                    cifs.insert(cif.clone(), (cif_name, cif_id));
-                    flows.entry(cif).or_insert_with(Vec::new).push(entry);
-                    (cifs, flows)
+                HashMap::<(String, String), Vec<FlowEntryIn>>::new(),
+                |mut flows, (cif, account, entry)| {
+                    flows
+                        .entry((cif, account))
+                        .or_insert_with(Vec::new)
+                        .push(entry);
+                    flows
                 },
             );
 
         let (outflow_rows, outflow_columns, outflow_base_coord) =
             read_table_from_sheet(workbook, outflow_sheet_key)?;
 
-        let (outflow_cifs, mut outflow_entries) = outflow_rows
+        let mut outflow_entries = outflow_rows
             .into_iter()
             .map(|curr_row| {
                 let cell_value_func = |col_name: &str| {
@@ -503,8 +531,7 @@ impl MoneyFlow {
                 };
 
                 let cif = cell_value_func("CIF").unwrap_or_default();
-                let cif_name = cell_value_func("Tên KH").unwrap_or_default();
-                let cif_id = customer_ids.get(&cif).cloned().unwrap_or_default();
+                let account_number = cell_value_func("Số tài khoản").unwrap_or_default();
 
                 let entry = FlowEntryOut {
                     dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
@@ -522,55 +549,63 @@ impl MoneyFlow {
                     content: cell_value_func("Tóm tắt nội dung giao dịch"),
                 };
 
-                (cif, entry, (cif_name, cif_id))
+                (cif, account_number, entry)
             })
             .fold(
-                (
-                    HashMap::<String, (String, String)>::new(),
-                    HashMap::<String, Vec<FlowEntryOut>>::new(),
-                ),
-                |(mut cifs, mut flows), (cif, entry, (cif_name, cif_id))| {
-                    cifs.insert(cif.clone(), (cif_name, cif_id));
-                    flows.entry(cif).or_insert_with(Vec::new).push(entry);
-                    (cifs, flows)
+                HashMap::<(String, String), Vec<FlowEntryOut>>::new(),
+                |mut flows, (cif, account, entry)| {
+                    flows
+                        .entry((cif, account))
+                        .or_insert_with(Vec::new)
+                        .push(entry);
+                    flows
                 },
             );
 
-        println!("Inflow CIFs: {:#?}", inflow_cifs);
-        println!("Outflow CIFs: {:#?}", outflow_cifs);
-
-        let unique_cifs = inflow_entries
+        let unique_accounts = inflow_entries
             .keys()
             .chain(outflow_entries.keys())
             .cloned()
             .collect::<HashSet<_>>();
 
-        let cif_infos = inflow_cifs
+        let cashflow_by_account = unique_accounts
             .into_iter()
-            .chain(outflow_cifs.into_iter())
-            .collect::<HashMap<_, _>>();
-
-        let cashflow_by_cifs = unique_cifs
-            .into_iter()
-            .map(|cif| {
-                let inflows = inflow_entries.remove(&cif).unwrap_or_default();
-                let outflows = outflow_entries.remove(&cif).unwrap_or_default();
-                (cif.clone(), (inflows, outflows))
+            .map(|account| {
+                let inflows = inflow_entries.remove(&account).unwrap_or_default();
+                let outflows = outflow_entries.remove(&account).unwrap_or_default();
+                (account, (inflows, outflows))
             })
-            .fold(HashMap::new(), |mut acc, (cif, (inflows, outflows))| {
-                acc.insert(cif, (inflows, outflows));
-                acc
-            });
+            .fold(
+                HashMap::new(),
+                |mut accounts, (account, (inflows, outflows))| {
+                    accounts.insert(account, (inflows, outflows));
+                    accounts
+                },
+            );
 
-        let results = cashflow_by_cifs
+        let results = cashflow_by_account
             .into_iter()
-            .map(|(cif, (inflows, outflows))| MoneyFlow {
+            .map(|((cif, account), (inflows, outflows))| MoneyFlow {
                 id: cif.parse::<i64>().ok(),
-                subject_name: cif_infos.get(&cif).map(|(name, _)| name.clone()),
-                identification: cif_infos.get(&cif).map(|(_, id)| id.clone()),
-                account_number: None,
-                bank_name: None,
-                bank_code: None,
+                subject_name: customer_infos
+                    .get(&cif)
+                    .cloned()
+                    .unwrap_or_default()
+                    .name
+                    .into(),
+                identification: customer_infos
+                    .get(&cif)
+                    .cloned()
+                    .unwrap_or_default()
+                    .id_number
+                    .into(),
+                account_number: account.clone().into(),
+                bank_name: bank_accounts
+                    .get(&(cif.clone(), account.clone()))
+                    .and_then(|bank_info| bank_info.bank_name.clone()),
+                bank_code: bank_accounts
+                    .get(&(cif.clone(), account.clone()))
+                    .and_then(|bank_info| bank_info.bank_code.clone()),
                 total_converted_in: inflows
                     .iter()
                     .fold(0_f64, |acc, entry| {
