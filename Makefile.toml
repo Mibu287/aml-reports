@@ -1,0 +1,61 @@
+[tasks.build-macos-aarch64]
+command = "cargo"
+args = ["build", "--release", "--target", "aarch64-apple-darwin"]
+
+[tasks.build-windows-x86_64]
+command = "cargo"
+args = ["zigbuild", "--release", "--target", "x86_64-pc-windows-gnullvm"]
+
+[tasks.build-windows-aarch64]
+command = "cargo"
+args = ["zigbuild", "--release", "--target", "aarch64-pc-windows-gnullvm"]
+
+[tasks.build-all]
+dependencies = [
+    "build-macos-aarch64",
+    "build-windows-x86_64",
+    "build-windows-aarch64",
+]
+
+[tasks.package-macos-aarch64]
+command = "zip"
+args = [
+    "-r",
+    "dist/aml-reports-macos-aarch64.zip",
+    "input",
+    "target/aarch64-apple-darwin/release/aml-reports",
+]
+dependencies = ["build-macos-aarch64"]
+
+[tasks.package-windows-x86_64]
+command = "zip"
+args = [
+    "-r",
+    "dist/aml-reports-windows-x86_64.zip",
+    "input",
+    "target/x86_64-pc-windows-gnullvm/release/aml-reports.exe",
+]
+dependencies = ["build-windows-x86_64"]
+
+[tasks.package-windows-aarch64]
+command = "zip"
+args = [
+    "-r",
+    "dist/aml-reports-windows-aarch64.zip",
+    "input",
+    "target/aarch64-pc-windows-gnullvm/release/aml-reports.exe",
+]
+dependencies = ["build-windows-aarch64"]
+
+[tasks.package-all]
+dependencies = [
+    "package-macos-aarch64",
+    "package-windows-x86_64",
+    "package-windows-aarch64",
+]
+
+[tasks.all]
+dependencies = ["build-all", "package-all"]
+
+[tasks.default]
+alias = "all"
