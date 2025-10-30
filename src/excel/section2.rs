@@ -133,7 +133,7 @@ impl Individual {
                         .convert_date_vn_to_iso(),
                     age: None,
                     gender: cell_value_func("Giới tính").to_gender_code().into(),
-                    nationality: cell_value_func("Quốc tịch"),
+                    nationality: cell_value_func("Quốc tịch").to_country_code().into(),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp").to_occupation_code().into(),
                         description: cell_value_func("Nghề nghiệp"),
