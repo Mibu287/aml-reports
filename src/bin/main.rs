@@ -1,4 +1,7 @@
-use aml::{auth::get_auth_code, launch::launch_web_automation_task, payload::form::Form};
+use aml::{
+    auth::get_auth_code, launch::launch_web_automation_task, payload::form::Form,
+    response::ErrorResponse,
+};
 use duration_extender::DurationExt;
 use indicatif::ProgressStyle;
 use indicatif_log_bridge::LogWrapper;
@@ -55,7 +58,7 @@ async fn main() -> anyhow::Result<()> {
         let _resp = match status {
             Err(err) => {
                 log::error!(
-                    "Error submitting form for file {:?}: {}",
+                    "Có lỗi xảy ra khi xử lý file {:?}: {}",
                     excel_file.path(),
                     err
                 );
@@ -63,11 +66,23 @@ async fn main() -> anyhow::Result<()> {
             }
             Ok(r) => match r.status().is_success() {
                 false => {
-                    log::error!(
-                        "Failed to submit form for file {:?}: HTTP {}",
-                        excel_file.path(),
-                        r.status()
-                    );
+                    let status = r.status();
+                    let resp_text = r.text().await.unwrap_or_default();
+                    let error = serde_json::from_str::<ErrorResponse>(&resp_text);
+                    match error {
+                        Ok(e) => log::error!(
+                            "Có lỗi xảy ra khi xử lý file {:?}. Mã lỗi {}: {}",
+                            excel_file.path(),
+                            e.status,
+                            e.message
+                        ),
+                        Err(_) => log::error!(
+                            "Có lỗi xảy ra khi xử lý file {:?}. Mã lỗi {}: {}",
+                            excel_file.path(),
+                            status,
+                            resp_text
+                        ),
+                    };
                     continue;
                 }
                 true => r,
@@ -75,11 +90,11 @@ async fn main() -> anyhow::Result<()> {
         };
 
         log::info!(
-            "Successfully submitted form for file {:?}",
-            excel_file.path()
+            "Successfully submitted form for file {:?}.",
+            excel_file.path(),
         );
 
-        tokio::time::sleep(500.milliseconds()).await;
+        tokio::time::sleep(1.seconds()).await;
         progress_bar.inc(1);
         progress_bar.set_message(format!(
             "Processing file: {:?}",
