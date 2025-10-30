@@ -1,7 +1,7 @@
 use crate::codes::utils::search_for_code;
 
 const GENDER_CODES: [(&'static str, &'static str); 3] =
-    [("Nam", "male"), ("Nữ", "female"), ("Khác", "other")];
+    [("male", "Nam"), ("female", "Nữ"), ("other", "Khác")];
 
 pub trait GenderCode {
     fn to_gender_code(&self) -> String;
