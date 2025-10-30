@@ -8,7 +8,7 @@
     "Phần I.1: Thông tin đối tượng báo cáo - Tỉnh/Thành phố": ["STR", "F9"],
     "Phần I.1: Thông tin đối tượng báo cáo - Quốc gia": ["STR", "H9"],
     "Phần I.1: Thông tin đối tượng báo cáo - Điện thoại": ["STR", "D10"],
-    "Phần I.1: Tên điểm phát sinh giao dịch hoặc đơn vị quản lý tài khoản": ["STR", "E12"],
+    "Phần I.1: Tên điểm phát sinh giao dịch hoặc đơn vị quản lý tài khoản": ["STR", "E11"],
     "Phần I.1: Địa chỉ điểm phát sinh giao dịch hoặc địa chỉ đơn vị quản lý tài khoản": ["STR", "E12"],
     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Phường/Xã": ["STR", "D13"],
     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Tỉnh/Thành phố": ["STR", "F13"],
