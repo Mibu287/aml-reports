@@ -238,7 +238,7 @@ impl Organization {
                         code: cell_value_func("MS doanh nghiệp/MS thuế"),
                         issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")
                             .convert_date_vn_to_iso(),
-                        issue_place: cell_value_func("Quốc gia cấp MST"),
+                        issue_place: cell_value_func("Quốc gia cấp MST").to_country_code().into(),
                     }
                     .into(),
                     business_sector: cell_value_func("Ngành nghề kinh doanh chính"),
