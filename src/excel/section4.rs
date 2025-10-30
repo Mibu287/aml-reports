@@ -586,7 +586,7 @@ impl MoneyFlow {
         let results = cashflow_by_account
             .into_iter()
             .map(|((cif, account), (inflows, outflows))| MoneyFlow {
-                id: cif.parse::<i64>().ok(),
+                id: cif.clone().into(),
                 subject_name: customer_infos
                     .get(&cif)
                     .cloned()

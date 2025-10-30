@@ -81,7 +81,7 @@ pub struct AmountEntry {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct MoneyFlow {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "ten_doi_tuong")]
     pub subject_name: Option<String>,
     #[serde(rename = "so_dinh_danh")]
