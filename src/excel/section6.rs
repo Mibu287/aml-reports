@@ -21,6 +21,26 @@ impl Section6 {
                 let cell_value_func =
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
+                let file_path: std::path::PathBuf =
+                    cell_value_func("Tài liệu đính kèm (viết theo tên file đính kèm)")
+                        .unwrap_or_default()
+                        .into();
+
+                let file_name = file_path
+                    .file_name()
+                    .map(|s| s.to_string_lossy().to_string());
+
+                let file_ext = file_path
+                    .extension()
+                    .map(|s| s.to_string_lossy().to_string());
+
+                let file_mime = mime_guess::from_path(&file_path)
+                    .first_or_octet_stream()
+                    .to_string()
+                    .into();
+                let file_content = std::fs::read(&file_path).ok();
+                let file_size = file_content.as_ref().map(|content| content.len() as i64);
+
                 Attachment {
                     str_id: None,
                     status: "ACTIVE".to_string().into(),
@@ -28,14 +48,14 @@ impl Section6 {
                     page_count: cell_value_func("Số trang")
                         .unwrap_or_default()
                         .parse::<i32>()
-                        .ok()
-                        .into(),
+                        .ok(),
                     description: cell_value_func("Mô tả tài liệu").into(),
-                    file_name: cell_value_func("Tài liệu đính kèm (viết theo tên file đính kèm)")
-                        .into(),
-                    file_type: None,
-                    file_size: None,
-                    file: None,
+                    file_name: file_name,
+                    file_type: file_ext,
+                    file_size: file_size,
+                    file: Default::default(),
+                    file_mime: file_mime,
+                    file_content: file_content,
                 }
             })
             .collect::<Vec<_>>();

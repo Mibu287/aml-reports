@@ -1,7 +1,7 @@
 use aml::{
     auth::get_auth_code,
     launch::launch_web_automation_task,
-    payload::form::Form,
+    payload::{form::Form, section6::Section6},
     response::{ErrorResponse, SuccessResponse},
 };
 use duration_extender::DurationExt;
@@ -106,13 +106,54 @@ async fn main() -> anyhow::Result<()> {
         log::info!(
             "Đã nộp biểu mẫu thành công cho file `{:?}`. Tên báo cáo: `{}`. Mã báo cáo: `{}`.",
             excel_file.path(),
-            parsed_resp.form.internal_number,
+            form_payload.internal_number,
             parsed_resp
-                .form
                 .id
                 .map(|id| id.to_string())
                 .unwrap_or_else(|| "N/A".to_string()),
         );
+
+        let mut attachments = Section6::from_excel(&mut workbook)?.attachments;
+
+        for attachment in attachments.iter_mut() {
+            attachment.str_id =  0.into() ; //parsed_resp.id;
+        }
+
+        let mut body = reqwest::multipart::Form::new()
+            .text("strId", 0.to_string())
+            // .text("strId", parsed_resp.id.unwrap_or_default().to_string())
+            .part(
+                "attachments",
+                reqwest::multipart::Part::text(serde_json::to_string(&attachments)?)
+                    .file_name("blob")
+                    .mime_str("application/json")?,
+            );
+
+        for attachment in attachments.into_iter() {
+            let file_content = attachment.file_content.unwrap_or_default().clone();
+            let file_name = attachment.file_name.unwrap_or_default().clone();
+            let file_mime = attachment.file_mime.unwrap_or_default().clone();
+            let part_data = reqwest::multipart::Part::bytes(file_content)
+                .file_name(file_name)
+                .mime_str(&file_mime)?;
+            body = body.part("files", part_data);
+        }
+
+        let response = reqwest::Client::new()
+            .post("https://amlstr.sbv.gov.vn/strcreator/api/attachment/saveAttachment")
+            .bearer_auth(&auth_key_value)
+            .multipart(body)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            log::error!(
+                "Có lỗi xảy ra khi nộp tệp đính kèm cho file `{:?}`. Mã lỗi: {}",
+                excel_file.path(),
+                response.status()
+            );
+            continue;
+        }
 
         tokio::time::sleep(1.seconds()).await;
         progress_bar.inc(1);

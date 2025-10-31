@@ -16,7 +16,11 @@ pub struct Attachment {
     pub file_type: Option<String>,
     #[serde(rename = "fileSize")]
     pub file_size: Option<i64>,
-    pub file: Option<()>,
+    pub file: serde_json::Map<String, serde_json::Value>,
+    #[serde(skip)]
+    pub file_mime: Option<String>,
+    #[serde(skip)]
+    pub file_content: Option<Vec<u8>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
