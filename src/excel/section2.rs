@@ -13,8 +13,9 @@ use crate::{
     },
     payload::{
         entities::{
-            Account, AddrSimple, Bank, BeneficialOwners, CodeDesc, EnterpriseCode, Identification,
-            Individual, License, Occupation, Organization, Representative,
+            Account, AddrSimple, Bank, BeneficialOwners, BenefitGroup, CodeDesc, EnterpriseCode,
+            Identification, Individual, IndividualLink, License, Occupation, Organization,
+            OrganizationLink, PersonRef, Representative,
         },
         section2::Section2,
     },
@@ -391,10 +392,114 @@ impl BeneficialOwners {
         let other_owners = other_owners_from_excel(workbook)?;
         let other_owners_list = other_owners.values().cloned().flatten().collect::<Vec<_>>();
 
+        let individuals = Individual::from_excel(workbook)?.unwrap_or_default();
+        let individual_links = individuals
+            .into_iter()
+            .map(|person| {
+                let cif = person.id;
+                let full_name = person.full_name;
+                let id_number = person
+                    .identifications
+                    .as_ref()
+                    .and_then(|ids| ids.first())
+                    .and_then(|id| id.id_number.clone());
+
+                let benefit_group = match &cif {
+                    None => None,
+                    Some(cif_value) => other_owners.get(cif_value).map(|group| {
+                        let other_group = group
+                            .iter()
+                            .map(|person| PersonRef {
+                                id: person.id.clone(),
+                                full_name: person.full_name.clone(),
+                                id_number: person
+                                    .identifications
+                                    .as_ref()
+                                    .and_then(|ids| ids.first())
+                                    .and_then(|id| id.id_number.clone()),
+                            })
+                            .collect::<Vec<_>>();
+
+                        BenefitGroup {
+                            main_group: None,
+                            other_group: Some(other_group),
+                        }
+                    }),
+                };
+
+                IndividualLink {
+                    id: cif,
+                    name: full_name,
+                    id_number,
+                    is_principal: true.into(),
+                    benefit_group: benefit_group,
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let orgs = Organization::from_excel(workbook)?.unwrap_or_default();
+        let representatives = Representative::from_excel(workbook)?;
+
+        let organization_links = orgs
+            .into_iter()
+            .map(|org| {
+                let cif = org.id;
+                let name = org.name;
+                let id_number = org.enterprise_code.as_ref().and_then(|ec| ec.code.clone());
+
+                let benefit_group: Option<BenefitGroup> = match &cif {
+                    None => None,
+                    Some(cif_value) => {
+                        let main_group = representatives.get(cif_value).map(|reps| {
+                            reps.iter()
+                                .map(|rep| PersonRef {
+                                    id: rep.id.clone(),
+                                    full_name: rep.full_name.clone(),
+                                    id_number: rep
+                                        .identifications
+                                        .as_ref()
+                                        .and_then(|ids| ids.first())
+                                        .and_then(|id| id.id_number.clone()),
+                                })
+                                .collect::<Vec<_>>()
+                        });
+
+                        let other_group = other_owners.get(cif_value).map(|group| {
+                            group
+                                .iter()
+                                .map(|person| PersonRef {
+                                    id: person.id.clone(),
+                                    full_name: person.full_name.clone(),
+                                    id_number: person
+                                        .identifications
+                                        .as_ref()
+                                        .and_then(|ids| ids.first())
+                                        .and_then(|id| id.id_number.clone()),
+                                })
+                                .collect::<Vec<_>>()
+                        });
+
+                        BenefitGroup {
+                            main_group: main_group,
+                            other_group: other_group,
+                        }
+                        .into()
+                    }
+                };
+
+                OrganizationLink {
+                    id: cif,
+                    name: name,
+                    id_number: id_number,
+                    benefit_group: benefit_group,
+                }
+            })
+            .collect::<Vec<_>>();
+
         Ok(BeneficialOwners {
             other_owners: other_owners_list.into(),
-            individual_links: None,
-            organization_links: None,
+            individual_links: individual_links.into(),
+            organization_links: organization_links.into(),
         }
         .into())
     }
