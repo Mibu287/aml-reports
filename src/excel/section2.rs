@@ -37,7 +37,7 @@ impl Section2 {
     }
 }
 
-fn read_table_from_sheet<RS>(
+pub fn read_table_from_sheet<RS>(
     workbook: &mut calamine::Xlsx<RS>,
     sheet_key: &str,
 ) -> anyhow::Result<(Vec<Vec<String>>, HashMap<String, String>, (u32, u32))>
@@ -85,7 +85,7 @@ where
     ))
 }
 
-fn get_cell_value(
+pub fn get_cell_value(
     col_name: &str,
     col_map: &HashMap<String, String>,
     base_coord: (u32, u32),
