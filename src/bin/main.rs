@@ -116,12 +116,11 @@ async fn main() -> anyhow::Result<()> {
         let mut attachments = Section6::from_excel(&mut workbook)?.attachments;
 
         for attachment in attachments.iter_mut() {
-            attachment.str_id =  0.into() ; //parsed_resp.id;
+            attachment.str_id = parsed_resp.id;
         }
 
         let mut body = reqwest::multipart::Form::new()
-            .text("strId", 0.to_string())
-            // .text("strId", parsed_resp.id.unwrap_or_default().to_string())
+            .text("strId", parsed_resp.id.unwrap_or_default().to_string())
             .part(
                 "attachments",
                 reqwest::multipart::Part::text(serde_json::to_string(&attachments)?)
