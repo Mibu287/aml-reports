@@ -194,8 +194,6 @@ async fn _main() -> anyhow::Result<()> {
         );
         return Ok(());
     }
-    progress_bar.set_length(excel_files.iter().len() as u64);
-
     let port = 9515;
     let (_auth_key_name, auth_key_value) = launch_web_automation_task(get_auth_code, port)
         .await
@@ -203,6 +201,7 @@ async fn _main() -> anyhow::Result<()> {
 
     let api_url = "https://amlstr.sbv.gov.vn/strcreator/api/str-creator/saveStrModel?tabNo=0";
 
+    progress_bar.set_length(excel_files.iter().len() as u64);
     for excel_file in excel_files {
         let report_id = create_report_from_excel(&excel_file, api_url, &auth_key_value)
             .await
