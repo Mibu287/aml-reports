@@ -6,7 +6,13 @@ use anyhow::Context;
 use calamine::{Xlsx, open_workbook};
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() {
+    if let Err(err) = _main().await {
+        log::error!("Đã xảy ra lỗi khi đọc các file Excel: {:?}", err);
+    }
+}
+
+async fn _main() -> anyhow::Result<()> {
     let progress_bar = initial_setup()?;
     let excel_files = get_input_excel_files()?;
     progress_bar.set_length(excel_files.len() as u64);
@@ -29,6 +35,7 @@ async fn main() -> anyhow::Result<()> {
 
         println!("{}", json_form);
         progress_bar.inc(1);
+        log::info!("Đã xử lý xong file {:#?}", excel_path);
     }
 
     progress_bar.finish_with_message("DONE!!!");
