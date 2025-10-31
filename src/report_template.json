@@ -274,5 +274,15 @@
         "327": "Tội phạm nguồn của tội rửa tiền: Tội vi phạm quy định về bảo vệ động vật hoang dã",
         "999": "Khác (Điền theo tội danh được quy định trong Bộ luật Hình sự hiện hành)"
     },
+    "Phần VI. Tài liệu đính kèm": {
+        "sheet": "Phần VI. Tài liệu đính kèm",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "Loại tài liệu": "A",
+            "Số trang": "B",
+            "Tài liệu đính kèm (viết theo tên file đính kèm)": "C",
+            "Mô tả tài liệu": "D"
+        }
+    },
     "Dấu tick": "R"
 }
