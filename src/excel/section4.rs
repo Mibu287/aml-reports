@@ -431,7 +431,7 @@ impl MoneyFlow {
             let orgs = Organization::from_excel(workbook)?.unwrap_or_default();
 
             let person_ids = persons.iter().map(|p| {
-                let cif = p.id;
+                let cif = p.id.clone();
                 let name = p.full_name.clone().unwrap_or_default();
                 let id_number = p
                     .identifications
@@ -446,7 +446,7 @@ impl MoneyFlow {
             });
 
             let org_ids = orgs.iter().map(|org| {
-                let cif = org.id;
+                let cif = org.id.clone();
                 let name = org.name.clone().unwrap_or_default();
                 let id_number = org
                     .enterprise_code

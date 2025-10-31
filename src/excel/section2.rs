@@ -123,8 +123,8 @@ impl Individual {
                 let cif_value = cell_value_func("CIF").unwrap_or_default();
 
                 Individual {
-                    id: cif_value.parse::<i64>().ok(),
-                    existing_customer: if cif_value.is_empty() {
+                    id: cif_value.clone().into(),
+                    existing_customer: if cif_value.clone().is_empty() {
                         None
                     } else {
                         "1".to_string().into()
@@ -205,8 +205,8 @@ impl Organization {
                 let cif_value = cell_value_func("CIF").unwrap_or_default();
 
                 Organization {
-                    id: cif_value.parse::<i64>().ok(),
-                    existing_customer: if cif_value.is_empty() {
+                    id: cif_value.clone().into(),
+                    existing_customer: if cif_value.clone().is_empty() {
                         None
                     } else {
                         "1".to_string().into()
@@ -324,7 +324,7 @@ impl Representative {
                 let cif_value = cell_value_func("CIF").unwrap_or_default();
 
                 let rep = Representative {
-                    id: cif_value.parse::<i64>().ok(),
+                    id: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
                     full_name: cell_value_func("Họ và tên"),
                     date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
                     occupation: Occupation {
@@ -384,10 +384,99 @@ impl Representative {
 }
 
 impl BeneficialOwners {
-    fn from_excel<RS>(_workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
+    fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
     where
         RS: Seek + Read,
     {
-        Ok(None)
+        let other_owners = other_owners_from_excel(workbook)?;
+        let other_owners_list = other_owners.values().cloned().flatten().collect::<Vec<_>>();
+
+        Ok(BeneficialOwners {
+            other_owners: other_owners_list.into(),
+            individual_links: None,
+            organization_links: None,
+        }
+        .into())
     }
+}
+
+fn other_owners_from_excel<RS>(
+    workbook: &mut calamine::Xlsx<RS>,
+) -> anyhow::Result<HashMap<String, Vec<Individual>>>
+where
+    RS: Seek + Read,
+{
+    let sheet_key = "Phần II. CSHHL khác";
+    let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
+
+    let beneficiaries = rows
+        .into_iter()
+        .map(|curr_row| {
+            let cell_value_func =
+                |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
+
+            let cif_value = cell_value_func("CIF").unwrap_or_default();
+
+            let rep = Individual {
+                existing_customer: None,
+                id: cif_value.clone().into(),
+                full_name: cell_value_func("Họ và tên"),
+                date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
+                age_range: None,
+                gender: cell_value_func("Giới tính").to_gender_code().into(),
+                nationality: cell_value_func("Quốc tịch").to_country_code().into(),
+                occupation: Occupation {
+                    occupation_code: cell_value_func("Nghề nghiệp").to_occupation_code().into(),
+                    description: cell_value_func("Nghề nghiệp"),
+                    content: cell_value_func("Nếu Nghề nghiệp Khác"),
+                }
+                .into(),
+                position: cell_value_func("Chức vụ/vị trí việc làm"),
+                permanent_address: AddrSimple {
+                    street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
+                    city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
+                    district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
+                    country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")
+                        .to_country_code()
+                        .into(),
+                    phone: None,
+                }
+                .into(),
+                current_address: AddrSimple {
+                    street_address: cell_value_func("Nơi ở hiện tại (Số nhà)"),
+                    city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
+                    district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
+                    country: cell_value_func("Nơi ở hiện tại (Quốc gia)")
+                        .to_country_code()
+                        .into(),
+                    phone: None,
+                }
+                .into(),
+                phone_number: cell_value_func("Điện thoại liên lạc"),
+                identifications: Some(vec![Identification {
+                    id_type: cell_value_func("Loại định danh")
+                        .to_personal_id_code()
+                        .into(),
+                    id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
+                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)").convert_date_vn_to_iso(),
+                    issuing_authority: cell_value_func("Cơ quan cấp"),
+                    expiry_date: None,
+                    place_of_issue: cell_value_func("Nơi cấp"),
+                }]),
+                education_level: None,
+                email: None,
+                accounts: None,
+            };
+
+            (cif_value, rep)
+        })
+        .fold(
+            HashMap::<String, Vec<Individual>>::new(),
+            |mut acc, (cif, rep)| {
+                acc.entry(cif).or_default().push(rep);
+                acc
+            },
+        );
+
+    Ok(beneficiaries)
 }

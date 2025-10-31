@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Individual {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "khach_hang_hien_huu")]
     pub existing_customer: Option<String>,
     #[serde(rename = "ho_ten")]
@@ -36,7 +36,7 @@ pub struct Individual {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Organization {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "khach_hang_hien_huu")]
     pub existing_customer: Option<String>,
     #[serde(rename = "ten_to_chuc")]
@@ -211,7 +211,7 @@ pub struct EnterpriseCode {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Representative {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "ho_ten")]
     pub full_name: Option<String>,
     #[serde(rename = "ngay_sinh")]

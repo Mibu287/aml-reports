@@ -126,6 +126,35 @@
             "Nơi cấp": "V"
         }
     },
+    "Phần II. CSHHL khác": {
+        "sheet": "Phần II. CSHHL khác",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "Tên khách hàng": "A",
+            "CIF": "B",
+            "Họ và tên": "C",
+            "Ngày sinh": "D",
+            "Giới tính": "E",
+            "Điện thoại liên lạc": "F",
+            "Quốc tịch": "G",
+            "Nghề nghiệp": "H",
+            "Nếu Nghề nghiệp Khác": "I",
+            "Chức vụ/vị trí việc làm": "J",
+            "Địa chỉ đăng ký thường trú (Số nhà)": "K",
+            "Địa chỉ đăng ký thường trú (Phường/Xã)": "L",
+            "Địa chỉ đăng ký thường trú (Tỉnh/TP)": "M",
+            "Địa chỉ đăng ký thường trú (Quốc gia)": "N",
+            "Nơi ở hiện tại (Số nhà)": "O",
+            "Nơi ở hiện tại (Phường/Xã)": "P",
+            "Nơi ở hiện tại (Tỉnh/TP)": "Q",
+            "Nơi ở hiện tại (Quốc gia)": "R",
+            "Loại định danh": "S",
+            "CMND/CCCD/Hộ chiếu/Định danh cá nhân": "T",
+            "Ngày cấp (dd/mm/yyyy)": "U",
+            "Cơ quan cấp": "V",
+            "Nơi cấp": "W"
+        }
+    },
     "Phần II: Thông tin bổ sung": ["STR", "B29"],
     "Phần V: Công việc xử lý": "STR",
     "Phần IV: Thông tin về giao dịch đáng ngờ": "STR",
