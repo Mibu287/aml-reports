@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::payload::{
     info::GeneralInfo, section1::Section1, section2::Section2, section3::Section3,
-    section4::Section4, section5::Section5, section6::Section6,
+    section4::Section4, section5::Section5,
 };
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone, Default)]
