@@ -3,6 +3,7 @@ use std::{
     io::{Read, Seek},
 };
 
+use anyhow::Context;
 use calamine::{DataType, Reader};
 
 use crate::{
@@ -90,21 +91,24 @@ pub fn get_cell_value(
     col_map: &HashMap<String, String>,
     base_coord: (u32, u32),
     curr_row: &Vec<String>,
-) -> Option<String> {
-    let col_name = col_map
+) -> anyhow::Result<Option<String>> {
+    let col_no = col_map
         .get(col_name)
-        .expect(format!("{} column not found", col_name).as_str());
+        .cloned()
+        .with_context(|| format!("Không tìm thấy cột {}", col_name))?;
 
-    let col_idx = col_name_to_index(col_name, base_coord.into())
-        .expect(format!("Invalid column name {}", col_name).as_str());
+    let col_idx = col_name_to_index(&col_no, base_coord.into())
+        .with_context(|| format!("Không tìm thấy cột {} {}", col_no, col_name))?;
 
-    let value = curr_row[col_idx as usize].trim();
+    let value = curr_row
+        .get(col_idx as usize)
+        .map(|s| match s.is_empty() {
+            true => None,
+            false => Some(s.clone()),
+        })
+        .flatten();
 
-    if value.is_empty() {
-        None
-    } else {
-        Some(value.to_string())
-    }
+    Ok(value)
 }
 
 impl Individual {
@@ -117,72 +121,103 @@ impl Individual {
 
         let persons = rows
             .into_iter()
-            .map(|curr_row| {
+            .map(|curr_row| -> anyhow::Result<Individual> {
                 let cell_value_func =
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-                let cif_value = cell_value_func("CIF").unwrap_or_default();
+                let cif_value = cell_value_func("CIF")?.unwrap_or_default();
 
-                Individual {
+                let individual = Individual {
                     id: cif_value.clone().into(),
                     existing_customer: if cif_value.clone().is_empty() {
                         None
                     } else {
                         "1".to_string().into()
                     },
-                    full_name: cell_value_func("Tên khách hàng"),
-                    date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")
+                    full_name: cell_value_func("Tên khách hàng")?,
+                    date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
                         .convert_date_vn_to_iso(),
-                    age_range: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")
+                    age_range: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
                         .to_age_range_code(),
-                    gender: cell_value_func("Giới tính").to_gender_code().into(),
-                    nationality: cell_value_func("Quốc tịch").to_country_code().into(),
+                    gender: cell_value_func("Giới tính")?.to_gender_code().into(),
+                    nationality: cell_value_func("Quốc tịch")?.to_country_code().into(),
                     occupation: Occupation {
-                        occupation_code: cell_value_func("Nghề nghiệp").to_occupation_code().into(),
-                        description: cell_value_func("Nghề nghiệp"),
-                        content: cell_value_func("Nếu Nghề nghiệp Khác"),
+                        occupation_code: cell_value_func("Nghề nghiệp")?
+                            .to_occupation_code()
+                            .into(),
+                        description: cell_value_func("Nghề nghiệp")?,
+                        content: cell_value_func("Nếu Nghề nghiệp Khác")?,
                     }
                     .into(),
                     position: None,
                     permanent_address: Some(AddrSimple {
-                        street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
-                        city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
-                        district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
-                        country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")
+                        street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)")?,
+                        city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)")?,
+                        district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)")?,
+                        country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")?
                             .to_country_code()
                             .into(),
                         phone: None,
                     }),
                     current_address: Some(AddrSimple {
-                        street_address: cell_value_func("Nơi ở hiện tại (Số nhà)"),
-                        city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
-                        district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
-                        country: cell_value_func("Nơi ở hiện tại (Quốc gia)")
+                        street_address: cell_value_func("Nơi ở hiện tại (Số nhà)")?,
+                        city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)")?,
+                        district: cell_value_func("Nơi ở hiện tại (Phường/Xã)")?,
+                        country: cell_value_func("Nơi ở hiện tại (Quốc gia)")?
                             .to_country_code()
                             .into(),
                         phone: None,
                     }),
                     identifications: Some(vec![Identification {
-                        id_type: cell_value_func("Loại định danh")
+                        id_type: cell_value_func("Loại định danh")?
                             .to_personal_id_code()
                             .into(),
-                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
-                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
+                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
+                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso(),
-                        issuing_authority: cell_value_func("Cơ quan cấp"),
-                        expiry_date: cell_value_func("Ngày hết hạn (dd/mm/yyyy)")
+                        issuing_authority: cell_value_func("Cơ quan cấp")?,
+                        expiry_date: cell_value_func("Ngày hết hạn (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso(),
-                        place_of_issue: cell_value_func("Nơi cấp"),
+                        place_of_issue: cell_value_func("Nơi cấp")?,
                     }]),
-                    phone_number: cell_value_func("Số điện thoại"),
+                    phone_number: cell_value_func("Số điện thoại")?,
                     education_level: None,
-                    email: cell_value_func("Email"),
+                    email: cell_value_func("Email")?,
                     accounts: accounts.get(&cif_value).cloned(),
+                };
+
+                Ok(individual)
+            })
+            .enumerate()
+            .map(|(n_row, result)| -> anyhow::Result<Individual> {
+                match result {
+                    Ok(person) => Ok(person),
+                    Err(e) => {
+                        let err_msg =
+                            format!("Lỗi dữ liệu khi xử lý dòng số {}: {:?}", n_row + 1, e);
+                        Err(e).context(err_msg)
+                    }
                 }
             })
-            .collect::<Vec<_>>();
+            .fold(
+                anyhow::Result::<Vec<Individual>>::Ok(vec![]),
+                |final_result, result| {
+                    let mut current_result = match final_result {
+                        Ok(r) => r,
+                        Err(e) => return Err(e),
+                    };
 
-        Ok(persons.into())
+                    match result {
+                        Ok(person) => current_result.push(person),
+                        Err(e) => return Err(e),
+                    };
+
+                    return Ok(current_result);
+                },
+            )?
+            .into();
+
+        Ok(persons)
     }
 }
 
@@ -199,59 +234,77 @@ impl Organization {
 
         let orgs = rows
             .into_iter()
-            .map(|curr_row| {
+            .map(|curr_row| -> anyhow::Result<Organization> {
                 let cell_value_func =
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-                let cif_value = cell_value_func("CIF").unwrap_or_default();
+                let cif_value = cell_value_func("CIF")?.unwrap_or_default();
 
-                Organization {
+                let org = Organization {
                     id: cif_value.clone().into(),
                     existing_customer: if cif_value.clone().is_empty() {
                         None
                     } else {
                         "1".to_string().into()
                     },
-                    name: cell_value_func("Tên khách hàng"),
+                    name: cell_value_func("Tên khách hàng")?,
                     foreign_name: None,
                     short_name: None,
                     organization_type: CodeDesc {
-                        type_code: cell_value_func("Loại hình tổ chức")
+                        type_code: cell_value_func("Loại hình tổ chức")?
                             .to_corporate_type_code()
                             .into(),
-                        description: cell_value_func("Loại hình tổ chức nếu chọn Khác"),
+                        description: cell_value_func("Loại hình tổ chức nếu chọn Khác")?,
                     }
                     .into(),
                     address: AddrSimple {
-                        street_address: cell_value_func("Số nhà"),
-                        district: cell_value_func("Phường/Xã"),
-                        city_province: cell_value_func("Tỉnh/TP"),
-                        country: cell_value_func("Quốc gia").map(|v| v.to_country_code()),
-                        phone: cell_value_func("Số điện thoại"),
+                        street_address: cell_value_func("Số nhà")?,
+                        district: cell_value_func("Phường/Xã")?,
+                        city_province: cell_value_func("Tỉnh/TP")?,
+                        country: cell_value_func("Quốc gia")?.map(|v| v.to_country_code()),
+                        phone: cell_value_func("Số điện thoại")?,
                     }
                     .into(),
                     establishment_license: License {
-                        license_number: cell_value_func("Giấy phép thành lập số"),
-                        issue_date: cell_value_func("Ngày cấp giấy phép (dd/mm/yyyy)")
+                        license_number: cell_value_func("Giấy phép thành lập số")?,
+                        issue_date: cell_value_func("Ngày cấp giấy phép (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso(),
-                        issue_place: cell_value_func("Nơi cấp giấy phép"),
+                        issue_place: cell_value_func("Nơi cấp giấy phép")?,
                     }
                     .into(),
                     enterprise_code: EnterpriseCode {
-                        code: cell_value_func("MS doanh nghiệp/MS thuế"),
-                        issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")
+                        code: cell_value_func("MS doanh nghiệp/MS thuế")?,
+                        issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso(),
-                        issue_place: cell_value_func("Quốc gia cấp MST").to_country_code().into(),
+                        issue_place: cell_value_func("Quốc gia cấp MST")?
+                            .to_country_code()
+                            .into(),
                     }
                     .into(),
-                    business_sector: cell_value_func("Ngành nghề kinh doanh chính"),
-                    phone_number: cell_value_func("Số điện thoại"),
-                    website: cell_value_func("Địa chỉ trang thông tin điện tử của doanh nghiệp"),
+                    business_sector: cell_value_func("Ngành nghề kinh doanh chính")?,
+                    phone_number: cell_value_func("Số điện thoại")?,
+                    website: cell_value_func("Địa chỉ trang thông tin điện tử của doanh nghiệp")?,
                     accounts: accounts.get(&cif_value).cloned().into(),
                     representatives: rep_persons.get(&cif_value).cloned().into(),
-                }
+                };
+                Ok(org)
             })
-            .collect::<Vec<_>>();
+            .fold(
+                anyhow::Result::<Vec<Organization>>::Ok(vec![]),
+                |final_result, result| {
+                    let mut current_result = match final_result {
+                        Ok(r) => r,
+                        Err(e) => return Err(e),
+                    };
+
+                    match result {
+                        Ok(person) => current_result.push(person),
+                        Err(e) => return Err(e),
+                    };
+
+                    return Ok(current_result);
+                },
+            )?;
 
         Ok(orgs.into())
     }
@@ -269,38 +322,47 @@ impl Account {
 
         let accounts = rows
             .into_iter()
-            .map(|curr_row| {
+            .map(|curr_row| -> anyhow::Result<_> {
                 let cell_value_func =
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-                let cif_value = cell_value_func("CIF").unwrap_or_default();
+                let cif_value = cell_value_func("CIF")?.unwrap_or_default();
 
                 let account = Account {
-                    account_number: cell_value_func("Số tài khoản"),
+                    account_number: cell_value_func("Số tài khoản")?,
                     bank: Some(Bank {
-                        bank_name: cell_value_func("Tên Ngân hàng"),
-                        bank_code: cell_value_func("Mã Ngân hàng")
+                        bank_name: cell_value_func("Tên Ngân hàng")?,
+                        bank_code: cell_value_func("Mã Ngân hàng")?
                             .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
                     }),
-                    currency_type: cell_value_func("Loại tiền")
+                    currency_type: cell_value_func("Loại tiền")?
                         .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
-                    account_type: cell_value_func("Loại TK").to_account_type_code().into(),
-                    open_date: cell_value_func("Ngày mở").convert_date_vn_to_iso(),
-                    status: cell_value_func("Trạng thái")
+                    account_type: cell_value_func("Loại TK")?.to_account_type_code().into(),
+                    open_date: cell_value_func("Ngày mở")?.convert_date_vn_to_iso(),
+                    status: cell_value_func("Trạng thái")?
                         .to_account_status_code()
                         .into(),
                     authorized_persons: None,
                 };
 
-                (cif_value, account)
+                Ok((cif_value, account))
             })
             .fold(
-                HashMap::<String, Vec<Account>>::new(),
-                |mut acc, (cif, account)| {
-                    acc.entry(cif).or_default().push(account);
-                    acc
+                anyhow::Result::<HashMap<String, Vec<Account>>>::Ok(Default::default()),
+                |acc, element| {
+                    let mut result = match acc {
+                        Ok(a) => a,
+                        Err(e) => return Err(e),
+                    };
+                    match element {
+                        Ok((cif, account)) => {
+                            result.entry(cif).or_default().push(account);
+                        }
+                        Err(_) => {}
+                    }
+                    Ok(result)
                 },
-            );
+            )?;
 
         Ok(accounts)
     }
@@ -318,67 +380,71 @@ impl Representative {
 
         let representatives = rows
             .into_iter()
-            .map(|curr_row| {
+            .map(|curr_row| -> anyhow::Result<(String, Representative)> {
                 let cell_value_func =
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-                let cif_value = cell_value_func("CIF").unwrap_or_default();
+                let cif_value = cell_value_func("CIF")?.unwrap_or_default();
 
                 let rep = Representative {
-                    id: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
-                    full_name: cell_value_func("Họ và tên"),
-                    date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
+                    id: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
+                    full_name: cell_value_func("Họ và tên")?,
+                    date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
                     occupation: Occupation {
-                        occupation_code: cell_value_func("Nghề nghiệp").to_occupation_code().into(),
-                        description: cell_value_func("Nghề nghiệp"),
-                        content: cell_value_func("Nếu Nghề nghiệp Khác"),
+                        occupation_code: cell_value_func("Nghề nghiệp")?
+                            .to_occupation_code()
+                            .into(),
+                        description: cell_value_func("Nghề nghiệp")?,
+                        content: cell_value_func("Nếu Nghề nghiệp Khác")?,
                     }
                     .into(),
-                    position: cell_value_func("Chức vụ/vị trí việc làm"),
+                    position: cell_value_func("Chức vụ/vị trí việc làm")?,
                     permanent_address: AddrSimple {
-                        street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
-                        city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
-                        district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
-                        country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")
+                        street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)")?,
+                        city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)")?,
+                        district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)")?,
+                        country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")?
                             .to_country_code()
                             .into(),
                         phone: None,
                     }
                     .into(),
                     current_address: AddrSimple {
-                        street_address: cell_value_func("Nơi ở hiện tại (Số nhà)"),
-                        city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
-                        district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
-                        country: cell_value_func("Nơi ở hiện tại (Quốc gia)")
+                        street_address: cell_value_func("Nơi ở hiện tại (Số nhà)")?,
+                        city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)")?,
+                        district: cell_value_func("Nơi ở hiện tại (Phường/Xã)")?,
+                        country: cell_value_func("Nơi ở hiện tại (Quốc gia)")?
                             .to_country_code()
                             .into(),
                         phone: None,
                     }
                     .into(),
-                    phone_number: cell_value_func("Điện thoại liên lạc"),
-                    nationality: cell_value_func("Quốc tịch").to_country_code().into(),
+                    phone_number: cell_value_func("Điện thoại liên lạc")?,
+                    nationality: cell_value_func("Quốc tịch")?.to_country_code().into(),
                     identifications: Some(vec![Identification {
-                        id_type: cell_value_func("Loại định danh")
+                        id_type: cell_value_func("Loại định danh")?
                             .to_personal_id_code()
                             .into(),
-                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
-                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")
+                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
+                        issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso(),
-                        issuing_authority: cell_value_func("Cơ quan cấp"),
+                        issuing_authority: cell_value_func("Cơ quan cấp")?,
                         expiry_date: None,
-                        place_of_issue: cell_value_func("Nơi cấp"),
+                        place_of_issue: cell_value_func("Nơi cấp")?,
                     }]),
                 };
 
-                (cif_value, rep)
+                Ok((cif_value, rep))
             })
             .fold(
-                HashMap::<String, Vec<Representative>>::new(),
-                |mut acc, (cif, rep)| {
-                    acc.entry(cif).or_default().push(rep);
-                    acc
+                anyhow::Result::<HashMap<String, Vec<Representative>>>::Ok(Default::default()),
+                |acc, element| {
+                    let mut result = acc?;
+                    let (cif, rep) = element?;
+                    result.entry(cif).or_default().push(rep);
+                    Ok(result)
                 },
-            );
+            )?;
 
         Ok(representatives)
     }
@@ -516,72 +582,74 @@ where
 
     let beneficiaries = rows
         .into_iter()
-        .map(|curr_row| {
+        .map(|curr_row| -> anyhow::Result<(String, Individual)> {
             let cell_value_func =
                 |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
-            let cif_value = cell_value_func("CIF").unwrap_or_default();
+            let cif_value = cell_value_func("CIF")?.unwrap_or_default();
 
             let rep = Individual {
                 existing_customer: None,
                 id: cif_value.clone().into(),
-                full_name: cell_value_func("Họ và tên"),
-                date_of_birth: cell_value_func("Ngày sinh").convert_date_vn_to_iso(),
+                full_name: cell_value_func("Họ và tên")?,
+                date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
                 age_range: None,
-                gender: cell_value_func("Giới tính").to_gender_code().into(),
-                nationality: cell_value_func("Quốc tịch").to_country_code().into(),
+                gender: cell_value_func("Giới tính")?.to_gender_code().into(),
+                nationality: cell_value_func("Quốc tịch")?.to_country_code().into(),
                 occupation: Occupation {
-                    occupation_code: cell_value_func("Nghề nghiệp").to_occupation_code().into(),
-                    description: cell_value_func("Nghề nghiệp"),
-                    content: cell_value_func("Nếu Nghề nghiệp Khác"),
+                    occupation_code: cell_value_func("Nghề nghiệp")?.to_occupation_code().into(),
+                    description: cell_value_func("Nghề nghiệp")?,
+                    content: cell_value_func("Nếu Nghề nghiệp Khác")?,
                 }
                 .into(),
-                position: cell_value_func("Chức vụ/vị trí việc làm"),
+                position: cell_value_func("Chức vụ/vị trí việc làm")?,
                 permanent_address: AddrSimple {
-                    street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)"),
-                    city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)"),
-                    district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)"),
-                    country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")
+                    street_address: cell_value_func("Địa chỉ đăng ký thường trú (Số nhà)")?,
+                    city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)")?,
+                    district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)")?,
+                    country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")?
                         .to_country_code()
                         .into(),
                     phone: None,
                 }
                 .into(),
                 current_address: AddrSimple {
-                    street_address: cell_value_func("Nơi ở hiện tại (Số nhà)"),
-                    city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)"),
-                    district: cell_value_func("Nơi ở hiện tại (Phường/Xã)"),
-                    country: cell_value_func("Nơi ở hiện tại (Quốc gia)")
+                    street_address: cell_value_func("Nơi ở hiện tại (Số nhà)")?,
+                    city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)")?,
+                    district: cell_value_func("Nơi ở hiện tại (Phường/Xã)")?,
+                    country: cell_value_func("Nơi ở hiện tại (Quốc gia)")?
                         .to_country_code()
                         .into(),
                     phone: None,
                 }
                 .into(),
-                phone_number: cell_value_func("Điện thoại liên lạc"),
+                phone_number: cell_value_func("Điện thoại liên lạc")?,
                 identifications: Some(vec![Identification {
-                    id_type: cell_value_func("Loại định danh")
+                    id_type: cell_value_func("Loại định danh")?
                         .to_personal_id_code()
                         .into(),
-                    id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân"),
-                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)").convert_date_vn_to_iso(),
-                    issuing_authority: cell_value_func("Cơ quan cấp"),
+                    id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
+                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?.convert_date_vn_to_iso(),
+                    issuing_authority: cell_value_func("Cơ quan cấp")?,
                     expiry_date: None,
-                    place_of_issue: cell_value_func("Nơi cấp"),
+                    place_of_issue: cell_value_func("Nơi cấp")?,
                 }]),
                 education_level: None,
                 email: None,
                 accounts: None,
             };
 
-            (cif_value, rep)
+            Ok((cif_value, rep))
         })
         .fold(
-            HashMap::<String, Vec<Individual>>::new(),
-            |mut acc, (cif, rep)| {
-                acc.entry(cif).or_default().push(rep);
-                acc
+            anyhow::Result::<HashMap<String, Vec<Individual>>>::Ok(Default::default()),
+            |acc, element| {
+                let mut result = acc?;
+                let (cif, rep) = element?;
+                result.entry(cif).or_default().push(rep);
+                Ok(result)
             },
-        );
+        )?;
 
     Ok(beneficiaries)
 }
