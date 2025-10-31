@@ -1,5 +1,7 @@
 use std::io::{Read, Seek};
 
+use anyhow::Context;
+
 use crate::{
     codes::country::CountryCode,
     payload::section1::{
@@ -10,6 +12,13 @@ use crate::{
 
 impl Section1 {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook).with_context(|| format!("Lỗi xử lý dữ liệu Phần I"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {

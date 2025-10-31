@@ -29,6 +29,13 @@ impl Section2 {
     where
         RS: Seek + Read,
     {
+        Self::_from_excel(workbook).with_context(|| format!("Lỗi xử lý dữ liệu Phần II"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
         Ok(Self {
             individuals: Individual::from_excel(workbook)?,
             organizations: Organization::from_excel(workbook)?,
@@ -113,6 +120,13 @@ pub fn get_cell_value(
 
 impl Individual {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
+    where
+        RS: Read + Seek,
+    {
+        Self::_from_excel(workbook).with_context(|| format!("Lỗi xử lý tại sheet `Phần II. KHCN`"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
     where
         RS: Read + Seek,
     {
@@ -226,6 +240,14 @@ impl Organization {
     where
         RS: Read + Seek,
     {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu tại sheet `Phần II. KHTC`"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Vec<Self>>>
+    where
+        RS: Read + Seek,
+    {
         let accounts = Account::from_excel(workbook)?;
         let rep_persons = Representative::from_excel(workbook)?;
 
@@ -320,6 +342,16 @@ impl Account {
     where
         RS: Read + Seek,
     {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu tại sheet `Phần II. Tài khoản`"))
+    }
+
+    fn _from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+    ) -> anyhow::Result<HashMap<String, Vec<Self>>>
+    where
+        RS: Read + Seek,
+    {
         let sheet_key = "Phần II. Tài khoản";
         let (rows, col_map, base_coord) = read_table_from_sheet(workbook, sheet_key)?;
 
@@ -372,7 +404,17 @@ impl Account {
 }
 
 impl Representative {
-    fn from_excel<RS>(
+    pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+    ) -> anyhow::Result<HashMap<String, Vec<Self>>>
+    where
+        RS: Read + Seek,
+    {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu tại sheet `Phần II. Người đại diện`"))
+    }
+
+    fn _from_excel<RS>(
         workbook: &mut calamine::Xlsx<RS>,
     ) -> anyhow::Result<HashMap<String, Vec<Self>>>
     where
@@ -455,6 +497,14 @@ impl Representative {
 
 impl BeneficialOwners {
     fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu chủ sở hữu hưởng lợi tại Phần II"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Option<Self>>
     where
         RS: Seek + Read,
     {
@@ -575,6 +625,16 @@ impl BeneficialOwners {
 }
 
 fn other_owners_from_excel<RS>(
+    workbook: &mut calamine::Xlsx<RS>,
+) -> anyhow::Result<HashMap<String, Vec<Individual>>>
+where
+    RS: Seek + Read,
+{
+    _other_owners_from_excel(workbook)
+        .with_context(|| format!("Lỗi khi xử lý dữ liệu tại sheet `Phần II. CSHHL khác`"))
+}
+
+fn _other_owners_from_excel<RS>(
     workbook: &mut calamine::Xlsx<RS>,
 ) -> anyhow::Result<HashMap<String, Vec<Individual>>>
 where
