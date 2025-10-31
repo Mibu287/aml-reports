@@ -140,7 +140,7 @@ impl Individual {
                     age_range: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
                         .to_age_range_code(),
                     gender: cell_value_func("Giới tính")?.to_gender_code().into(),
-                    nationality: cell_value_func("Quốc tịch")?.to_country_code().into(),
+                    nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")?
                             .to_occupation_code()
@@ -155,7 +155,7 @@ impl Individual {
                         city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)")?,
                         district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)")?,
                         country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")?
-                            .to_country_code()
+                            .to_country_code()?
                             .into(),
                         phone: None,
                     }),
@@ -164,7 +164,7 @@ impl Individual {
                         city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)")?,
                         district: cell_value_func("Nơi ở hiện tại (Phường/Xã)")?,
                         country: cell_value_func("Nơi ở hiện tại (Quốc gia)")?
-                            .to_country_code()
+                            .to_country_code()?
                             .into(),
                         phone: None,
                     }),
@@ -261,7 +261,10 @@ impl Organization {
                         street_address: cell_value_func("Số nhà")?,
                         district: cell_value_func("Phường/Xã")?,
                         city_province: cell_value_func("Tỉnh/TP")?,
-                        country: cell_value_func("Quốc gia")?.map(|v| v.to_country_code()),
+                        country: cell_value_func("Quốc gia")?
+                            .unwrap_or_default()
+                            .to_country_code()?
+                            .into(),
                         phone: cell_value_func("Số điện thoại")?,
                     }
                     .into(),
@@ -277,7 +280,7 @@ impl Organization {
                         issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso(),
                         issue_place: cell_value_func("Quốc gia cấp MST")?
-                            .to_country_code()
+                            .to_country_code()?
                             .into(),
                     }
                     .into(),
@@ -404,7 +407,7 @@ impl Representative {
                         city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)")?,
                         district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)")?,
                         country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")?
-                            .to_country_code()
+                            .to_country_code()?
                             .into(),
                         phone: None,
                     }
@@ -414,13 +417,13 @@ impl Representative {
                         city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)")?,
                         district: cell_value_func("Nơi ở hiện tại (Phường/Xã)")?,
                         country: cell_value_func("Nơi ở hiện tại (Quốc gia)")?
-                            .to_country_code()
+                            .to_country_code()?
                             .into(),
                         phone: None,
                     }
                     .into(),
                     phone_number: cell_value_func("Điện thoại liên lạc")?,
-                    nationality: cell_value_func("Quốc tịch")?.to_country_code().into(),
+                    nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                     identifications: Some(vec![Identification {
                         id_type: cell_value_func("Loại định danh")?
                             .to_personal_id_code()
@@ -595,7 +598,7 @@ where
                 date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
                 age_range: None,
                 gender: cell_value_func("Giới tính")?.to_gender_code().into(),
-                nationality: cell_value_func("Quốc tịch")?.to_country_code().into(),
+                nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                 occupation: Occupation {
                     occupation_code: cell_value_func("Nghề nghiệp")?.to_occupation_code().into(),
                     description: cell_value_func("Nghề nghiệp")?,
@@ -608,7 +611,7 @@ where
                     city_province: cell_value_func("Địa chỉ đăng ký thường trú (Tỉnh/TP)")?,
                     district: cell_value_func("Địa chỉ đăng ký thường trú (Phường/Xã)")?,
                     country: cell_value_func("Địa chỉ đăng ký thường trú (Quốc gia)")?
-                        .to_country_code()
+                        .to_country_code()?
                         .into(),
                     phone: None,
                 }
@@ -618,7 +621,7 @@ where
                     city_province: cell_value_func("Nơi ở hiện tại (Tỉnh/TP)")?,
                     district: cell_value_func("Nơi ở hiện tại (Phường/Xã)")?,
                     country: cell_value_func("Nơi ở hiện tại (Quốc gia)")?
-                        .to_country_code()
+                        .to_country_code()?
                         .into(),
                     phone: None,
                 }

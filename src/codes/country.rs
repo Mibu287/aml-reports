@@ -257,20 +257,33 @@ const COUNTRY_CODES: [(&str, &str); 253] = [
 ];
 
 pub trait CountryCode {
-    fn to_country_code(&self) -> String;
+    fn to_country_code(&self) -> anyhow::Result<String>;
 }
 
 impl CountryCode for String {
-    fn to_country_code(&self) -> String {
-        search_for_code(&COUNTRY_CODES, self)
+    fn to_country_code(&self) -> anyhow::Result<String> {
+        match self.as_str() {
+            "" => Ok(String::new()),
+            country_name => {
+                let country_code = search_for_code(&COUNTRY_CODES, country_name);
+                if country_code.is_empty() {
+                    Err(anyhow::anyhow!(
+                        "Tên quốc gia không hợp lệ: {}",
+                        country_name
+                    ))
+                } else {
+                    Ok(country_code)
+                }
+            }
+        }
     }
 }
 
 impl CountryCode for Option<String> {
-    fn to_country_code(&self) -> String {
+    fn to_country_code(&self) -> anyhow::Result<String> {
         match self {
             Some(country_name) => country_name.to_country_code(),
-            None => String::new(),
+            None => Ok(String::new()),
         }
     }
 }
