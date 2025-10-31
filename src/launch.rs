@@ -1,3 +1,4 @@
+use anyhow::Context;
 use scopeguard::defer;
 
 pub async fn launch_web_automation_task<TaskFuture, R>(
@@ -14,7 +15,8 @@ where
     // Launch chromedriver on the specified port
     let mut chromedriver = thirtyfour_chromedriver::manager::Handler::new()
         .launch_chromedriver(&mut caps, &port.to_string())
-        .await?;
+        .await
+        .with_context(|| format!("Không thể khởi động chromedriver trên cổng {}", port))?;
 
     defer!(
         let _ = chromedriver.kill();
@@ -22,11 +24,21 @@ where
 
     // Connect to chrome on the same port
     let driver_url = format!("http://localhost:{}", port);
-    let driver = thirtyfour::WebDriver::new(&driver_url, caps).await?;
+    let driver = thirtyfour::WebDriver::new(&driver_url, caps)
+        .await
+        .with_context(|| {
+            format!(
+                "Không thể kết nối đến trình duyệt Chrome tại {}",
+                driver_url
+            )
+        })?;
 
     match func(driver).await {
         Ok((driver, result)) => {
-            driver.quit().await?;
+            driver
+                .quit()
+                .await
+                .with_context(|| format!("Không thể đóng trình duyệt Chrome tại {}", driver_url))?;
             Ok(result)
         }
         Err(err) => Err(err),
