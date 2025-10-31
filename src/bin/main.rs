@@ -1,6 +1,8 @@
 use aml::{
-    auth::get_auth_code, launch::launch_web_automation_task, payload::form::Form,
-    response::ErrorResponse,
+    auth::get_auth_code,
+    launch::launch_web_automation_task,
+    payload::form::Form,
+    response::{ErrorResponse, SuccessResponse},
 };
 use duration_extender::DurationExt;
 use indicatif::ProgressStyle;
@@ -55,7 +57,7 @@ async fn main() -> anyhow::Result<()> {
             .send()
             .await;
 
-        let _resp = match status {
+        let resp = match status {
             Err(err) => {
                 log::error!(
                     "Có lỗi xảy ra khi xử lý file {:?}: {}",
@@ -85,13 +87,31 @@ async fn main() -> anyhow::Result<()> {
                     };
                     continue;
                 }
-                true => r,
+                true => match r.text().await {
+                    Err(err) => {
+                        log::error!(
+                            "Có lỗi xảy ra khi xử lý file {:?}: {}",
+                            excel_file.path(),
+                            err
+                        );
+                        continue;
+                    }
+                    Ok(text) => text,
+                },
             },
         };
 
+        let parsed_resp = serde_json::from_str::<SuccessResponse>(&resp)?;
+
         log::info!(
-            "Successfully submitted form for file {:?}.",
+            "Đã nộp biểu mẫu thành công cho file `{:?}`. Tên báo cáo: `{}`. Mã báo cáo: `{}`.",
             excel_file.path(),
+            parsed_resp.form.internal_number,
+            parsed_resp
+                .form
+                .id
+                .map(|id| id.to_string())
+                .unwrap_or_else(|| "N/A".to_string()),
         );
 
         tokio::time::sleep(1.seconds()).await;
