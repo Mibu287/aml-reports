@@ -22,7 +22,7 @@ indicatif = { version = "0.18", features = ["tokio"] }
 indicatif-log-bridge = "0.2.3"
 log = "0.4.28"
 regex = "1.12.2"
-reqwest = "0.12.*"
+reqwest = { version = "0.12.*", features = ["multipart", "stream"] }
 scopeguard = "1.2.0"
 serde = { version = "1.*.*", features = ["serde_derive", "derive"] }
 serde_json = "1.0.145"
