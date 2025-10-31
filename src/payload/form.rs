@@ -15,7 +15,7 @@ pub enum CreationStatus {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Form {
-    pub id: Option<String>,
+    pub id: Option<i64>,
     #[serde(rename = "str_internal_number")]
     pub internal_number: String,
     #[serde(rename = "str_type")]
