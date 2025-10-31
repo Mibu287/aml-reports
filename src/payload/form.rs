@@ -40,6 +40,4 @@ pub struct Payload {
     pub section_4: Section4,
     #[serde(rename = "Phan_5")]
     pub section_5: Section5,
-    #[serde(rename = "Phan_6")]
-    pub section_6: Section6,
 }
