@@ -704,11 +704,16 @@ where
 
             Ok((cif_value, rep))
         })
+        .enumerate()
         .fold(
             anyhow::Result::<HashMap<String, Vec<Individual>>>::Ok(Default::default()),
             |acc, element| {
                 let mut result = acc?;
-                let (cif, rep) = element?;
+
+                let (n_row, element) = element;
+                let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                let (cif, rep) = element.with_context(err_context)?;
+
                 result.entry(cif).or_default().push(rep);
                 Ok(result)
             },
