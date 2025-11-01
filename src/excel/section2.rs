@@ -9,8 +9,8 @@ use calamine::{DataType, Reader};
 use crate::{
     codes::{
         account_status::AccountStatusCode, account_type::AccountTypeCode, age_range::AgeRangeCode,
-        corporate_type::CorporateTypeCode, country::CountryCode, gender::GenderCode,
-        occupation::OccupationCode, personal_id::PersonalIdCode,
+        corporate_type::CorporateTypeCode, country::CountryCode, currency::CurrencyCode,
+        gender::GenderCode, occupation::OccupationCode, personal_id::PersonalIdCode,
     },
     payload::{
         entities::{
@@ -29,7 +29,8 @@ impl Section2 {
     where
         RS: Seek + Read,
     {
-        Self::_from_excel(workbook).with_context(|| format!("Lỗi xử lý dữ liệu Phần II - Thông tin khách hàng"))
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu Phần II - Thông tin khách hàng"))
     }
 
     fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
@@ -355,8 +356,7 @@ impl Account {
                         bank_code: cell_value_func("Mã Ngân hàng")?
                             .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
                     }),
-                    currency_type: cell_value_func("Loại tiền")?
-                        .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
+                    currency_type: cell_value_func("Loại tiền")?.to_currency_code()?.into(),
                     account_type: cell_value_func("Loại TK")?.to_account_type_code()?.into(),
                     open_date: cell_value_func("Ngày mở")?.convert_date_vn_to_iso(),
                     status: cell_value_func("Trạng thái")?
