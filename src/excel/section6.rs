@@ -1,5 +1,7 @@
 use std::io::{Read, Seek};
 
+use anyhow::Context;
+
 use crate::{
     codes::document_type::DocumentType,
     excel::section2::{get_cell_value, read_table_from_sheet},
@@ -8,6 +10,14 @@ use crate::{
 
 impl Section6 {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu Phần VI - Tài liệu đính kèm"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {
@@ -44,7 +54,7 @@ impl Section6 {
                 let attachment = Attachment {
                     str_id: None,
                     status: "ACTIVE".to_string().into(),
-                    attachment_type: cell_value_func("Loại tài liệu")?.to_document_type().into(),
+                    attachment_type: cell_value_func("Loại tài liệu")?.to_document_type()?.into(),
                     page_count: cell_value_func("Số trang")?
                         .unwrap_or_default()
                         .parse::<i32>()
@@ -59,13 +69,17 @@ impl Section6 {
                 };
                 Ok(attachment)
             })
+            .enumerate()
             .fold(
                 anyhow::Result::<Vec<Attachment>>::Ok(Vec::new()),
-                |acc, element| {
-                    let mut result = acc?;
-                    let attachment = element?;
-                    result.push(attachment);
-                    Ok(result)
+                |final_result, element| {
+                    let mut final_result = final_result?;
+
+                    let (n_row, current_result) = element;
+                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let current_result = current_result.with_context(err_context)?;
+                    final_result.push(current_result);
+                    Ok(final_result)
                 },
             )?;
 
