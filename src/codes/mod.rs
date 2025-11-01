@@ -3,6 +3,7 @@ pub mod account_type;
 pub mod age_range;
 pub mod corporate_type;
 pub mod country;
+pub mod currency;
 pub mod document_type;
 pub mod gender;
 pub mod occupation;

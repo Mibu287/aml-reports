@@ -3,10 +3,11 @@ use std::{
     io::{Read, Seek},
 };
 
-use anyhow::Ok;
+use anyhow::{Context, Ok};
 use calamine::{DataType, Reader};
 
 use crate::{
+    codes::currency::CurrencyCode,
     payload::{
         entities::{Account, Individual, Organization},
         section4::{
@@ -409,6 +410,14 @@ impl MoneyFlow {
     where
         RS: Seek + Read,
     {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu Phần IV - Thông tin về giao dịch đáng ngờ"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Vec<Self>>
+    where
+        RS: Seek + Read,
+    {
         let inflow_sheet_key = "Phần IV. Ghi Có";
         let outflow_sheet_key = "Phần IV. Ghi Nợ";
 
@@ -483,84 +492,103 @@ impl MoneyFlow {
 
         let mut inflow_entries = inflow_rows
             .into_iter()
-            .map(|curr_row| {
-                let cell_value_func = |col_name: &str| {
-                    get_cell_value(col_name, &inflow_columns, inflow_base_coord, &curr_row)
-                };
+            .map(
+                |curr_row| -> anyhow::Result<(String, String, FlowEntryIn)> {
+                    let cell_value_func = |col_name: &str| {
+                        get_cell_value(col_name, &inflow_columns, inflow_base_coord, &curr_row)
+                    };
 
-                let cif = cell_value_func("CIF").unwrap_or_default();
-                let account_number = cell_value_func("Số tài khoản").unwrap_or_default();
+                    let cif = cell_value_func("CIF").unwrap_or_default();
+                    let account_number = cell_value_func("Số tài khoản").unwrap_or_default();
 
-                let entry = FlowEntryIn {
-                    source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
-                    source_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
-                    source_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
-                    source_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
-                    source_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
-                    total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
-                    total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
-                    total_transactions: cell_value_func("Tổng số lượng giao dịch"),
-                    tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
-                    tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
-                    currency: cell_value_func("Loại tiền")
-                        .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
-                    content: cell_value_func("Tóm tắt nội dung giao dịch"),
-                };
+                    let entry = FlowEntryIn {
+                        source_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
+                        source_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
+                        source_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
+                        source_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
+                        source_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
+                        total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
+                        total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
+                        total_transactions: cell_value_func("Tổng số lượng giao dịch"),
+                        tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
+                        tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                        currency: cell_value_func("Loại tiền").to_currency_code()?.into(),
+                        content: cell_value_func("Tóm tắt nội dung giao dịch"),
+                    };
 
-                (cif, account_number, entry)
-            })
+                    Ok((cif, account_number, entry))
+                },
+            )
+            .enumerate()
             .fold(
-                HashMap::<(String, String), Vec<FlowEntryIn>>::new(),
-                |mut flows, (cif, account, entry)| {
-                    flows
+                anyhow::Result::<HashMap<(String, String), Vec<FlowEntryIn>>>::Ok(
+                    Default::default(),
+                ),
+                |final_result, element| {
+                    let mut final_result = final_result?;
+                    let (n_row, current_result) = element;
+                    let err_context = || format!("Lỗi xử lý dữ liệu dòng số {}", n_row + 1);
+                    let (cif, account, entry) = current_result.with_context(err_context)?;
+                    final_result
                         .entry((cif, account))
                         .or_insert_with(Vec::new)
                         .push(entry);
-                    flows
+                    Ok(final_result)
                 },
-            );
+            )
+            .with_context(|| format!("Lỗi xử lý dữ liệu sheet {}", inflow_sheet_key))?;
 
         let (outflow_rows, outflow_columns, outflow_base_coord) =
             read_table_from_sheet(workbook, outflow_sheet_key)?;
 
         let mut outflow_entries = outflow_rows
             .into_iter()
-            .map(|curr_row| {
-                let cell_value_func = |col_name: &str| {
-                    get_cell_value(col_name, &outflow_columns, outflow_base_coord, &curr_row)
-                };
+            .map(
+                |curr_row| -> anyhow::Result<(String, String, FlowEntryOut)> {
+                    let cell_value_func = |col_name: &str| {
+                        get_cell_value(col_name, &outflow_columns, outflow_base_coord, &curr_row)
+                    };
 
-                let cif = cell_value_func("CIF").unwrap_or_default();
-                let account_number = cell_value_func("Số tài khoản").unwrap_or_default();
+                    let cif = cell_value_func("CIF").unwrap_or_default();
+                    let account_number = cell_value_func("Số tài khoản").unwrap_or_default();
 
-                let entry = FlowEntryOut {
-                    dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
-                    dest_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
-                    dest_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
-                    dest_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
-                    dest_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
-                    total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
-                    total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
-                    total_transactions: cell_value_func("Tổng số lượng giao dịch"),
-                    tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
-                    tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
-                    currency: cell_value_func("Loại tiền")
-                        .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
-                    content: cell_value_func("Tóm tắt nội dung giao dịch"),
-                };
+                    let entry = FlowEntryOut {
+                        dest_name: cell_value_func("Tên cá nhân/ tổ chức đối ứng"),
+                        dest_id: cell_value_func("Số CMND/ CCCD/ Hộ chiếu/ định danh cá nhân"),
+                        dest_account: cell_value_func("Số tài khoản áp dụng cho TH chuyển khoản"),
+                        dest_bank_name: cell_value_func("Tên ngân hàng chuyển tiền"),
+                        dest_bank_code: cell_value_func("Mã ngân hàng chuyển tiền"),
+                        total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
+                        total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
+                        total_transactions: cell_value_func("Tổng số lượng giao dịch"),
+                        tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
+                        tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                        currency: cell_value_func("Loại tiền").to_currency_code()?.into(),
+                        content: cell_value_func("Tóm tắt nội dung giao dịch"),
+                    };
 
-                (cif, account_number, entry)
-            })
+                    Ok((cif, account_number, entry))
+                },
+            )
+            .enumerate()
             .fold(
-                HashMap::<(String, String), Vec<FlowEntryOut>>::new(),
-                |mut flows, (cif, account, entry)| {
-                    flows
+                anyhow::Result::<HashMap<(String, String), Vec<FlowEntryOut>>>::Ok(
+                    Default::default(),
+                ),
+                |final_result, element| {
+                    let mut final_result = final_result?;
+
+                    let (n_row, current_result) = element;
+                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let (cif, account, entry) = current_result.with_context(err_context)?;
+                    final_result
                         .entry((cif, account))
                         .or_insert_with(Vec::new)
                         .push(entry);
-                    flows
+                    Ok(final_result)
                 },
-            );
+            )
+            .with_context(|| format!("Lỗi xử lý dữ liệu sheet {}", outflow_sheet_key))?;
 
         let unique_accounts = inflow_entries
             .keys()
