@@ -210,7 +210,12 @@ impl Individual {
                     let mut final_result = final_result?;
 
                     let (n_row, current_result) = element;
-                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let err_context = || {
+                        format!(
+                            "Lỗi dữ liệu khi xử lý dòng số {}",
+                            n_row + base_coord.0 as usize + 2
+                        )
+                    };
                     let current_result = current_result.with_context(err_context)?;
 
                     final_result.push(current_result);
@@ -309,7 +314,12 @@ impl Organization {
                     let mut final_result = final_result?;
 
                     let (n_row, current_result) = result;
-                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let err_context = || {
+                        format!(
+                            "Lỗi dữ liệu khi xử lý dòng số {}",
+                            n_row + base_coord.0 as usize + 2
+                        )
+                    };
                     let current_result = current_result.with_context(err_context)?;
 
                     final_result.push(current_result);
@@ -374,7 +384,12 @@ impl Account {
                     let mut final_result = final_result?;
 
                     let (n_row, current_result) = element;
-                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let err_context = || {
+                        format!(
+                            "Lỗi dữ liệu khi xử lý dòng số {}",
+                            n_row + base_coord.0 as usize + 2
+                        )
+                    };
                     let (cif, account) = current_result.with_context(err_context)?;
 
                     final_result.entry(cif).or_default().push(account);
@@ -471,7 +486,12 @@ impl Representative {
                     let mut final_result = final_result?;
 
                     let (n_row, element) = element;
-                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let err_context = || {
+                        format!(
+                            "Lỗi dữ liệu khi xử lý dòng số {}",
+                            n_row + base_coord.0 as usize + 2
+                        )
+                    };
                     let (cif, rep) = element.with_context(err_context)?;
                     final_result.entry(cif).or_default().push(rep);
                     Ok(final_result)
@@ -699,7 +719,12 @@ where
                 let mut result = acc?;
 
                 let (n_row, element) = element;
-                let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                let err_context = || {
+                    format!(
+                        "Lỗi dữ liệu khi xử lý dòng số {}",
+                        n_row + base_coord.0 as usize + 2
+                    )
+                };
                 let (cif, rep) = element.with_context(err_context)?;
 
                 result.entry(cif).or_default().push(rep);

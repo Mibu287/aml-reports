@@ -527,7 +527,12 @@ impl MoneyFlow {
                 |final_result, element| {
                     let mut final_result = final_result?;
                     let (n_row, current_result) = element;
-                    let err_context = || format!("Lỗi xử lý dữ liệu dòng số {}", n_row + 1);
+                    let err_context = || {
+                        format!(
+                            "Lỗi xử lý dữ liệu dòng số {}",
+                            n_row + inflow_base_coord.0 as usize + 2
+                        )
+                    };
                     let (cif, account, entry) = current_result.with_context(err_context)?;
                     final_result
                         .entry((cif, account))
@@ -579,7 +584,12 @@ impl MoneyFlow {
                     let mut final_result = final_result?;
 
                     let (n_row, current_result) = element;
-                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let err_context = || {
+                        format!(
+                            "Lỗi dữ liệu khi xử lý dòng số {}",
+                            n_row + outflow_base_coord.0 as usize + 2
+                        )
+                    };
                     let (cif, account, entry) = current_result.with_context(err_context)?;
                     final_result
                         .entry((cif, account))
