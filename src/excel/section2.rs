@@ -157,7 +157,7 @@ impl Individual {
                     nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")?
-                            .to_occupation_code()
+                            .to_occupation_code()?
                             .into(),
                         description: cell_value_func("Nghề nghiệp")?,
                         content: cell_value_func("Nếu Nghề nghiệp Khác")?,
@@ -433,7 +433,7 @@ impl Representative {
                     date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")?
-                            .to_occupation_code()
+                            .to_occupation_code()?
                             .into(),
                         description: cell_value_func("Nghề nghiệp")?,
                         content: cell_value_func("Nếu Nghề nghiệp Khác")?,
@@ -660,7 +660,7 @@ where
                 gender: cell_value_func("Giới tính")?.to_gender_code()?.into(),
                 nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                 occupation: Occupation {
-                    occupation_code: cell_value_func("Nghề nghiệp")?.to_occupation_code().into(),
+                    occupation_code: cell_value_func("Nghề nghiệp")?.to_occupation_code()?.into(),
                     description: cell_value_func("Nghề nghiệp")?,
                     content: cell_value_func("Nếu Nghề nghiệp Khác")?,
                 }
