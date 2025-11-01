@@ -36,6 +36,13 @@ impl Section6 {
                         .unwrap_or_default()
                         .into();
 
+                if !file_path.exists() || !file_path.is_file() {
+                    return Err(anyhow::anyhow!(
+                        "Đường dẫn tài liệu đính kèm không tồn tại: {:?}",
+                        file_path
+                    ));
+                }
+
                 let file_name = file_path
                     .file_name()
                     .map(|s| s.to_string_lossy().to_string());
@@ -48,8 +55,12 @@ impl Section6 {
                     .first_or_octet_stream()
                     .to_string()
                     .into();
-                let file_content = std::fs::read(&file_path).ok();
-                let file_size = file_content.as_ref().map(|content| content.len() as i64);
+
+                let file_content = std::fs::read(&file_path).with_context(|| {
+                    format!("Lỗi không đọc được nội dung file đính kèm: {:?}", file_path)
+                })?;
+
+                let file_size = file_content.len() as i64;
 
                 let attachment = Attachment {
                     str_id: None,
@@ -58,14 +69,15 @@ impl Section6 {
                     page_count: cell_value_func("Số trang")?
                         .unwrap_or_default()
                         .parse::<i32>()
-                        .ok(),
+                        .map_err(|_| anyhow::anyhow!("Thông tin số trang không hợp lệ"))?
+                        .into(),
                     description: cell_value_func("Mô tả tài liệu")?.into(),
                     file_name: file_name,
                     file_type: file_ext,
-                    file_size: file_size,
+                    file_size: file_size.into(),
                     file: Default::default(),
                     file_mime: file_mime,
-                    file_content: file_content,
+                    file_content: file_content.into(),
                 };
                 Ok(attachment)
             })
