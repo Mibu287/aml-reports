@@ -373,27 +373,25 @@ impl Account {
                     account_type: cell_value_func("Loại TK")?.to_account_type_code().into(),
                     open_date: cell_value_func("Ngày mở")?.convert_date_vn_to_iso(),
                     status: cell_value_func("Trạng thái")?
-                        .to_account_status_code()
+                        .to_account_status_code()?
                         .into(),
                     authorized_persons: None,
                 };
 
                 Ok((cif_value, account))
             })
+            .enumerate()
             .fold(
                 anyhow::Result::<HashMap<String, Vec<Account>>>::Ok(Default::default()),
-                |acc, element| {
-                    let mut result = match acc {
-                        Ok(a) => a,
-                        Err(e) => return Err(e),
-                    };
-                    match element {
-                        Ok((cif, account)) => {
-                            result.entry(cif).or_default().push(account);
-                        }
-                        Err(_) => {}
-                    }
-                    Ok(result)
+                |final_result, element| {
+                    let mut final_result = final_result?;
+
+                    let (n_row, current_result) = element;
+                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let (cif, account) = current_result.with_context(err_context)?;
+
+                    final_result.entry(cif).or_default().push(account);
+                    Ok(final_result)
                 },
             )?;
 
