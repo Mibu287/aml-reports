@@ -1,3 +1,5 @@
+use std::io::BufRead;
+
 use aml::{
     payload,
     utils::setup::{get_input_excel_files, initial_setup},
@@ -10,6 +12,10 @@ async fn main() {
     if let Err(err) = _main().await {
         log::error!("Đã xảy ra lỗi khi đọc các file Excel: {:?}", err);
     }
+
+    println!("Press Enter to exit...");
+    let stdin = std::io::stdin();
+    let _ = stdin.lock().lines().next();
 }
 
 async fn _main() -> anyhow::Result<()> {

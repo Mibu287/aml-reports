@@ -17,6 +17,10 @@ async fn main() {
     if let Err(err) = _main().await {
         log::error!("Ứng dụng kết thúc với lỗi: {}", err);
     }
+
+    println!("Press Enter to exit...");
+    let stdin = io::stdin();
+    let _ = stdin.lock().lines().next();
 }
 
 async fn create_report_from_excel(
@@ -204,10 +208,6 @@ async fn _main() -> anyhow::Result<()> {
     }
 
     progress_bar.finish_with_message("DONE!!!");
-
-    println!("Press Enter to exit...");
-    let stdin = io::stdin();
-    let _ = stdin.lock().lines().next();
 
     Ok(())
 }
