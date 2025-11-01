@@ -11,20 +11,33 @@ const CORPORATE_TYPES: [(&str, &str); 7] = [
 ];
 
 pub trait CorporateTypeCode {
-    fn to_corporate_type_code(&self) -> String;
+    fn to_corporate_type_code(&self) -> anyhow::Result<String>;
 }
 
 impl CorporateTypeCode for String {
-    fn to_corporate_type_code(&self) -> String {
-        search_for_code(&CORPORATE_TYPES, &self)
+    fn to_corporate_type_code(&self) -> anyhow::Result<String> {
+        match self.as_str() {
+            "" => Ok(String::new()),
+            _ => {
+                let code = search_for_code(&CORPORATE_TYPES, &self);
+                if code.is_empty() {
+                    Err(anyhow::anyhow!(
+                        "Loại hình doanh nghiệp không hợp lệ: {}",
+                        self
+                    ))
+                } else {
+                    Ok(code)
+                }
+            }
+        }
     }
 }
 
 impl CorporateTypeCode for Option<String> {
-    fn to_corporate_type_code(&self) -> String {
+    fn to_corporate_type_code(&self) -> anyhow::Result<String> {
         match self {
             Some(value) => value.to_corporate_type_code(),
-            None => String::new(),
+            None => Ok(String::new()),
         }
     }
 }

@@ -274,7 +274,7 @@ impl Organization {
                     short_name: None,
                     organization_type: CodeDesc {
                         type_code: cell_value_func("Loại hình tổ chức")?
-                            .to_corporate_type_code()
+                            .to_corporate_type_code()?
                             .into(),
                         description: cell_value_func("Loại hình tổ chức nếu chọn Khác")?,
                     }
