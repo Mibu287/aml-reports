@@ -30,23 +30,42 @@ impl Section4 {
     where
         RS: Seek + Read,
     {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu Phần IV - Thông tin về giao dịch đáng ngờ"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        let detection_date =
+            cell_value_from_key("Phần IV: Ngày phát hiện giao dịch đáng ngờ", workbook)?
+                .convert_date_vn_to_iso()
+                .with_context(|| {
+                    format!("Lỗi dữ liệu Phần IV - Mục 6. Ngày phát hiện giao dịch đáng ngờ")
+                })?;
+
         Ok(Section4 {
             report_type: ReportType::from_excel(workbook)?.into(),
             transaction_info: TransactionInfo::from_excel(workbook)?.into(),
             analysis: Analysis::from_excel(workbook)?.into(),
             conclusions: ConclusionEntry::from_excel(workbook)?.into(),
-            detection_date: cell_value_from_key(
-                "Phần IV: Ngày phát hiện giao dịch đáng ngờ",
-                workbook,
-            )
-            .ok()
-            .convert_date_vn_to_iso()?,
+            detection_date: detection_date,
         })
     }
 }
 
 impl ReportType {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook).with_context(|| {
+            format!("Lỗi xử lý dữ liệu Phần IV - Mục 1 - Loại báo cáo giao dịch đáng ngờ")
+        })
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {
@@ -107,6 +126,15 @@ impl Analysis {
     where
         RS: Seek + Read,
     {
+        Self::_from_excel(workbook).with_context(|| {
+            format!("Lỗi xử lý dữ liệu Phần IV - Mục 2 - Thông tin về giao dịch đáng ngờ")
+        })
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
         let sheet_key = "Phần IV: Thông tin về giao dịch đáng ngờ";
         let sheet_name = cell_value_from_key(sheet_key, workbook)?;
 
@@ -132,6 +160,15 @@ impl Analysis {
 
 impl LegalBasis {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Vec<Self>>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook).with_context(|| {
+            format!("Lỗi xử lý dữ liệu Phần IV - Mục 4 - Cơ sở hợp lý để nghi ngờ")
+        })
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Vec<Self>>
     where
         RS: Seek + Read,
     {
@@ -228,6 +265,15 @@ impl ConclusionEntry {
 
 impl TransactionInfo {
     pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook).with_context(|| {
+            format!("Lỗi xử lý dữ liệu Phần IV - Mục 2.2 - Thông tin về giao dịch đáng ngờ đã được thực hiện")
+        })
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {
