@@ -314,20 +314,18 @@ impl Organization {
                 };
                 Ok(org)
             })
+            .enumerate()
             .fold(
                 anyhow::Result::<Vec<Organization>>::Ok(vec![]),
                 |final_result, result| {
-                    let mut current_result = match final_result {
-                        Ok(r) => r,
-                        Err(e) => return Err(e),
-                    };
+                    let mut final_result = final_result?;
 
-                    match result {
-                        Ok(person) => current_result.push(person),
-                        Err(e) => return Err(e),
-                    };
+                    let (n_row, current_result) = result;
+                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let current_result = current_result.with_context(err_context)?;
 
-                    return Ok(current_result);
+                    final_result.push(current_result);
+                    Ok(final_result)
                 },
             )?;
 
@@ -481,13 +479,17 @@ impl Representative {
 
                 Ok((cif_value, rep))
             })
+            .enumerate()
             .fold(
                 anyhow::Result::<HashMap<String, Vec<Representative>>>::Ok(Default::default()),
-                |acc, element| {
-                    let mut result = acc?;
-                    let (cif, rep) = element?;
-                    result.entry(cif).or_default().push(rep);
-                    Ok(result)
+                |final_result, element| {
+                    let mut final_result = final_result?;
+
+                    let (n_row, element) = element;
+                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let (cif, rep) = element.with_context(err_context)?;
+                    final_result.entry(cif).or_default().push(rep);
+                    Ok(final_result)
                 },
             )?;
 
