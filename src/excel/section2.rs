@@ -203,30 +203,17 @@ impl Individual {
                 Ok(individual)
             })
             .enumerate()
-            .map(|(n_row, result)| -> anyhow::Result<Individual> {
-                match result {
-                    Ok(person) => Ok(person),
-                    Err(e) => {
-                        let err_msg =
-                            format!("Lỗi dữ liệu khi xử lý dòng số {}: {:?}", n_row + 1, e);
-                        Err(e).context(err_msg)
-                    }
-                }
-            })
             .fold(
                 anyhow::Result::<Vec<Individual>>::Ok(vec![]),
-                |final_result, result| {
-                    let mut current_result = match final_result {
-                        Ok(r) => r,
-                        Err(e) => return Err(e),
-                    };
+                |final_result, element| {
+                    let mut final_result = final_result?;
 
-                    match result {
-                        Ok(person) => current_result.push(person),
-                        Err(e) => return Err(e),
-                    };
+                    let (n_row, current_result) = element;
+                    let err_context = || format!("Lỗi dữ liệu khi xử lý dòng số {}", n_row + 1);
+                    let current_result = current_result.with_context(err_context)?;
 
-                    return Ok(current_result);
+                    final_result.push(current_result);
+                    return Ok(final_result);
                 },
             )?
             .into();
