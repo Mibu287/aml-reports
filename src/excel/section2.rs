@@ -29,7 +29,7 @@ impl Section2 {
     where
         RS: Seek + Read,
     {
-        Self::_from_excel(workbook).with_context(|| format!("Lỗi xử lý dữ liệu Phần II"))
+        Self::_from_excel(workbook).with_context(|| format!("Lỗi xử lý dữ liệu Phần II - Thông tin khách hàng"))
     }
 
     fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
