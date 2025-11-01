@@ -151,7 +151,7 @@ impl Individual {
                     },
                     full_name: cell_value_func("Tên khách hàng")?,
                     date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
-                        .convert_date_vn_to_iso(),
+                        .convert_date_vn_to_iso()?,
                     age_range: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
                         .to_age_range_code(),
                     gender: cell_value_func("Giới tính")?.to_gender_code()?.into(),
@@ -189,10 +189,10 @@ impl Individual {
                             .into(),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
-                            .convert_date_vn_to_iso(),
+                            .convert_date_vn_to_iso()?,
                         issuing_authority: cell_value_func("Cơ quan cấp")?,
                         expiry_date: cell_value_func("Ngày hết hạn (dd/mm/yyyy)")?
-                            .convert_date_vn_to_iso(),
+                            .convert_date_vn_to_iso()?,
                         place_of_issue: cell_value_func("Nơi cấp")?,
                     }]),
                     phone_number: cell_value_func("Số điện thoại")?,
@@ -281,14 +281,14 @@ impl Organization {
                     establishment_license: License {
                         license_number: cell_value_func("Giấy phép thành lập số")?,
                         issue_date: cell_value_func("Ngày cấp giấy phép (dd/mm/yyyy)")?
-                            .convert_date_vn_to_iso(),
+                            .convert_date_vn_to_iso()?,
                         issue_place: cell_value_func("Nơi cấp giấy phép")?,
                     }
                     .into(),
                     enterprise_code: EnterpriseCode {
                         code: cell_value_func("MS doanh nghiệp/MS thuế")?,
                         issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")?
-                            .convert_date_vn_to_iso(),
+                            .convert_date_vn_to_iso()?,
                         issue_place: cell_value_func("Quốc gia cấp MST")?
                             .to_country_code()?
                             .into(),
@@ -358,7 +358,7 @@ impl Account {
                     }),
                     currency_type: cell_value_func("Loại tiền")?.to_currency_code()?.into(),
                     account_type: cell_value_func("Loại TK")?.to_account_type_code()?.into(),
-                    open_date: cell_value_func("Ngày mở")?.convert_date_vn_to_iso(),
+                    open_date: cell_value_func("Ngày mở")?.convert_date_vn_to_iso()?,
                     status: cell_value_func("Trạng thái")?
                         .to_account_status_code()?
                         .into(),
@@ -417,7 +417,7 @@ impl Representative {
                 let rep = Representative {
                     id: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
                     full_name: cell_value_func("Họ và tên")?,
-                    date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
+                    date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso()?,
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")?
                             .to_occupation_code()?
@@ -455,7 +455,7 @@ impl Representative {
                             .into(),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
-                            .convert_date_vn_to_iso(),
+                            .convert_date_vn_to_iso()?,
                         issuing_authority: cell_value_func("Cơ quan cấp")?,
                         expiry_date: None,
                         place_of_issue: cell_value_func("Nơi cấp")?,
@@ -642,7 +642,7 @@ where
                 existing_customer: None,
                 id: cif_value.clone().into(),
                 full_name: cell_value_func("Họ và tên")?,
-                date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
+                date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso()?,
                 age_range: None,
                 gender: cell_value_func("Giới tính")?.to_gender_code()?.into(),
                 nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
@@ -679,7 +679,7 @@ where
                         .to_personal_id_code()?
                         .into(),
                     id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
-                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?.convert_date_vn_to_iso(),
+                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?.convert_date_vn_to_iso()?,
                     issuing_authority: cell_value_func("Cơ quan cấp")?,
                     expiry_date: None,
                     place_of_issue: cell_value_func("Nơi cấp")?,

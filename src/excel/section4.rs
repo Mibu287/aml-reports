@@ -40,7 +40,7 @@ impl Section4 {
                 workbook,
             )
             .ok()
-            .convert_date_vn_to_iso(),
+            .convert_date_vn_to_iso()?,
         })
     }
 }
@@ -243,13 +243,13 @@ impl TransactionInfo {
             "Phần IV: Thông tin về giao dịch đáng ngờ - Từ ngày",
             workbook,
         )?
-        .convert_date_vn_to_iso();
+        .convert_date_vn_to_iso()?;
 
         let to_date = cell_value_from_key(
             "Phần IV: Thông tin về giao dịch đáng ngờ - Đến ngày",
             workbook,
         )?
-        .convert_date_vn_to_iso();
+        .convert_date_vn_to_iso()?;
 
         let moneyflow_details = MoneyFlow::from_excel(workbook)?;
 
@@ -510,8 +510,8 @@ impl MoneyFlow {
                         total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
                         total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
                         total_transactions: cell_value_func("Tổng số lượng giao dịch"),
-                        tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
-                        tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                        tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso()?,
+                        tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso()?,
                         currency: cell_value_func("Loại tiền").to_currency_code()?.into(),
                         content: cell_value_func("Tóm tắt nội dung giao dịch"),
                     };
@@ -561,8 +561,8 @@ impl MoneyFlow {
                         total_amount: cell_value_func("Tổng số tiền nguyên tệ"),
                         total_converted: cell_value_func("Tổng số tiền quy đổi (VND)"),
                         total_transactions: cell_value_func("Tổng số lượng giao dịch"),
-                        tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso(),
-                        tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso(),
+                        tx_from: cell_value_func("Giao dịch từ ngày").convert_date_vn_to_iso()?,
+                        tx_to: cell_value_func("Giao dịch đến ngày").convert_date_vn_to_iso()?,
                         currency: cell_value_func("Loại tiền").to_currency_code()?.into(),
                         content: cell_value_func("Tóm tắt nội dung giao dịch"),
                     };
