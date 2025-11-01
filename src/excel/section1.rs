@@ -62,7 +62,8 @@ impl ReportingEntity {
                     "Phần I.1: Thông tin đối tượng báo cáo - Quốc gia",
                     workbook,
                 )?
-                .to_country_code()?,
+                .to_country_code()
+                .with_context(|| format!("Lỗi dữ liệu Thông tin đối tượng báo cáo - Quốc gia"))?,
                 phone: cell_value_from_key(
                     "Phần I.1: Thông tin đối tượng báo cáo - Điện thoại",
                     workbook,
@@ -89,7 +90,10 @@ impl ReportingEntity {
                     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Quốc gia",
                     workbook,
                 )?
-                .to_country_code()?,
+                .to_country_code()
+                .with_context(|| {
+                    format!("Lỗi dữ liệu Địa chỉ điểm phát sinh giao dịch - Quốc gia")
+                })?,
                 phone: cell_value_from_key(
                     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Điện thoại",
                     workbook,

@@ -1,4 +1,5 @@
 use crate::utils::excel::CellAddress;
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -44,6 +45,13 @@ pub static REPORT_TEMPLATE: LazyLock<HashMap<String, ExcelParam>> =
     LazyLock::new(|| load_template().expect("Failed to load report template"));
 
 pub fn cell_value_from_key(
+    key: &str,
+    workbook: &mut calamine::Xlsx<impl Seek + Read>,
+) -> anyhow::Result<String> {
+    _cell_value_from_key(key, workbook).with_context(|| format!("Lỗi khi tìm thông tin {}", key))
+}
+
+fn _cell_value_from_key(
     key: &str,
     workbook: &mut calamine::Xlsx<impl Seek + Read>,
 ) -> anyhow::Result<String> {
