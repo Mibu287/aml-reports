@@ -153,7 +153,7 @@ impl Individual {
                         .convert_date_vn_to_iso(),
                     age_range: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
                         .to_age_range_code(),
-                    gender: cell_value_func("Giới tính")?.to_gender_code().into(),
+                    gender: cell_value_func("Giới tính")?.to_gender_code()?.into(),
                     nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                     occupation: Occupation {
                         occupation_code: cell_value_func("Nghề nghiệp")?
@@ -657,7 +657,7 @@ where
                 full_name: cell_value_func("Họ và tên")?,
                 date_of_birth: cell_value_func("Ngày sinh")?.convert_date_vn_to_iso(),
                 age_range: None,
-                gender: cell_value_func("Giới tính")?.to_gender_code().into(),
+                gender: cell_value_func("Giới tính")?.to_gender_code()?.into(),
                 nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                 occupation: Occupation {
                     occupation_code: cell_value_func("Nghề nghiệp")?.to_occupation_code().into(),
