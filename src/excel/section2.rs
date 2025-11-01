@@ -370,7 +370,7 @@ impl Account {
                     }),
                     currency_type: cell_value_func("Loại tiền")?
                         .map(|v| v.split("-").next().unwrap_or_default().trim().to_string()),
-                    account_type: cell_value_func("Loại TK")?.to_account_type_code().into(),
+                    account_type: cell_value_func("Loại TK")?.to_account_type_code()?.into(),
                     open_date: cell_value_func("Ngày mở")?.convert_date_vn_to_iso(),
                     status: cell_value_func("Trạng thái")?
                         .to_account_status_code()?
