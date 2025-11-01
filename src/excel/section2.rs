@@ -4,7 +4,6 @@ use std::{
 };
 
 use anyhow::Context;
-use calamine::{DataType, Reader};
 
 use crate::{
     codes::{
@@ -12,6 +11,7 @@ use crate::{
         corporate_type::CorporateTypeCode, country::CountryCode, currency::CurrencyCode,
         gender::GenderCode, occupation::OccupationCode, personal_id::PersonalIdCode,
     },
+    excel::{get_cell_value, read_table_from_sheet},
     payload::{
         entities::{
             Account, AddrSimple, Bank, BeneficialOwners, BenefitGroup, CodeDesc, EnterpriseCode,
@@ -20,8 +20,8 @@ use crate::{
         },
         section2::Section2,
     },
-    template::{cell_value_from_key, table_config_from_key},
-    utils::{datetime::ConvertDateFormat, excel::col_name_to_index},
+    template::cell_value_from_key,
+    utils::datetime::ConvertDateFormat,
 };
 
 impl Section2 {
@@ -44,79 +44,6 @@ impl Section2 {
             additional_info: Some(cell_value_from_key("Phần II: Thông tin bổ sung", workbook)?),
         })
     }
-}
-
-pub fn read_table_from_sheet<RS>(
-    workbook: &mut calamine::Xlsx<RS>,
-    sheet_key: &str,
-) -> anyhow::Result<(Vec<Vec<String>>, HashMap<String, String>, (u32, u32))>
-where
-    RS: Seek + Read,
-{
-    let table_config = table_config_from_key(sheet_key)?;
-    let range = workbook.worksheet_range(&table_config.sheet)?;
-    let header_row_idx = table_config.header_row - range.start().unwrap_or_default().0 - 1;
-    let end_row_idx = {
-        let mut end_row_idx = 0;
-        for (row_idx, row_content) in range.rows().enumerate() {
-            if row_idx as u32 <= header_row_idx {
-                end_row_idx = row_idx;
-                continue;
-            }
-
-            if row_content.iter().all(|value| value.is_empty()) {
-                break;
-            }
-
-            end_row_idx = row_idx;
-        }
-        end_row_idx
-    };
-
-    let rows: Vec<Vec<String>> = range
-        .rows()
-        .enumerate()
-        .filter(|(row_idx, _)| {
-            row_idx.clone() as u32 > header_row_idx && row_idx.clone() <= end_row_idx
-        })
-        .map(|(_, row_content)| {
-            row_content
-                .iter()
-                .map(|v| v.as_string().unwrap_or_default())
-                .collect::<Vec<String>>()
-        })
-        .collect();
-
-    Ok((
-        rows,
-        table_config.columns,
-        range.start().unwrap_or_default(),
-    ))
-}
-
-pub fn get_cell_value(
-    col_name: &str,
-    col_map: &HashMap<String, String>,
-    base_coord: (u32, u32),
-    curr_row: &Vec<String>,
-) -> anyhow::Result<Option<String>> {
-    let col_no = col_map
-        .get(col_name)
-        .cloned()
-        .with_context(|| format!("Không tìm thấy cột {}", col_name))?;
-
-    let col_idx = col_name_to_index(&col_no, base_coord.into())
-        .with_context(|| format!("Không tìm thấy cột {} {}", col_no, col_name))?;
-
-    let value = curr_row
-        .get(col_idx as usize)
-        .map(|s| match s.is_empty() {
-            true => None,
-            false => Some(s.clone()),
-        })
-        .flatten();
-
-    Ok(value)
 }
 
 impl Individual {

@@ -5,7 +5,13 @@ mod section4;
 mod section5;
 mod section6;
 
-use std::io::{Read, Seek};
+use std::{
+    collections::HashMap,
+    io::{Read, Seek},
+};
+
+use anyhow::Context;
+use calamine::{DataType, Reader};
 
 use crate::{
     payload::{
@@ -19,7 +25,8 @@ use crate::{
         section5::Section5,
         section6::Section6,
     },
-    template::cell_value_from_key,
+    template::{cell_value_from_key, table_config_from_key},
+    utils::excel::col_name_to_index,
 };
 
 impl Form {
@@ -109,4 +116,119 @@ where
     const CELL_KEY: &str = "Mã báo cáo nội bộ";
     let cell_value = cell_value_from_key(CELL_KEY, workbook)?;
     Ok(cell_value)
+}
+
+pub fn read_table_from_sheet<RS>(
+    workbook: &mut calamine::Xlsx<RS>,
+    sheet_key: &str,
+) -> anyhow::Result<(Vec<Vec<String>>, HashMap<String, String>, (u32, u32))>
+where
+    RS: Seek + Read,
+{
+    let table_config = table_config_from_key(sheet_key)?;
+    let range = workbook.worksheet_range(&table_config.sheet)?;
+
+    // Check table columns matched with config
+    table_config
+        .columns
+        .iter()
+        .map(|(expected_header, col_name)| -> anyhow::Result<()> {
+            let col_idx = col_name_to_index(col_name, range.start());
+            let actual_header = match col_idx {
+                None => None,
+                Some(idx) => range.get(((table_config.header_row - 1) as usize, idx as usize)),
+            }
+            .map(|v| v.as_string())
+            .flatten();
+
+            let checked_header = match &actual_header {
+                None => false,
+                Some(actual_header) => {
+                    let expected = expected_header.trim().to_lowercase();
+                    let actual = actual_header.trim().to_lowercase();
+                    let checked = expected.as_str().eq_ignore_ascii_case(&actual);
+                    checked
+                }
+            };
+
+            if !checked_header {
+                return anyhow::Result::<()>::Err(anyhow::anyhow!(
+                    "Tiêu đề cột {} không đúng. Kỳ vọng: '{}' - Thực tế: '{}'",
+                    col_name,
+                    expected_header,
+                    actual_header.unwrap_or_default()
+                ));
+            };
+
+            Ok(())
+        })
+        .fold(anyhow::Result::<()>::Ok(()), |result, element| {
+            let _ = result?;
+            let _ = element?;
+            Ok(())
+        })
+        .with_context(|| format!("Lỗi kiểm tra định dạng bảng tại sheet '{}'", sheet_key))?;
+
+    let header_row_idx = table_config.header_row - range.start().unwrap_or_default().0 - 1;
+    let end_row_idx = {
+        let mut end_row_idx = 0;
+        for (row_idx, row_content) in range.rows().enumerate() {
+            if row_idx as u32 <= header_row_idx {
+                end_row_idx = row_idx;
+                continue;
+            }
+
+            if row_content.iter().all(|value| value.is_empty()) {
+                break;
+            }
+
+            end_row_idx = row_idx;
+        }
+        end_row_idx
+    };
+
+    let rows: Vec<Vec<String>> = range
+        .rows()
+        .enumerate()
+        .filter(|(row_idx, _)| {
+            row_idx.clone() as u32 > header_row_idx && row_idx.clone() <= end_row_idx
+        })
+        .map(|(_, row_content)| {
+            row_content
+                .iter()
+                .map(|v| v.as_string().unwrap_or_default())
+                .collect::<Vec<String>>()
+        })
+        .collect();
+
+    Ok((
+        rows,
+        table_config.columns,
+        range.start().unwrap_or_default(),
+    ))
+}
+
+pub fn get_cell_value(
+    col_name: &str,
+    col_map: &HashMap<String, String>,
+    base_coord: (u32, u32),
+    curr_row: &Vec<String>,
+) -> anyhow::Result<Option<String>> {
+    let col_no = col_map
+        .get(col_name)
+        .cloned()
+        .with_context(|| format!("Không tìm thấy cột {}", col_name))?;
+
+    let col_idx = col_name_to_index(&col_no, base_coord.into())
+        .with_context(|| format!("Không tìm thấy cột {} {}", col_no, col_name))?;
+
+    let value = curr_row
+        .get(col_idx as usize)
+        .map(|s| match s.is_empty() {
+            true => None,
+            false => Some(s.clone()),
+        })
+        .flatten();
+
+    Ok(value)
 }

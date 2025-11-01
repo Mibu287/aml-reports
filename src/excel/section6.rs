@@ -4,7 +4,7 @@ use anyhow::Context;
 
 use crate::{
     codes::document_type::DocumentType,
-    excel::section2::{get_cell_value, read_table_from_sheet},
+    excel::{get_cell_value, read_table_from_sheet},
     payload::section6::{Attachment, Section6},
 };
 
