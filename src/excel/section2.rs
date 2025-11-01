@@ -184,7 +184,7 @@ impl Individual {
                     }),
                     identifications: Some(vec![Identification {
                         id_type: cell_value_func("Loại định danh")?
-                            .to_personal_id_code()
+                            .to_personal_id_code()?
                             .into(),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
@@ -464,7 +464,7 @@ impl Representative {
                     nationality: cell_value_func("Quốc tịch")?.to_country_code()?.into(),
                     identifications: Some(vec![Identification {
                         id_type: cell_value_func("Loại định danh")?
-                            .to_personal_id_code()
+                            .to_personal_id_code()?
                             .into(),
                         id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
@@ -689,7 +689,7 @@ where
                 phone_number: cell_value_func("Điện thoại liên lạc")?,
                 identifications: Some(vec![Identification {
                     id_type: cell_value_func("Loại định danh")?
-                        .to_personal_id_code()
+                        .to_personal_id_code()?
                         .into(),
                     id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
                     issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?.convert_date_vn_to_iso(),
