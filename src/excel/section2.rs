@@ -679,7 +679,8 @@ where
                         .to_personal_id_code()?
                         .into(),
                     id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
-                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?.convert_date_vn_to_iso()?,
+                    issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
+                        .convert_date_vn_to_iso()?,
                     issuing_authority: cell_value_func("Cơ quan cấp")?,
                     expiry_date: None,
                     place_of_issue: cell_value_func("Nơi cấp")?,
