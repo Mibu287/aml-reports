@@ -17,6 +17,7 @@ use crate::{
         section3::Section3,
         section4::Section4,
         section5::Section5,
+        section6::Section6,
     },
     template::cell_value_from_key,
 };
@@ -55,6 +56,7 @@ impl Payload {
             section_3: Section3::from_excel(workbook)?,
             section_4: Section4::from_excel(workbook)?,
             section_5: Section5::from_excel(workbook)?,
+            section_6: Section6::from_excel(workbook)?,
         })
     }
 }
