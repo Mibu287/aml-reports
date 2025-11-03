@@ -11,7 +11,10 @@ use crate::{
 };
 
 impl Section5 {
-    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        _file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {

@@ -30,11 +30,14 @@ use crate::{
 };
 
 impl Form {
-    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {
-        let payload = Payload::from_excel(workbook)?;
+        let payload = Payload::from_excel(workbook, file_path)?;
         let detection_date = payload.section_4.detection_date.clone().unwrap_or_default();
         let others_info = [("ngay_phat_hien".to_string(), detection_date.clone())]
             .into_iter()
@@ -52,24 +55,30 @@ impl Form {
 }
 
 impl Payload {
-    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {
         Ok(Payload {
-            general_info: GeneralInfo::from_excel(workbook)?,
-            section_1: Section1::from_excel(workbook)?,
-            section_2: Section2::from_excel(workbook)?,
-            section_3: Section3::from_excel(workbook)?,
-            section_4: Section4::from_excel(workbook)?,
-            section_5: Section5::from_excel(workbook)?,
-            section_6: Section6::from_excel(workbook)?,
+            general_info: GeneralInfo::from_excel(workbook, file_path)?,
+            section_1: Section1::from_excel(workbook, file_path)?,
+            section_2: Section2::from_excel(workbook, file_path)?,
+            section_3: Section3::from_excel(workbook, file_path)?,
+            section_4: Section4::from_excel(workbook, file_path)?,
+            section_5: Section5::from_excel(workbook, file_path)?,
+            section_6: Section6::from_excel(workbook, file_path)?,
         })
     }
 }
 
 impl GeneralInfo {
-    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        _file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {

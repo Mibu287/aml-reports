@@ -29,7 +29,7 @@ async fn create_report_from_excel(
     auth_key_value: &str,
 ) -> anyhow::Result<i64> {
     let mut workbook: calamine::Xlsx<_> = calamine::open_workbook(excel_file.path())?;
-    let form_payload = Form::from_excel(&mut workbook)?;
+    let form_payload = Form::from_excel(&mut workbook, &excel_file.path())?;
 
     let response = reqwest::Client::new()
         .post(api_url)
@@ -100,7 +100,7 @@ async fn save_attachments(
     let mut workbook: calamine::Xlsx<_> = calamine::open_workbook(excel_file.path())
         .with_context(|| format!("Lỗi khi mở file {:#?}", excel_file.path()))?;
 
-    let mut attachments = Section6::from_excel(&mut workbook)
+    let mut attachments = Section6::from_excel(&mut workbook, &excel_file.path())
         .with_context(|| {
             format!(
                 "Lỗi khi đọc/xử lý dữ liệu từ file {:#?} để lưu các file đính kèm",

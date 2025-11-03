@@ -23,7 +23,7 @@ async fn _main() -> anyhow::Result<()> {
         let mut workbook: Xlsx<_> = open_workbook(excel_path.clone())
             .with_context(|| format!("Không thể mở file {:#?}", excel_path))?;
 
-        let form = payload::form::Form::from_excel(&mut workbook)
+        let form = payload::form::Form::from_excel(&mut workbook, &excel_path)
             .with_context(|| format!("Lỗi khi đọc và xử lý dữ liệu từ file {:#?}", excel_path))?;
 
         let json_form = serde_json::to_string_pretty(&form).with_context(|| {
