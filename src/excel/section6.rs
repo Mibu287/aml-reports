@@ -8,6 +8,7 @@ use anyhow::Context;
 use crate::{
     codes::document_type::DocumentType,
     payload::section6::{Attachment, Section6},
+    template::value_list_from_key,
 };
 
 impl Section6 {
@@ -132,6 +133,37 @@ impl Section6 {
                 file_mime: file_mime,
                 file_content: file_content.into(),
             });
+        }
+
+        let required_doc_types =
+            value_list_from_key("Phần VI. Tài liệu đính kèm - Tài liệu bắt buộc")?;
+
+        for doc_type in required_doc_types.into_iter() {
+            let doc_type_code = doc_type
+                .to_document_type()
+                .with_context(|| format!("Loại tài liệu bắt buộc không phù hợp {}", doc_type))?;
+
+            let doc_count = attachments
+                .iter()
+                .filter(|attachement| {
+                    let attachment_type = attachement
+                        .attachment_type
+                        .as_ref()
+                        .map(|s| s.as_str())
+                        .unwrap_or_default();
+                    attachment_type == doc_type_code.as_str()
+                })
+                .count();
+
+            if doc_count == 0 {
+                return Err(anyhow::anyhow!(
+                    "Không tìm thấy loại tài liệu bắt buộc \"{}\" trong folder {:#?}. Đặt tên các file '{}' chứa tiền tố '{}_'",
+                    doc_type,
+                    attachment_folder.as_path(),
+                    doc_type,
+                    doc_type_code
+                ));
+            }
         }
 
         Ok(Section6 { attachments })
