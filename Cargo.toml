@@ -12,8 +12,8 @@ name = "read-excel"
 path = "src/bin/read_excel.rs"
 
 [[bin]]
-name = "validate-excel"
-path = "src/bin/validate_excel.rs"
+name = "validate-reports"
+path = "src/bin/validate_reports.rs"
 
 [dependencies]
 Thirtyfour-chromedriver = "0.2.0"
