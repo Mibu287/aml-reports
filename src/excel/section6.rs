@@ -7,7 +7,6 @@ use anyhow::Context;
 
 use crate::{
     codes::document_type::DocumentType,
-    excel::{get_cell_value, read_table_from_sheet},
     payload::section6::{Attachment, Section6},
 };
 
@@ -83,7 +82,7 @@ impl Section6 {
                 })?;
 
             let file_desc = file_name
-                .strip_prefix(&file_prefix)
+                .strip_prefix(format!("{}_", file_prefix).as_str())
                 .unwrap_or_default()
                 .to_string();
 
@@ -93,11 +92,6 @@ impl Section6 {
                 .map(|s| s.to_string_lossy().to_string())
                 .unwrap_or_default();
 
-            let page_count = match file_ext.to_lowercase().as_str() {
-                "pdf" => 0,
-                _ => 1,
-            };
-
             let file_mime = mime_guess::from_path(file.path())
                 .first_or_octet_stream()
                 .to_string()
@@ -105,6 +99,17 @@ impl Section6 {
 
             let file_content = std::fs::read(file.path())
                 .with_context(|| format!("Không thể đọc file {}", file.path().to_string_lossy()))?;
+
+            let page_count = match file_ext.to_lowercase().as_str() {
+                "pdf" => {
+                    let doc =
+                        lopdf::Document::load_mem(file_content.as_slice()).with_context(|| {
+                            format!("Không thể đọc được file PDF {:#?}", file.path())
+                        })?;
+                    doc.get_pages().iter().count() as i32
+                }
+                _ => 1,
+            };
 
             let file_size = file_content.len() as i64;
 
@@ -116,8 +121,10 @@ impl Section6 {
                 description: file_desc.into(),
                 file_name: file
                     .path()
-                    .file_stem()
-                    .map(|stem| stem.to_string_lossy().to_string())
+                    .file_name()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string()
                     .into(),
                 file_type: file_ext.into(),
                 file_size: file_size.into(),
