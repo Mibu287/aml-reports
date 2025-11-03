@@ -9,11 +9,11 @@ const DOCUMENT_TYPES: [(&'static str, &'static str); 7] = [
 ];
 
 pub trait DocumentType {
-    fn to_document_type(&self) -> anyhow::Result<String>;
+    fn validate_document_type(&self) -> anyhow::Result<String>;
 }
 
 impl DocumentType for String {
-    fn to_document_type(&self) -> anyhow::Result<String> {
+    fn validate_document_type(&self) -> anyhow::Result<String> {
         match self.as_str() {
             "" => Ok(String::new()),
             _ => {
@@ -45,9 +45,9 @@ impl DocumentType for String {
 }
 
 impl DocumentType for Option<String> {
-    fn to_document_type(&self) -> anyhow::Result<String> {
+    fn validate_document_type(&self) -> anyhow::Result<String> {
         match self {
-            Some(document_name) => document_name.to_document_type(),
+            Some(document_name) => document_name.validate_document_type(),
             None => Ok(String::new()),
         }
     }

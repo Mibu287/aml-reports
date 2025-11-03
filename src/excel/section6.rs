@@ -73,7 +73,7 @@ impl Section6 {
                 .unwrap_or_default()
                 .to_string()
                 .to_uppercase()
-                .to_document_type()
+                .validate_document_type()
                 .with_context(|| {
                     format!(
                         "File đính kèm {:#?} có tiền tố không hợp lệ",
