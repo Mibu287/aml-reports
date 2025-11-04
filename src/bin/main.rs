@@ -6,6 +6,7 @@ use aml::{
     utils::setup::{get_input_excel_files, initial_setup},
 };
 use anyhow::Context;
+use colored::Colorize;
 use duration_extender::DurationExt;
 use std::{
     fs::DirEntry,
@@ -207,7 +208,7 @@ async fn _main() -> anyhow::Result<()> {
         ));
     }
 
-    progress_bar.finish_with_message("DONE!!!");
+    progress_bar.finish_with_message("DONE!!!".green().to_string());
 
     Ok(())
 }

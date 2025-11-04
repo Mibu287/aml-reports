@@ -26,27 +26,27 @@ pub fn print_build_info() {
 
     println!(
         "{}:      {}",
-        "Chương trình".cyan().bold(),
+        "Chương trình".green().bold(),
         "Báo cáo giao dịch nghi ngờ gửi NHNN"
     );
     println!(
         "{}:    {}",
-        "Người xây dựng".cyan().bold(),
+        "Người xây dựng".green().bold(),
         "Phòng Mô hình và công cụ quản trị rủi ro - Vietcombank"
     );
     println!(
         "{}:         {}",
-        "Phiên bản".cyan().bold(),
+        "Phiên bản".green().bold(),
         build::PKG_VERSION
     );
     println!(
         "{}:             {}",
-        "Mã số".cyan().bold(),
+        "Mã số".green().bold(),
         build::SHORT_COMMIT
     );
     println!(
         "{}: {}",
-        "Lần cập nhật cuối".cyan().bold(),
+        "Lần cập nhật cuối".green().bold(),
         build::COMMIT_DATE
             .parse::<DateTime<Local>>()
             .map(|t| t.format("%Y-%m-%d %H:%M:%S %z").to_string())

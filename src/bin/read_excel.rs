@@ -4,6 +4,7 @@ use aml::{
 };
 use anyhow::Context;
 use calamine::{Xlsx, open_workbook};
+use colored::Colorize;
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +39,7 @@ async fn _main() -> anyhow::Result<()> {
         log::info!("Đã xử lý xong file {:#?}", excel_path);
     }
 
-    progress_bar.finish_with_message("DONE!!!");
+    progress_bar.finish_with_message("DONE!!!".green().to_string());
 
     Ok(())
 }

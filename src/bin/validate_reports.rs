@@ -1,14 +1,18 @@
 use std::io::BufRead;
 
 use aml::{
+    build::print_build_info,
     payload,
     utils::setup::{get_input_excel_files, initial_setup},
 };
 use anyhow::Context;
 use calamine::{Xlsx, open_workbook};
+use colored::Colorize;
 
 #[tokio::main]
 async fn main() {
+    print_build_info();
+
     if let Err(err) = _main().await {
         log::error!("Đã xảy ra lỗi khi đọc các file Excel: {:?}", err);
     }
@@ -43,7 +47,7 @@ async fn _main() -> anyhow::Result<()> {
         log::info!("Đã xử lý xong file {:#?}", excel_path);
     }
 
-    progress_bar.finish_with_message("DONE!!!");
+    progress_bar.finish_with_message("DONE!!!".green().to_string());
 
     Ok(())
 }
