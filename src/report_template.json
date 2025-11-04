@@ -156,7 +156,6 @@
         }
     },
     "Phần II: Thông tin bổ sung": ["STR", "B29"],
-    "Phần V: Công việc xử lý": "STR",
     "Phần IV: Thông tin về giao dịch đáng ngờ": "STR",
     "Phần IV: Loại báo cáo giao dịch đáng ngờ": {
         "d26_k1_diem_a": "a. Báo cáo giao dịch đáng ngờ theo điểm a khoản 1 Điều 26 Luật Phòng, chống rửa tiền",
@@ -274,6 +273,7 @@
         "327": "Tội phạm nguồn của tội rửa tiền: Tội vi phạm quy định về bảo vệ động vật hoang dã",
         "999": "Khác (Điền theo tội danh được quy định trong Bộ luật Hình sự hiện hành)"
     },
+    "Phần V: Công việc xử lý": "STR",
     "Phần VI. Tài liệu đính kèm - Tài liệu bắt buộc": ["Bảng kê", "Minh họa dòng tiền", "Hồ sơ mở tài khoản"],
     "Dấu tick": "R"
 }
