@@ -25,6 +25,7 @@ Thirtyfour-chromedriver = "0.2.0"
 anyhow = { version = "1.0.100" }
 calamine = { version = "0.31.0", features = ["dates", "chrono"] }
 chrono = "0.4.42"
+colored = "3.0.0"
 duration-extender = "0.5.0"
 env_logger = "0.11.8"
 indicatif = { version = "0.18", features = ["tokio"] }
