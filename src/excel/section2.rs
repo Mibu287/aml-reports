@@ -193,8 +193,8 @@ impl Organization {
                         "1".to_string().into()
                     },
                     name: cell_value_func("Tên khách hàng")?,
-                    foreign_name: None,
-                    short_name: None,
+                    foreign_name: cell_value_func("Tên tiếng nước ngoài (nếu có)")?,
+                    short_name: cell_value_func("Tên viết tắt (nếu có)")?,
                     organization_type: CodeDesc {
                         type_code: cell_value_func("Loại hình tổ chức")?
                             .to_corporate_type_code()?
