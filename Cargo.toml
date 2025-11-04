@@ -2,6 +2,7 @@
 name = "aml"
 version = "0.2.0"
 edition = "2024"
+build = "build.rs"
 
 [[bin]]
 name = "send-aml-reports"
@@ -14,6 +15,10 @@ path = "src/bin/read_excel.rs"
 [[bin]]
 name = "validate-reports"
 path = "src/bin/validate_reports.rs"
+
+[[bin]]
+name = "print-build-info"
+path = "src/bin/print_build_info.rs"
 
 [dependencies]
 Thirtyfour-chromedriver = "0.2.0"
@@ -32,9 +37,13 @@ reqwest = { version = "0.12.*", features = ["multipart", "stream"] }
 scopeguard = "1.2.0"
 serde = { version = "1.*.*", features = ["serde_derive", "derive"] }
 serde_json = "1.0.145"
+shadow-rs = { version = "1.4.0" }
 thirtyfour = "0.35.*"
 tokio = { version = "1.48.*", features = ["full", "macros", "rt"] }
 
 [profile.release]
 lto = true
 strip = true
+
+[build-dependencies]
+shadow-rs = "1.4.0"
