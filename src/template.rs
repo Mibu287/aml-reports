@@ -57,7 +57,7 @@ fn _cell_value_from_key(
 ) -> anyhow::Result<String> {
     let cell_addr = match REPORT_TEMPLATE
         .get(key)
-        .expect(format!("Cell `{}` not found", key).as_str())
+        .with_context(|| format!("Cell `{}` not found", key))?
     {
         ExcelParam::Address(addr) => addr,
         ExcelParam::Value(val) => return Ok(val.clone()),
