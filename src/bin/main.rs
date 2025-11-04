@@ -1,5 +1,6 @@
 use aml::{
     auth::get_auth_code,
+    build::print_build_info,
     launch::launch_web_automation_task,
     payload::{form::Form, section6::Section6},
     response::{ErrorResponse, SuccessResponse},
@@ -15,6 +16,8 @@ use std::{
 
 #[tokio::main]
 async fn main() {
+    print_build_info();
+
     if let Err(err) = _main().await {
         log::error!("Ứng dụng kết thúc với lỗi: {}", err);
     }
