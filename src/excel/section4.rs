@@ -91,15 +91,23 @@ impl ReportType {
                     .map(|c| c == checked_box)
                     .unwrap_or_default();
 
-                (key, value)
+                let other_content = row
+                    .get(2)
+                    .map(|c| c.get_string())
+                    .flatten()
+                    .unwrap_or_default()
+                    .trim()
+                    .to_string();
+
+                (key, (value, other_content))
             })
-            .filter(|(k, v)| !k.is_empty() && *v)
+            .filter(|(k, (_, _))| !k.is_empty())
             .collect::<HashMap<_, _>>();
 
         let report_key = "Phần IV: Loại báo cáo giao dịch đáng ngờ";
         let reports = mapping_from_key(report_key)?
             .into_iter()
-            .filter(|(k, _)| selection.get(k).copied().unwrap_or(false))
+            .filter(|(k, _)| selection.get(k).map(|res| res.0).unwrap_or(false))
             .map(|(k, v)| Clause {
                 code: k.into(),
                 description: v.into(),
@@ -109,11 +117,14 @@ impl ReportType {
         let indicator_key = "Phần IV: Dấu hiệu đáng ngờ";
         let indicators = mapping_from_key(indicator_key)?
             .into_iter()
-            .filter(|(k, _)| selection.get(k).copied().unwrap_or(false))
-            .map(|(k, v)| SuspiciousIndicator {
-                code: k.into(),
-                description: v.into(),
-                other_content: None,
+            .filter(|(k, _)| selection.get(k).map(|res| res.0).unwrap_or(false))
+            .map(|(k, v)| {
+                let desc_key = format!("{}_desc", k);
+                SuspiciousIndicator {
+                    code: k.into(),
+                    description: v.into(),
+                    other_content: selection.get(&desc_key).map(|value| value.1.clone()),
+                }
             })
             .collect::<Vec<_>>();
 
