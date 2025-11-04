@@ -32,6 +32,11 @@ pub fn print_build_info() {
         "Phòng Mô hình và công cụ quản trị rủi ro - Vietcombank"
     );
     println!(
+        "{}:     {}",
+        "Người sử dụng".green().bold(),
+        "Phòng Phòng chống rửa tiền - Vietcombank"
+    );
+    println!(
         "{}:         {}",
         "Phiên bản".green().bold(),
         build::PKG_VERSION
