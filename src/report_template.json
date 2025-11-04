@@ -156,6 +156,75 @@
         }
     },
     "Phần II: Thông tin bổ sung": ["STR", "B29"],
+    "Phần III. CN liên quan": {
+        "sheet": "Phần III. CN liên quan",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "STT": "A",
+            "Họ và tên": "B",
+            "Ngày tháng năm sinh (dd/mm/yyyy)": "C",
+            "Giới tính": "D",
+            "Quốc tịch": "E",
+            "Số điện thoại": "F",
+            "Nghề nghiệp": "G",
+            "Nếu Nghề nghiệp Khác": "H",
+            "Chức vụ/ vị trí việc làm": "I",
+            "Địa chỉ đăng ký thường trú (Số nhà)": "J",
+            "Địa chỉ đăng ký thường trú (Phường/Xã)": "K",
+            "Địa chỉ đăng ký thường trú (Tỉnh/TP)": "L",
+            "Địa chỉ đăng ký thường trú (Quốc gia)": "M",
+            "Nơi ở hiện tại (Số nhà)": "N",
+            "Nơi ở hiện tại (Phường/Xã)": "O",
+            "Nơi ở hiện tại (Tỉnh/TP)": "P",
+            "Nơi ở hiện tại (Quốc gia)": "Q",
+            "Loại định danh": "R",
+            "CMND/CCCD/Hộ chiếu/Định danh cá nhân": "S",
+            "Ngày cấp (dd/mm/yyyy)": "T",
+            "Ngày hết hạn (dd/mm/yyyy)": "U",
+            "Cơ quan cấp": "V",
+            "Nơi cấp": "W"
+        }
+    },
+    "Phần III. TC liên quan": {
+        "sheet": "Phần III. TC liên quan",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "STT": "A",
+            "Tên đầy đủ của tổ chức": "B",
+            "Tên tiếng nước ngoài (nếu có)": "C",
+            "Tên viết tắt (nếu có)": "D",
+            "Ngành nghề kinh doanh chính": "E",
+            "Số nhà": "F",
+            "Phường/Xã": "G",
+            "Tỉnh/TP": "H",
+            "Quốc gia": "I",
+            "Giấy phép thành lập số": "J",
+            "Ngày cấp giấy phép (dd/mm/yyyy)": "K",
+            "Nơi cấp giấy phép": "L",
+            "MS doanh nghiệp/MS thuế": "M",
+            "Ngày cấp MST (dd/mm/yyyy)": "N",
+            "Quốc gia cấp MST": "O",
+            "Số điện thoại": "P",
+            "Địa chỉ trang thông tin điện tử của doanh nghiệp": "Q"
+        }
+    },
+    "Phần III. Tài khoản liên quan": {
+        "sheet": "Phần III. Tài khoản liên quan",
+        "dòng tiêu đề": 1,
+        "cột": {
+            "STT": "A",
+            "Tên khách hàng": "B",
+            "Số giấy tờ": "C",
+            "Số tài khoản": "D",
+            "Mã Ngân hàng": "E",
+            "Tên Ngân hàng": "F",
+            "Loại tiền": "G",
+            "Loại TK": "H",
+            "Ngày mở": "I",
+            "Trạng thái": "J"
+        }
+    },
+    "Phần III: Thông tin khác bổ sung": ["STR", "D33"],
     "Phần IV: Thông tin về giao dịch đáng ngờ": "STR",
     "Phần IV: Loại báo cáo giao dịch đáng ngờ": {
         "d26_k1_diem_a": "a. Báo cáo giao dịch đáng ngờ theo điểm a khoản 1 Điều 26 Luật Phòng, chống rửa tiền",
