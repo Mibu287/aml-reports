@@ -71,10 +71,15 @@ impl Individual {
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
                 let cif_value = cell_value_func("CIF")?.unwrap_or_default();
+                let id_number = cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?;
 
                 let individual = Individual {
-                    id: cif_value.clone().into(),
-                    existing_customer: if cif_value.clone().is_empty() {
+                    id: if cif_value.is_empty() {
+                        id_number.clone()
+                    } else {
+                        cif_value.clone().into()
+                    },
+                    existing_customer: if cif_value.is_empty() {
                         None
                     } else {
                         "1".to_string().into()
@@ -117,7 +122,7 @@ impl Individual {
                         id_type: cell_value_func("Loại định danh")?
                             .to_personal_id_code()?
                             .into(),
-                        id_number: cell_value_func("CMND/CCCD/Hộ chiếu/Định danh cá nhân")?,
+                        id_number: id_number.clone(),
                         issue_date: cell_value_func("Ngày cấp (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso()?,
                         issuing_authority: cell_value_func("Cơ quan cấp")?,
@@ -184,10 +189,15 @@ impl Organization {
                     |col_name: &str| get_cell_value(col_name, &col_map, base_coord, &curr_row);
 
                 let cif_value = cell_value_func("CIF")?.unwrap_or_default();
+                let enterprise_code = cell_value_func("MS doanh nghiệp/MS thuế")?;
 
                 let org = Organization {
-                    id: cif_value.clone().into(),
-                    existing_customer: if cif_value.clone().is_empty() {
+                    id: if cif_value.is_empty() {
+                        enterprise_code.clone()
+                    } else {
+                        cif_value.clone().into()
+                    },
+                    existing_customer: if cif_value.is_empty() {
                         None
                     } else {
                         "1".to_string().into()
@@ -221,7 +231,7 @@ impl Organization {
                     }
                     .into(),
                     enterprise_code: EnterpriseCode {
-                        code: cell_value_func("MS doanh nghiệp/MS thuế")?,
+                        code: enterprise_code.clone(),
                         issue_date: cell_value_func("Ngày cấp MST (dd/mm/yyyy)")?
                             .convert_date_vn_to_iso()?,
                         issue_place: cell_value_func("Quốc gia cấp MST")?
