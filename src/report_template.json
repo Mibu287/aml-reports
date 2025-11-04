@@ -189,9 +189,9 @@
         "d28_k14": "Dấu hiệu đáng ngờ theo Điều 28 - khoản 14: Các giao dịch trực tuyến qua tài khoản liên tục thay đổi về thiết bị đăng nhập hoặc địa chỉ giao thức Internet (sau đây gọi là địa chỉ IP) ở nước ngoài.",
         "khac": "Dấu hiệu đáng ngờ khác do đối tượng báo cáo tự xác định"
     },
-    "Phần IV: Trạng thái của giao dịch đáng ngờ": ["STR", "B67"],
-    "Phần IV: Thông tin về giao dịch đáng ngờ - Từ ngày": ["STR", "D70"],
-    "Phần IV: Thông tin về giao dịch đáng ngờ - Đến ngày": ["STR", "F70"],
+    "Phần IV: Trạng thái của giao dịch đáng ngờ": ["STR", "B68"],
+    "Phần IV: Thông tin về giao dịch đáng ngờ - Từ ngày": ["STR", "D71"],
+    "Phần IV: Thông tin về giao dịch đáng ngờ - Đến ngày": ["STR", "F71"],
     "Phần IV. Ghi Có": {
         "sheet": "Phần IV. Ghi Có",
         "dòng tiêu đề": 1,
@@ -234,14 +234,14 @@
             "Tóm tắt nội dung giao dịch": "O"
         }
     },
-    "Phần IV: Mô tả, phân tích chi tiết": ["B83", "B84", "B85", "B86", "B87"],
+    "Phần IV: Mô tả, phân tích chi tiết": ["B84", "B85", "B86", "B87", "B88"],
     "Phần IV: Cơ sở hợp lý để nghi ngờ": {
-        "diem_a": { "số văn bản": "F90", "cơ sở": "B92" },
-        "diem_b": { "số văn bản": null, "cơ sở": "B95" },
-        "diem_c": { "số văn bản": null, "cơ sở": "B98" },
-        "diem_d": { "số văn bản": null, "cơ sở": "B101" }
+        "diem_a": { "số văn bản": "F90", "cơ sở": "B93" },
+        "diem_b": { "số văn bản": null, "cơ sở": "B96" },
+        "diem_c": { "số văn bản": null, "cơ sở": "B99" },
+        "diem_d": { "số văn bản": null, "cơ sở": "B102" }
     },
-    "Phần IV: Ngày phát hiện giao dịch đáng ngờ": ["STR", "D135"],
+    "Phần IV: Ngày phát hiện giao dịch đáng ngờ": ["STR", "D136"],
     "Phần IV: Nhận định về loại tội phạm có thể liên quan đến giao dịch đáng ngờ": {
         "101": "Tội khủng bố/Tội tài trợ khủng bố",
         "201": "Tội rửa tiền",
