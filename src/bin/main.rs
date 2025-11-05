@@ -165,8 +165,7 @@ async fn _main() -> anyhow::Result<()> {
         );
         return Ok(());
     }
-    let port = 9515;
-    let (_auth_key_name, auth_key_value) = launch_web_automation_task(get_auth_code, port)
+    let (_auth_key_name, auth_key_value) = launch_web_automation_task(get_auth_code)
         .await
         .with_context(|| format!("Lỗi khi thực hiện mở Chrome để đăng nhập"))?;
 
