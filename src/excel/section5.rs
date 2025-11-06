@@ -76,7 +76,6 @@ impl Section5 {
                 DocType::In => format!("{}_in_doc", key),
                 DocType::Out => format!("{}_out_doc", key),
             };
-            println!("Doc key: {}", doc_key);
 
             range
                 .rows()
