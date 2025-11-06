@@ -4,6 +4,9 @@ version = "0.3.0"
 edition = "2024"
 build = "build.rs"
 
+[features]
+packaging = []
+
 [[bin]]
 name = "send-aml-reports"
 path = "src/bin/main.rs"

@@ -19,7 +19,7 @@ async fn main() {
     print_build_info();
 
     if let Err(err) = _main().await {
-        log::error!("Ứng dụng kết thúc với lỗi: {}", err);
+        log::error!("Ứng dụng kết thúc với lỗi: {:?}", err);
     }
 
     println!("Press Enter to exit...");
@@ -32,8 +32,15 @@ async fn create_report_from_excel(
     api_url: &str,
     auth_key_value: &str,
 ) -> anyhow::Result<i64> {
-    let mut workbook: calamine::Xlsx<_> = calamine::open_workbook(excel_file.path())?;
-    let form_payload = Form::from_excel(&mut workbook, &excel_file.path())?;
+    let mut workbook: calamine::Xlsx<_> = calamine::open_workbook(excel_file.path())
+        .with_context(|| format!("Không thể mở file Excel {:#?}", excel_file))?;
+
+    let form_payload = Form::from_excel(&mut workbook, &excel_file.path()).with_context(|| {
+        format!(
+            "Phát sinh lỗi khi tạo biểu mẫu gửi NHNN từ file Excel {:#?}",
+            excel_file.path()
+        )
+    })?;
 
     let response = reqwest::Client::new()
         .post(api_url)
@@ -48,15 +55,7 @@ async fn create_report_from_excel(
             )
         })?;
 
-    if !response.status().is_success() {
-        return Err(anyhow::anyhow!(
-            "Có lỗi xảy ra khi tải file {:?} lên website NHNN. Mã lỗi: {} - {}: {}",
-            excel_file.path(),
-            response.status(),
-            response.status().canonical_reason().unwrap_or_default(),
-            response.text().await.unwrap_or_default()
-        ));
-    }
+    let resp_status = response.status();
 
     let resp_text = {
         let error_fn = || {
@@ -68,6 +67,16 @@ async fn create_report_from_excel(
         };
         response.text().await.with_context(error_fn)
     }?;
+
+    if !resp_status.is_success() {
+        return Err(anyhow::anyhow!(
+            "Có lỗi xảy ra khi tải file {:?} lên website NHNN. Mã lỗi: {} - {}: {}",
+            excel_file.path(),
+            resp_status,
+            resp_status.canonical_reason().unwrap_or_default(),
+            resp_text
+        ));
+    }
 
     if let Ok(err_resp) = serde_json::from_str::<ErrorResponse>(&resp_text) {
         return Err(anyhow::anyhow!(
@@ -88,7 +97,13 @@ async fn create_report_from_excel(
         };
 
         serde_json::from_str::<SuccessResponse>(&resp_text)
-            .with_context(error_fn)?
+            .with_context(error_fn)
+            .with_context(|| {
+                format!(
+                    "Nhận được phản hồi bất thường từ website NHNN {}",
+                    resp_text
+                )
+            })?
             .id
             .unwrap_or_default()
     };
