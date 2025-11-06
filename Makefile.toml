@@ -71,6 +71,14 @@ dependencies = [
     "package-windows-x86_64",
     "package-windows-aarch64",
 ]
+script = """
+    VERSION=$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
+    rm -rf dist/aml-reports-${VERSION}.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-arm.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-intel.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-arm.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-intel.zip
+"""
 
 [tasks.all]
 dependencies = ["build-all", "package-all"]
