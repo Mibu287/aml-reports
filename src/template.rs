@@ -1,4 +1,5 @@
 use crate::utils::excel::CellAddress;
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -47,9 +48,16 @@ pub fn cell_value_from_key(
     key: &str,
     workbook: &mut calamine::Xlsx<impl Seek + Read>,
 ) -> anyhow::Result<String> {
+    _cell_value_from_key(key, workbook).with_context(|| format!("Lỗi khi tìm thông tin {}", key))
+}
+
+fn _cell_value_from_key(
+    key: &str,
+    workbook: &mut calamine::Xlsx<impl Seek + Read>,
+) -> anyhow::Result<String> {
     let cell_addr = match REPORT_TEMPLATE
         .get(key)
-        .expect(format!("Cell `{}` not found", key).as_str())
+        .with_context(|| format!("Cell `{}` not found", key))?
     {
         ExcelParam::Address(addr) => addr,
         ExcelParam::Value(val) => return Ok(val.clone()),

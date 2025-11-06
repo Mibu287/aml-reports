@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Individual {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "khach_hang_hien_huu")]
     pub existing_customer: Option<String>,
     #[serde(rename = "ho_ten")]
@@ -10,7 +10,7 @@ pub struct Individual {
     #[serde(rename = "ngay_sinh")]
     pub date_of_birth: Option<String>,
     #[serde(rename = "do_tuoi")]
-    pub age: Option<String>,
+    pub age_range: Option<String>,
     #[serde(rename = "gioi_tinh")]
     pub gender: Option<String>,
     #[serde(rename = "quoc_tich")]
@@ -36,7 +36,7 @@ pub struct Individual {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Organization {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "khach_hang_hien_huu")]
     pub existing_customer: Option<String>,
     #[serde(rename = "ten_to_chuc")]
@@ -79,27 +79,27 @@ pub struct IndividualLink {
     #[serde(rename = "ten")]
     pub name: Option<String>,
     #[serde(rename = "so_dinh_danh")]
-    pub identification_number: Option<String>,
-    pub id: Option<i64>,
+    pub id_number: Option<String>,
+    pub id: Option<String>,
     #[serde(rename = "co_chinh_chu")]
     pub is_principal: Option<bool>,
     #[serde(rename = "nhom_huong_loi")]
-    pub benefit_group: Option<GroupBenefits>,
+    pub benefit_group: Option<BenefitGroup>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct OrganizationLink {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "ten")]
     pub name: Option<String>,
     #[serde(rename = "so_dinh_danh")]
-    pub identification_number: Option<String>,
+    pub id_number: Option<String>,
     #[serde(rename = "nhom_huong_loi")]
-    pub benefit_group: Option<GroupBenefits>,
+    pub benefit_group: Option<BenefitGroup>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-pub struct GroupBenefits {
+pub struct BenefitGroup {
     #[serde(rename = "nhom_thong_tin")]
     pub main_group: Option<Vec<PersonRef>>,
     #[serde(rename = "nhom_thong_tin_khac")]
@@ -111,8 +111,8 @@ pub struct PersonRef {
     #[serde(rename = "ho_ten")]
     pub full_name: Option<String>,
     #[serde(rename = "so_dinh_danh")]
-    pub identification_number: Option<String>,
-    pub id: Option<i64>,
+    pub id_number: Option<String>,
+    pub id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -211,7 +211,7 @@ pub struct EnterpriseCode {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Representative {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "ho_ten")]
     pub full_name: Option<String>,
     #[serde(rename = "ngay_sinh")]

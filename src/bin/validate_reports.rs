@@ -1,4 +1,7 @@
+use std::io::BufRead;
+
 use aml::{
+    build::print_build_info,
     payload,
     utils::setup::{get_input_excel_files, initial_setup},
 };
@@ -8,10 +11,16 @@ use colored::Colorize;
 
 #[tokio::main]
 async fn main() {
+    print_build_info();
+
     if let Err(err) = _main().await {
         let error_message = format!("Đã xảy ra lỗi khi đọc các file Excel: {:?}", err).bright_red();
         log::error!("{}", error_message);
     }
+
+    println!("Press Enter to exit...");
+    let stdin = std::io::stdin();
+    let _ = stdin.lock().lines().next();
 }
 
 async fn _main() -> anyhow::Result<()> {
@@ -28,14 +37,13 @@ async fn _main() -> anyhow::Result<()> {
         let form = payload::form::Form::from_excel(&mut workbook, &excel_path)
             .with_context(|| format!("Lỗi khi đọc và xử lý dữ liệu từ file {:#?}", excel_path))?;
 
-        let json_form = serde_json::to_string_pretty(&form).with_context(|| {
+        let _ = serde_json::to_string_pretty(&form).with_context(|| {
             format!(
                 "Lỗi khi chuyển đổi dữ liệu thành file {:#?} thành định dạng JSON",
                 excel_path
             )
         })?;
 
-        println!("{}", json_form);
         progress_bar.inc(1);
         log::info!("Đã xử lý xong file {:#?}", excel_path);
     }

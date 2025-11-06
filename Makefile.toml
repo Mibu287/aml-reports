@@ -1,0 +1,87 @@
+[tasks.build-macos-x86_64]
+command = "cargo"
+args = ["build", "--release", "--target", "x86_64-apple-darwin", "--features", "packaging"]
+
+[tasks.build-macos-aarch64]
+command = "cargo"
+args = ["build", "--release", "--target", "aarch64-apple-darwin", "--features", "packaging"]
+
+[tasks.build-windows-x86_64]
+command = "cargo"
+args = ["zigbuild", "--release", "--target", "x86_64-pc-windows-gnullvm", "--features", "packaging"]
+
+[tasks.build-windows-aarch64]
+command = "cargo"
+args = ["zigbuild", "--release", "--target", "aarch64-pc-windows-gnullvm", "--features", "packaging"]
+
+[tasks.build-all]
+dependencies = [
+    "build-macos-x86_64",
+    "build-macos-aarch64",
+    "build-windows-x86_64",
+    "build-windows-aarch64",
+]
+
+[tasks.dist]
+script = """
+    mkdir -p dist
+"""
+
+[tasks.package-macos-x86_64]
+script = """
+    rm -rf dist/aml-reports-macos-intel.zip
+    zip --junk-paths dist/aml-reports-macos-intel.zip target/x86_64-apple-darwin/release/send-aml-reports
+    zip --junk-paths dist/aml-reports-macos-intel.zip target/x86_64-apple-darwin/release/validate-reports
+    zip -r dist/aml-reports-macos-intel.zip input
+"""
+dependencies = ["build-macos-x86_64", "dist"]
+
+
+[tasks.package-macos-aarch64]
+script = """
+    rm -rf dist/aml-reports-macos-arm.zip
+    zip --junk-paths dist/aml-reports-macos-arm.zip target/aarch64-apple-darwin/release/send-aml-reports
+    zip --junk-paths dist/aml-reports-macos-arm.zip target/aarch64-apple-darwin/release/validate-reports
+    zip -r dist/aml-reports-macos-arm.zip input
+"""
+dependencies = ["build-macos-aarch64", "dist"]
+
+[tasks.package-windows-x86_64]
+script = """
+    rm -rf dist/aml-reports-windows-intel.zip
+    zip --junk-paths dist/aml-reports-windows-intel.zip target/x86_64-pc-windows-gnullvm/release/send-aml-reports.exe
+    zip --junk-paths dist/aml-reports-windows-intel.zip target/x86_64-pc-windows-gnullvm/release/validate-reports.exe
+    zip -r dist/aml-reports-windows-intel.zip input
+"""
+dependencies = ["build-windows-x86_64", "dist"]
+
+[tasks.package-windows-aarch64]
+script = """
+    rm -rf dist/aml-reports-windows-arm.zip
+    zip --junk-paths dist/aml-reports-windows-arm.zip target/aarch64-pc-windows-gnullvm/release/send-aml-reports.exe
+    zip --junk-paths dist/aml-reports-windows-arm.zip target/aarch64-pc-windows-gnullvm/release/validate-reports.exe
+    zip -r dist/aml-reports-windows-arm.zip input
+"""
+dependencies = ["build-windows-aarch64", "dist"]
+
+[tasks.package-all]
+dependencies = [
+    "package-macos-x86_64",
+    "package-macos-aarch64",
+    "package-windows-x86_64",
+    "package-windows-aarch64",
+]
+script = """
+    VERSION=$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
+    rm -rf dist/aml-reports-${VERSION}.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-arm.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-intel.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-arm.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-intel.zip
+"""
+
+[tasks.all]
+dependencies = ["build-all", "package-all"]
+
+[tasks.default]
+alias = "all"

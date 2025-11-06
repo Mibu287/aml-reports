@@ -17,20 +17,30 @@ pub const OCCUPATION_CODES: [(&'static str, &'static str); 13] = [
 ];
 
 pub trait OccupationCode {
-    fn to_occupation_code(&self) -> String;
+    fn to_occupation_code(&self) -> anyhow::Result<String>;
 }
 
 impl OccupationCode for String {
-    fn to_occupation_code(&self) -> String {
-        search_for_code(&OCCUPATION_CODES, &self)
+    fn to_occupation_code(&self) -> anyhow::Result<String> {
+        match self.as_str() {
+            "" => Ok(String::new()),
+            _ => {
+                let code = search_for_code(&OCCUPATION_CODES, &self);
+                if code.is_empty() {
+                    Err(anyhow::anyhow!("Nghề nghiệp không hợp lệ: {}", self))
+                } else {
+                    Ok(code)
+                }
+            }
+        }
     }
 }
 
 impl OccupationCode for Option<String> {
-    fn to_occupation_code(&self) -> String {
+    fn to_occupation_code(&self) -> anyhow::Result<String> {
         match self {
             Some(occupation) => occupation.to_occupation_code(),
-            None => Default::default(),
+            None => Ok(String::new()),
         }
     }
 }

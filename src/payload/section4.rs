@@ -57,7 +57,7 @@ pub struct TransactionInfo {
     pub amounts: Option<Vec<AmountEntry>>,
 
     #[serde(rename = "tong_tien_giao_dich_quy_doi")]
-    pub total_converted_amount: Option<i64>,
+    pub total_converted_amount: Option<f64>,
 
     #[serde(rename = "dong_tien")]
     pub money_flows: Option<Vec<MoneyFlow>>,
@@ -76,12 +76,12 @@ pub struct AmountEntry {
     #[serde(rename = "loai_tien")]
     pub currency: Option<String>,
     #[serde(rename = "so_tien")]
-    pub amount: Option<i64>,
+    pub amount: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct MoneyFlow {
-    pub id: Option<i64>,
+    pub id: Option<String>,
     #[serde(rename = "ten_doi_tuong")]
     pub subject_name: Option<String>,
     #[serde(rename = "so_dinh_danh")]

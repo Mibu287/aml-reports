@@ -1,34 +1,53 @@
 [package]
 name = "aml"
-version = "0.1.0"
+version = "0.4.0"
 edition = "2024"
+build = "build.rs"
+
+[features]
+packaging = []
 
 [[bin]]
-name = "aml-reports"
+name = "send-aml-reports"
 path = "src/bin/main.rs"
 
 [[bin]]
 name = "read-excel"
 path = "src/bin/read_excel.rs"
 
+[[bin]]
+name = "validate-reports"
+path = "src/bin/validate_reports.rs"
+
+[[bin]]
+name = "print-build-info"
+path = "src/bin/print_build_info.rs"
+
 [dependencies]
 Thirtyfour-chromedriver = "0.2.0"
-anyhow = "1.*.*"
+anyhow = { version = "1.0.100" }
 calamine = { version = "0.31.0", features = ["dates", "chrono"] }
 chrono = "0.4.42"
+colored = "3.0.0"
 duration-extender = "0.5.0"
 env_logger = "0.11.8"
 indicatif = { version = "0.18", features = ["tokio"] }
 indicatif-log-bridge = "0.2.3"
 log = "0.4.28"
+lopdf = "0.38.0"
+mime_guess = "2.0"
 regex = "1.12.2"
-reqwest = "0.12.*"
+reqwest = { version = "0.12.*", features = ["multipart", "stream"] }
 scopeguard = "1.2.0"
 serde = { version = "1.*.*", features = ["serde_derive", "derive"] }
 serde_json = "1.0.145"
+shadow-rs = { version = "1.4.0" }
 thirtyfour = "0.35.*"
 tokio = { version = "1.48.*", features = ["full", "macros", "rt"] }
 
 [profile.release]
 lto = true
 strip = true
+
+[build-dependencies]
+shadow-rs = "1.4.0"

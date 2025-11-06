@@ -1,5 +1,7 @@
 use std::io::{Read, Seek};
 
+use anyhow::Context;
+
 use crate::{
     codes::country::CountryCode,
     payload::section1::{
@@ -9,7 +11,18 @@ use crate::{
 };
 
 impl Section1 {
-    pub fn from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
+    pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        _file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook)
+            .with_context(|| format!("Lỗi xử lý dữ liệu Phần I - Thông tin chung"))
+    }
+
+    fn _from_excel<RS>(workbook: &mut calamine::Xlsx<RS>) -> anyhow::Result<Self>
     where
         RS: Seek + Read,
     {
@@ -52,7 +65,8 @@ impl ReportingEntity {
                     "Phần I.1: Thông tin đối tượng báo cáo - Quốc gia",
                     workbook,
                 )?
-                .to_country_code(),
+                .to_country_code()
+                .with_context(|| format!("Lỗi dữ liệu Thông tin đối tượng báo cáo - Quốc gia"))?,
                 phone: cell_value_from_key(
                     "Phần I.1: Thông tin đối tượng báo cáo - Điện thoại",
                     workbook,
@@ -79,7 +93,10 @@ impl ReportingEntity {
                     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Quốc gia",
                     workbook,
                 )?
-                .to_country_code(),
+                .to_country_code()
+                .with_context(|| {
+                    format!("Lỗi dữ liệu Địa chỉ điểm phát sinh giao dịch - Quốc gia")
+                })?,
                 phone: cell_value_from_key(
                     "Phần I.1: Địa chỉ điểm phát sinh giao dịch - Điện thoại",
                     workbook,

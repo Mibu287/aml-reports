@@ -15,20 +15,33 @@ const PERSONAL_ID_CODES: [(&'static str, &'static str); 11] = [
 ];
 
 pub trait PersonalIdCode {
-    fn to_personal_id_code(&self) -> String;
+    fn to_personal_id_code(&self) -> anyhow::Result<String>;
 }
 
 impl PersonalIdCode for String {
-    fn to_personal_id_code(&self) -> String {
-        search_for_code(&PERSONAL_ID_CODES, self)
+    fn to_personal_id_code(&self) -> anyhow::Result<String> {
+        match self.as_str() {
+            "" => Ok(String::new()),
+            _ => {
+                let code = search_for_code(&PERSONAL_ID_CODES, self);
+                if code.is_empty() {
+                    Err(anyhow::anyhow!(
+                        "Loại giấy tờ tùy thân không hợp lệ: {}",
+                        self
+                    ))
+                } else {
+                    Ok(code)
+                }
+            }
+        }
     }
 }
 
 impl PersonalIdCode for Option<String> {
-    fn to_personal_id_code(&self) -> String {
+    fn to_personal_id_code(&self) -> anyhow::Result<String> {
         match self {
             Some(id_type) => id_type.to_personal_id_code(),
-            None => Default::default(),
+            None => Ok(String::new()),
         }
     }
 }

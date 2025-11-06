@@ -1,5 +1,6 @@
 use std::{collections::HashMap, vec};
 
+use anyhow::Context;
 use duration_extender::DurationExt;
 
 pub async fn get_auth_code(
@@ -9,7 +10,10 @@ pub async fn get_auth_code(
     const SSO_URL: &str = "https://amlsso.sbv.gov.vn";
 
     // Go to website
-    driver.goto(BASE_URL).await?;
+    driver
+        .goto(BASE_URL)
+        .await
+        .with_context(|| format!("Chrome không thể mở đường dẫn {}", BASE_URL))?;
 
     // Wait until redirected to dashboard
     let dashboard_url = format!("{}/dashboard", BASE_URL);
@@ -22,10 +26,16 @@ pub async fn get_auth_code(
         }
         Ok::<(), anyhow::Error>(())
     })
-    .await??;
+    .await
+    .with_context(|| {
+        format!("Trình duyệt Chrome không được trở lại trang chủ. Đăng nhập không thành công?")
+    })??;
 
     // Navigate to SSO to trigger cookie creation
-    driver.goto(SSO_URL).await?;
+    driver
+        .goto(SSO_URL)
+        .await
+        .with_context(|| format!("Trình duyệt Chrome không thể mở đường dẫn {}", SSO_URL))?;
 
     tokio::time::timeout(300.seconds(), async {
         loop {
@@ -45,7 +55,13 @@ pub async fn get_auth_code(
             }
         }
     })
-    .await??;
+    .await
+    .with_context(|| {
+        format!(
+            "Trình duyệt Chrome không lấy được cookie từ trang {}",
+            SSO_URL
+        )
+    })??;
 
     // Get local storage items
 
@@ -76,7 +92,13 @@ pub async fn get_auth_code(
             }
         }
     })
-    .await??;
+    .await
+    .with_context(|| {
+        format!(
+            "Trình duyệt Chrome không lấy được access token từ trang {}",
+            SSO_URL
+        )
+    })??;
 
     Ok((driver, (auth_key, auth_value)))
 }

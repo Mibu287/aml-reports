@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::payload::{
@@ -13,13 +15,15 @@ pub enum CreationStatus {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Form {
-    pub id: Option<String>,
+    pub id: Option<i64>,
     #[serde(rename = "str_internal_number")]
     pub internal_number: String,
     #[serde(rename = "str_type")]
     pub report_type: String,
     pub creation_status: CreationStatus,
     pub payload: Payload,
+    #[serde(flatten)]
+    pub others: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -36,6 +40,6 @@ pub struct Payload {
     pub section_4: Section4,
     #[serde(rename = "Phan_5")]
     pub section_5: Section5,
-    #[serde(rename = "Phan_6")]
+    #[serde(skip)]
     pub section_6: Section6,
 }

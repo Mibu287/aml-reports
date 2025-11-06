@@ -135,3 +135,4 @@ $RECYCLE.BIN/
 # Input directory
 /input
 /output
+/dist
