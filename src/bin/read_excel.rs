@@ -9,7 +9,8 @@ use colored::Colorize;
 #[tokio::main]
 async fn main() {
     if let Err(err) = _main().await {
-        log::error!("Đã xảy ra lỗi khi đọc các file Excel: {:?}", err);
+        let error_message = format!("Đã xảy ra lỗi khi đọc các file Excel: {:?}", err).bright_red();
+        log::error!("{}", error_message);
     }
 }
 

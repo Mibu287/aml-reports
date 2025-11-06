@@ -19,7 +19,8 @@ async fn main() {
     print_build_info();
 
     if let Err(err) = _main().await {
-        log::error!("Ứng dụng kết thúc với lỗi: {:?}", err);
+        let error_message = format!("Ứng dụng kết thúc với lỗi: {:?}", err).bright_red();
+        log::error!("{}", error_message);
     }
 
     println!("Press Enter to exit...");
