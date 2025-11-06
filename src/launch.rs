@@ -12,7 +12,7 @@ where
     let mut caps = thirtyfour::DesiredCapabilities::chrome();
 
     // Launch chromedriver on the specified port
-    let (mut chromedriver, port) = thirtyfour_chromedriver::manager::Handler::new()
+    let (mut chromedriver, driver_url) = thirtyfour_chromedriver::manager::Handler::new()
         .launch_chromedriver_without_port(&mut caps)
         .await
         .with_context(|| format!("Không thể khởi động chromedriver"))?;
@@ -22,7 +22,6 @@ where
     );
 
     // Connect to chrome on the same port
-    let driver_url = format!("http://localhost:{}", port);
     let driver = thirtyfour::WebDriver::new(&driver_url, caps)
         .await
         .with_context(|| {
