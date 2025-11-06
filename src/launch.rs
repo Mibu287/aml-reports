@@ -3,7 +3,6 @@ use scopeguard::defer;
 
 pub async fn launch_web_automation_task<TaskFuture, R>(
     func: fn(thirtyfour::WebDriver) -> TaskFuture,
-    port: u16,
 ) -> anyhow::Result<R>
 where
     TaskFuture: Future<Output = anyhow::Result<(thirtyfour::WebDriver, R)>>,
@@ -13,17 +12,16 @@ where
     let mut caps = thirtyfour::DesiredCapabilities::chrome();
 
     // Launch chromedriver on the specified port
-    let mut chromedriver = thirtyfour_chromedriver::manager::Handler::new()
-        .launch_chromedriver(&mut caps, &port.to_string())
+    let (mut chromedriver, driver_url) = thirtyfour_chromedriver::manager::Handler::new()
+        .launch_chromedriver_without_port(&mut caps)
         .await
-        .with_context(|| format!("Không thể khởi động chromedriver trên cổng {}", port))?;
+        .with_context(|| format!("Không thể khởi động chromedriver"))?;
 
     defer!(
         let _ = chromedriver.kill();
     );
 
     // Connect to chrome on the same port
-    let driver_url = format!("http://localhost:{}", port);
     let driver = thirtyfour::WebDriver::new(&driver_url, caps)
         .await
         .with_context(|| {
