@@ -29,12 +29,12 @@ pub fn print_build_info() {
     println!(
         "{}:    {}",
         "Người xây dựng".green().bold(),
-        "Phòng Mô hình và công cụ quản trị rủi ro - Vietcombank"
+        "Phòng Mô hình và công cụ quản trị rủi ro"
     );
     println!(
         "{}:     {}",
         "Người sử dụng".green().bold(),
-        "Phòng Phòng chống rửa tiền - Vietcombank"
+        "Phòng Phòng chống rửa tiền"
     );
     println!(
         "{}:         {}",
