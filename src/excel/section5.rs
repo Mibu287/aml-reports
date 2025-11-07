@@ -3,15 +3,28 @@ use std::{
     io::{Read, Seek},
 };
 
+use anyhow::Context;
 use calamine::{DataType, Reader};
 
 use crate::{
     payload::section5::{Document, ProcessedTask, Section5},
     template::cell_value_from_key,
+    utils::datetime::ConvertDateFormat,
 };
 
 impl Section5 {
     pub fn from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        _file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        Self::_from_excel(workbook, _file_path)
+            .with_context(|| format!("Lỗi xử lý dữ liệu Phần V: Công việc xử lý"))
+    }
+
+    fn _from_excel<RS>(
         workbook: &mut calamine::Xlsx<RS>,
         _file_path: &std::path::Path,
     ) -> anyhow::Result<Self>
@@ -71,13 +84,13 @@ impl Section5 {
             Out,
         }
 
-        let get_doc_fn = |key: &str, doc_type: DocType| -> Option<Document> {
+        let get_doc_fn = |key: &str, doc_type: DocType| -> anyhow::Result<Option<Document>> {
             let doc_key = match doc_type {
                 DocType::In => format!("{}_in_doc", key),
                 DocType::Out => format!("{}_out_doc", key),
             };
 
-            range
+            let maybe_document = range
                 .rows()
                 .into_iter()
                 .map(|row| {
@@ -97,18 +110,41 @@ impl Section5 {
                     (key, (doc_number, doc_date, unit))
                 })
                 .filter(|(k, _)| k == &doc_key)
-                .map(|(_, (doc_number, doc_date, unit))| Document {
-                    doc_type: match doc_type {
-                        DocType::In => "0",
-                        DocType::Out => "1",
-                    }
-                    .to_string()
-                    .into(),
-                    doc_number: doc_number,
-                    doc_date: doc_date,
-                    unit: unit,
-                })
-                .next()
+                .map(
+                    |(_, (doc_number, doc_date, unit))| -> anyhow::Result<Document> {
+                        let doc_type = match doc_type {
+                            DocType::In => "0",
+                            DocType::Out => "1",
+                        }
+                        .to_string()
+                        .into();
+
+                        let context_fn = || {
+                            format!(
+                                "Ngày '{}' của công văn '{}' không hợp lý.",
+                                doc_date.clone().unwrap_or_default(),
+                                doc_number.clone().unwrap_or_default(),
+                            )
+                        };
+
+                        let doc_date =
+                            doc_date.convert_date_vn_to_iso().with_context(context_fn)?;
+
+                        Ok(Document {
+                            doc_type: doc_type,
+                            doc_number: doc_number,
+                            doc_date: doc_date,
+                            unit: unit,
+                        })
+                    },
+                )
+                .next();
+
+            match maybe_document {
+                None => Ok(None),
+                Some(Err(err)) => Err(err),
+                Some(Ok(document)) => Ok(Some(document)),
+            }
         };
 
         let processed_tasks = vec![
@@ -132,25 +168,47 @@ impl Section5 {
         let processed_tasks = processed_tasks
             .into_iter()
             .filter(|(code, _)| selection.get(*code).cloned().unwrap_or_default())
-            .map(|(code, description)| {
-                let in_doc = get_doc_fn(code, DocType::In);
-                let out_doc = get_doc_fn(code, DocType::Out);
+            .map(
+                |(code, description)| -> (anyhow::Result<ProcessedTask>, &str) {
+                    let in_doc = get_doc_fn(code, DocType::In);
+                    let out_doc = get_doc_fn(code, DocType::Out);
 
-                let documents = match (in_doc, out_doc) {
-                    (None, None) => None,
-                    (None, Some(out_doc)) => Some(vec![out_doc]),
-                    (Some(in_doc), None) => Some(vec![in_doc]),
-                    (Some(in_doc), Some(out_doc)) => Some(vec![in_doc, out_doc]),
-                };
+                    let (in_doc, out_doc) = match (in_doc, out_doc) {
+                        (Err(err), _) => return (Err(err), description),
+                        (_, Err(err)) => return (Err(err), description),
+                        (Ok(in_doc), Ok(out_doc)) => (in_doc, out_doc),
+                    };
 
-                ProcessedTask {
-                    code: code.to_string().into(),
-                    description: description.to_string().into(),
-                    documents: documents,
-                    other_content: get_desc_fn(code),
-                }
-            })
-            .collect::<Vec<_>>();
+                    let documents = match (in_doc, out_doc) {
+                        (None, None) => None,
+                        (None, Some(out_doc)) => Some(vec![out_doc]),
+                        (Some(in_doc), None) => Some(vec![in_doc]),
+                        (Some(in_doc), Some(out_doc)) => Some(vec![in_doc, out_doc]),
+                    };
+
+                    let task = Ok(ProcessedTask {
+                        code: code.to_string().into(),
+                        description: description.to_string().into(),
+                        documents: documents,
+                        other_content: get_desc_fn(code),
+                    });
+                    (task, description)
+                },
+            )
+            .fold(
+                anyhow::Result::<Vec<ProcessedTask>>::Ok(Default::default()),
+                |final_result, (task, description)| {
+                    let mut final_result = final_result?;
+                    let task = task.with_context(|| {
+                        format!(
+                            "Lỗi xử lý dữ liệu cho công việc đã thực hiện '{}'",
+                            description
+                        )
+                    })?;
+                    final_result.push(task);
+                    Ok(final_result)
+                },
+            )?;
 
         Ok(Section5 {
             processed_tasks: processed_tasks.into(),
