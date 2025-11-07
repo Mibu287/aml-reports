@@ -79,6 +79,7 @@ impl Section5 {
                 .map(|s| s.clone())
         };
 
+        #[derive(Copy, Clone)]
         enum DocType {
             In,
             Out,
@@ -112,12 +113,13 @@ impl Section5 {
                 .filter(|(k, _)| k == &doc_key)
                 .map(
                     |(_, (doc_number, doc_date, unit))| -> anyhow::Result<Document> {
-                        let doc_type = match doc_type {
-                            DocType::In => "0",
-                            DocType::Out => "1",
+                        let doc_type = match (key, doc_type) {
+                            ("6", DocType::In) => Some("0"),
+                            ("7", DocType::In) => Some("1"),
+                            ("7", DocType::Out) => Some("2"),
+                            _ => None,
                         }
-                        .to_string()
-                        .into();
+                        .map(|s| s.to_string());
 
                         let context_fn = || {
                             format!(
