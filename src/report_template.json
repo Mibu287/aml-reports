@@ -304,7 +304,7 @@
     },
     "Phần IV: Mô tả, phân tích chi tiết": ["B84", "B85", "B86", "B87", "B88"],
     "Phần IV: Cơ sở hợp lý để nghi ngờ": {
-        "diem_a": { "số văn bản": "F90", "cơ sở": "B93" },
+        "diem_a": { "số văn bản": "F91", "cơ sở": "B93" },
         "diem_b": { "số văn bản": null, "cơ sở": "B96" },
         "diem_c": { "số văn bản": null, "cơ sở": "B99" },
         "diem_d": { "số văn bản": null, "cơ sở": "B102" }
