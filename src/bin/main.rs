@@ -1,4 +1,5 @@
 use aml::{
+    attachements::validate_attachments,
     auth::get_auth_code,
     build::print_build_info,
     launch::launch_web_automation_task,
@@ -128,6 +129,8 @@ async fn save_attachments(
             )
         })?
         .attachments;
+
+    validate_attachments(&attachments, auth_key_value).await?;
 
     for attachment in attachments.iter_mut() {
         attachment.str_id = report_id.into();
