@@ -79,11 +79,12 @@ impl Individual {
                     } else {
                         cif_value.clone().into()
                     },
-                    existing_customer: if cif_value.is_empty() {
-                        None
-                    } else {
-                        "1".to_string().into()
-                    },
+                    existing_customer: match cif_value.is_empty() {
+                        true => "0",
+                        false => "1",
+                    }
+                    .to_string()
+                    .into(),
                     full_name: cell_value_func("Tên khách hàng")?,
                     date_of_birth: cell_value_func("Ngày tháng năm sinh (dd/mm/yyyy)")?
                         .convert_date_vn_to_iso()?,
@@ -197,11 +198,12 @@ impl Organization {
                     } else {
                         cif_value.clone().into()
                     },
-                    existing_customer: if cif_value.is_empty() {
-                        None
-                    } else {
-                        "1".to_string().into()
-                    },
+                    existing_customer: match cif_value.is_empty() {
+                        true => "0",
+                        false => "1",
+                    }
+                    .to_string()
+                    .into(),
                     name: cell_value_func("Tên khách hàng")?,
                     foreign_name: cell_value_func("Tên tiếng nước ngoài (nếu có)")?,
                     short_name: cell_value_func("Tên viết tắt (nếu có)")?,
