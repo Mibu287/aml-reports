@@ -46,7 +46,7 @@ thirtyfour = "0.35.*"
 tokio = { version = "1.48.*", features = ["full", "macros", "rt"] }
 
 [profile.release]
-lto = true
+lto = "fat"
 strip = true
 
 [build-dependencies]
