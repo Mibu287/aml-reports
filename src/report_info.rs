@@ -1,13 +1,58 @@
 use std::io::{Read, Seek};
 
 use anyhow::Context;
+use chrono::Local;
 
 use crate::template::cell_value_from_key;
+use serde::{Deserialize, Serialize};
 
-async fn get_report_info(
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReportInfos {
+    pub content: Vec<ReportItem>,
+    pub pageable: Pageable,
+    pub last: bool,
+    pub total_pages: usize,
+    pub total_elements: usize,
+    pub first: bool,
+    pub size: usize,
+    pub number: usize,
+    pub sort: Sort,
+    pub number_of_elements: usize,
+    pub empty: bool,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct ReportItem {
+    #[serde(rename = "ngay_bao_cao")]
+    pub report_date: chrono::DateTime<Local>,
+
+    #[serde(rename = "so_bao_cao")]
+    pub report_number: String,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Pageable {
+    pub page_number: usize,
+    pub page_size: usize,
+    pub sort: Sort,
+    pub offset: usize,
+    pub paged: bool,
+    pub unpaged: bool,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct Sort {
+    pub empty: bool,
+    pub sorted: bool,
+    pub unsorted: bool,
+}
+
+pub async fn get_report_info(
     workbook: &mut calamine::Xlsx<impl Seek + Read>,
     auth_key_value: &str,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<ReportInfos> {
     _get_report_info(workbook, auth_key_value)
         .await
         .with_context(
@@ -18,7 +63,7 @@ async fn get_report_info(
 async fn _get_report_info(
     workbook: &mut calamine::Xlsx<impl Seek + Read>,
     auth_key_value: &str,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<ReportInfos> {
     let report_entity_code =
         cell_value_from_key("Phần I.1: Thông tin đối tượng báo cáo - Mã", workbook)?;
 
@@ -50,5 +95,16 @@ async fn _get_report_info(
         )
     })?;
 
-    Ok(())
+    let report_infos = {
+        let context_fn = || {
+            format!(
+                "Thông tin về báo cáo hiện hữu từ đường dẫn {} không đúng định dạng như kỳ vọng. {}",
+                api_url, resp_text
+            )
+        };
+
+        serde_json::from_str::<ReportInfos>(&resp_text).with_context(context_fn)?
+    };
+
+    Ok(report_infos)
 }

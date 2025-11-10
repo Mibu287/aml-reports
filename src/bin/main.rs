@@ -4,15 +4,19 @@ use aml::{
     build::print_build_info,
     launch::launch_web_automation_task,
     payload::{form::Form, section6::Section6},
+    report_info,
     response::{ErrorResponse, SuccessResponse},
-    utils::setup::{get_input_excel_files, initial_setup},
+    utils::{
+        datetime::ConvertDateFormat,
+        setup::{get_input_excel_files, initial_setup},
+    },
 };
 use anyhow::Context;
 use colored::Colorize;
 use duration_extender::DurationExt;
 use std::{
     fs::DirEntry,
-    io::{self, BufRead},
+    io::{self, BufRead, Read, Seek},
 };
 
 #[tokio::main]
@@ -29,6 +33,65 @@ async fn main() {
     let _ = stdin.lock().lines().next();
 }
 
+async fn validate_amendment(
+    form: &Form,
+    workbook: &mut calamine::Xlsx<impl Read + Seek>,
+    auth_key_value: &str,
+) -> anyhow::Result<()> {
+    let amendment = form.payload.general_info.amendment.clone();
+    if &amendment.change_type == "0" {
+        return Ok(());
+    }
+
+    let report_infos = {
+        let context_fn = || {
+            format!(
+                "Lỗi khi truy vấn thông tin các báo cáo hiện hữu để xác định thông tin báo cáo được bổ sung/thay thế"
+            )
+        };
+
+        report_info::get_report_info(workbook, auth_key_value)
+            .await
+            .with_context(context_fn)
+    }?;
+
+    let available_reports = report_infos.content;
+    for report in available_reports.iter() {
+        if report.report_number.trim().to_lowercase()
+            != amendment.report_number.trim().to_lowercase()
+        {
+            continue;
+        }
+
+        let actual_report_date = report.report_date.format("%Y-%m-%d").to_string();
+        if actual_report_date.trim() == amendment.report_date.trim() {
+            return Ok(());
+        } else {
+            let err_message = format!(
+                "Thông tin ngày báo cáo cho báo cáo được bổ sung/thay thế số {} không chính xác. Ngày báo cáo từ hệ thống '{}', ngày báo cáo trong biểu mẫu Excel '{}'.",
+                amendment.report_number,
+                report.report_date.format("%d/%m/%Y"),
+                amendment
+                    .report_date
+                    .convert_date_format("%Y-%m-%d", "%d/%m/%Y")
+                    .map(|d| match d {
+                        None => amendment.report_date.clone(),
+                        Some(d) => d,
+                    })
+                    .unwrap_or(amendment.report_date.clone())
+            );
+
+            return Err(anyhow::anyhow!("{}", err_message));
+        }
+    }
+
+    Err(anyhow::anyhow!(
+        "Không tìm thấy báo cáo được sửa đổi/bổ sung số {} - ngày {} trong danh sách báo cáo hiện hữu.",
+        amendment.report_number,
+        amendment.report_date,
+    ))
+}
+
 async fn create_report_from_excel(
     excel_file: &DirEntry,
     api_url: &str,
@@ -43,6 +106,10 @@ async fn create_report_from_excel(
             excel_file.path()
         )
     })?;
+
+    validate_amendment(&form_payload, &mut workbook, auth_key_value)
+        .await
+        .with_context(|| format!("Thông tin báo cáo được bổ sung/thay thế không chính xác"))?;
 
     let response = reqwest::Client::new()
         .post(api_url)
