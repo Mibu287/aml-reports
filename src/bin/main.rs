@@ -6,10 +6,7 @@ use aml::{
     payload::{form::Form, section6::Section6},
     report_info,
     response::{ErrorResponse, SuccessResponse},
-    utils::{
-        datetime::ConvertDateFormat,
-        setup::{get_input_excel_files, initial_setup},
-    },
+    utils::setup::{get_input_excel_files, initial_setup},
 };
 use anyhow::Context;
 use colored::Colorize;
@@ -34,13 +31,13 @@ async fn main() {
 }
 
 async fn validate_amendment(
-    form: &Form,
+    form: Form,
     workbook: &mut calamine::Xlsx<impl Read + Seek>,
     auth_key_value: &str,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Form> {
     let amendment = form.payload.general_info.amendment.clone();
     if &amendment.change_type == "0" {
-        return Ok(());
+        return Ok(form);
     }
 
     let report_infos = {
@@ -57,32 +54,16 @@ async fn validate_amendment(
 
     let available_reports = report_infos.content;
     for report in available_reports.iter() {
-        if report.report_number.trim().to_lowercase()
-            != amendment.report_number.trim().to_lowercase()
-        {
+        let actual_report_number = report.report_number.trim().to_lowercase();
+        let amendment_report_number = amendment.report_number.trim().to_lowercase();
+        if actual_report_number != amendment_report_number {
             continue;
         }
 
-        let actual_report_date = report.report_date.format("%Y-%m-%d").to_string();
-        if actual_report_date.trim() == amendment.report_date.trim() {
-            return Ok(());
-        } else {
-            let err_message = format!(
-                "Thông tin ngày báo cáo cho báo cáo được bổ sung/thay thế số {} không chính xác. Ngày báo cáo từ hệ thống '{}', ngày báo cáo trong biểu mẫu Excel '{}'.",
-                amendment.report_number,
-                report.report_date.format("%d/%m/%Y"),
-                amendment
-                    .report_date
-                    .convert_date_format("%Y-%m-%d", "%d/%m/%Y")
-                    .map(|d| match d {
-                        None => amendment.report_date.clone(),
-                        Some(d) => d,
-                    })
-                    .unwrap_or(amendment.report_date.clone())
-            );
-
-            return Err(anyhow::anyhow!("{}", err_message));
-        }
+        let mut form = form;
+        form.payload.general_info.amendment.report_date =
+            report.report_date.format("%Y-%m-%d").to_string();
+        return Ok(form);
     }
 
     Err(anyhow::anyhow!(
@@ -107,7 +88,7 @@ async fn create_report_from_excel(
         )
     })?;
 
-    validate_amendment(&form_payload, &mut workbook, auth_key_value)
+    let form_payload = validate_amendment(form_payload, &mut workbook, auth_key_value)
         .await
         .with_context(|| format!("Thông tin báo cáo được bổ sung/thay thế không chính xác"))?;
 

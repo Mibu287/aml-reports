@@ -27,7 +27,7 @@ use crate::{
         section6::Section6,
     },
     template::{cell_value_from_key, table_config_from_key},
-    utils::{datetime::ConvertDateFormat, excel::col_name_to_index},
+    utils::excel::col_name_to_index,
 };
 
 impl Form {
@@ -102,23 +102,15 @@ impl GeneralInfo {
             .to_amendment_type_code()
             .with_context(|| format!("Lỗi dữ liệu phần thông tin báo cáo bổ sung/thay thế"))?;
 
-            let (report_number, report_date) = match change_type.as_str() {
+            let report_number = match change_type.as_str() {
                 "0" => Default::default(),
-                _ => (
-                    cell_value_from_key("Nếu có, bổ sung/thay thế cho Báo cáo - Số", workbook)?,
-                    cell_value_from_key("Nếu có, bổ sung/thay thế cho Báo cáo - Ngày", workbook)?
-                        .convert_date_vn_to_iso()
-                        .with_context(|| {
-                            format!("Lỗi định dạng ngày của báo cáo được bổ sung/thay thế")
-                        })?
-                        .unwrap_or_default(),
-                ),
+                _ => cell_value_from_key("Nếu có, bổ sung/thay thế cho Báo cáo", workbook)?,
             };
 
             Amendment {
                 change_type,
                 report_number,
-                report_date,
+                report_date: String::new(),
             }
         };
 
