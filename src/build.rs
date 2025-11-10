@@ -24,7 +24,7 @@ pub fn print_build_info() {
     println!(
         "{}:      {}",
         "Chương trình".green().bold(),
-        "Báo cáo giao dịch nghi ngờ gửi NHNN"
+        "Báo cáo giao dịch đáng ngờ"
     );
     println!(
         "{}:    {}",
