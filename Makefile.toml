@@ -65,7 +65,7 @@ run_task = { name = [
     "build-macos-aarch64",
     "build-windows-x86_64",
     "build-windows-aarch64",
-], parallel = true }
+] }
 
 [tasks.dist]
 script = """
