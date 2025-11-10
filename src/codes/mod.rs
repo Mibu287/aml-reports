@@ -1,6 +1,7 @@
 pub mod account_status;
 pub mod account_type;
 pub mod age_range;
+pub mod amendment;
 pub mod corporate_type;
 pub mod country;
 pub mod currency;
