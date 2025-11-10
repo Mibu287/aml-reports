@@ -14,6 +14,7 @@ use anyhow::Context;
 use calamine::{DataType, Reader};
 
 use crate::{
+    codes::amendment::AmendmentTypeCode,
     payload::{
         self,
         form::{Form, Payload},
@@ -26,7 +27,7 @@ use crate::{
         section6::Section6,
     },
     template::{cell_value_from_key, table_config_from_key},
-    utils::excel::col_name_to_index,
+    utils::{datetime::ConvertDateFormat, excel::col_name_to_index},
 };
 
 impl Form {
@@ -82,14 +83,49 @@ impl GeneralInfo {
     where
         RS: Seek + Read,
     {
+        Self::_from_excel(workbook, _file_path)
+            .with_context(|| format!("Lỗi dữ liệu khi xử lý phần Thông tin chung"))
+    }
+
+    fn _from_excel<RS>(
+        workbook: &mut calamine::Xlsx<RS>,
+        _file_path: &std::path::Path,
+    ) -> anyhow::Result<Self>
+    where
+        RS: Seek + Read,
+    {
+        let amendment = {
+            let change_type = cell_value_from_key(
+                "Báo cáo này có bổ sung/thay thế báo cáo nào trước không?",
+                workbook,
+            )?
+            .to_amendment_type_code()
+            .with_context(|| format!("Lỗi dữ liệu phần thông tin báo cáo bổ sung/thay thế"))?;
+
+            let (report_number, report_date) = match change_type.as_str() {
+                "0" => Default::default(),
+                _ => (
+                    cell_value_from_key("Nếu có, bổ sung/thay thế cho Báo cáo - Số", workbook)?,
+                    cell_value_from_key("Nếu có, bổ sung/thay thế cho Báo cáo - Ngày", workbook)?
+                        .convert_date_vn_to_iso()
+                        .with_context(|| {
+                            format!("Lỗi định dạng ngày của báo cáo được bổ sung/thay thế")
+                        })?
+                        .unwrap_or_default(),
+                ),
+            };
+
+            Amendment {
+                change_type,
+                report_number,
+                report_date,
+            }
+        };
+
         Ok(GeneralInfo {
             report_date: report_date(workbook)?,
             report_number: None,
-            amendment: Amendment {
-                change_type: 0,
-                report_number: String::new(),
-                report_date: String::new(),
-            },
+            amendment: amendment,
             reporting_entity_name: cell_value_from_key(
                 "Phần I.1: Thông tin đối tượng báo cáo - Tên",
                 workbook,

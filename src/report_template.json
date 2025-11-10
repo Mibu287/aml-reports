@@ -1,6 +1,9 @@
 {
     "Mã báo cáo nội bộ": ["STR", "G1"],
     "Ngày báo cáo": ["STR", "B1"],
+    "Báo cáo này có bổ sung/thay thế báo cáo nào trước không?": ["STR", "E2"],
+    "Nếu có, bổ sung/thay thế cho Báo cáo - Số": ["STR", "F3"],
+    "Nếu có, bổ sung/thay thế cho Báo cáo - Ngày": ["STR", "H3"],
     "Phần I.1: Thông tin đối tượng báo cáo - Tên": ["STR", "D6"],
     "Phần I.1: Thông tin đối tượng báo cáo - Mã": ["STR", "D7"],
     "Phần I.1: Thông tin đối tượng báo cáo - Địa chỉ": ["STR", "D8"],

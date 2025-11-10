@@ -19,7 +19,7 @@ pub struct GeneralInfo {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Amendment {
     #[serde(rename = "loai_thay_doi")]
-    pub change_type: i32,
+    pub change_type: String,
     #[serde(rename = "so_bao_cao")]
     pub report_number: String,
     #[serde(rename = "ngay_bao_cao")]
