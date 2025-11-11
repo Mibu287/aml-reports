@@ -101,7 +101,7 @@ dependencies = [
     "package-windows-aarch64",
 ]
 script = """
-    VERSION=$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
+    VERSION=v$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
     rm -rf dist/aml-reports-${VERSION}.zip
 
     mv dist/aml-reports-windows-arm.zip     dist/aml-reports-windows-arm-${VERSION}.zip
