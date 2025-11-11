@@ -110,10 +110,30 @@ dependencies = [
 ]
 script = """
     VERSION=v$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
+
+    mv "dist/aml-reports-windows-arm/send-aml-reports.exe" "dist/aml-reports-windows-arm/send-aml-reports-${VERSION}.exe"
+    mv "dist/aml-reports-windows-arm/validate-reports.exe" "dist/aml-reports-windows-arm/validate-reports-${VERSION}.exe"
+    mv "dist/aml-reports-windows-arm/user-guides.exe" "dist/aml-reports-windows-arm/user-guides-${VERSION}.exe"
+    mv "dist/aml-reports-windows-arm" "dist/aml-reports-windows-arm-${VERSION}"
+
+    mv "dist/aml-reports-windows-intel/send-aml-reports.exe" "dist/aml-reports-windows-intel/send-aml-reports-${VERSION}.exe"
+    mv "dist/aml-reports-windows-intel/validate-reports.exe" "dist/aml-reports-windows-intel/validate-reports-${VERSION}.exe"
+    mv "dist/aml-reports-windows-intel/user-guides.exe" "dist/aml-reports-windows-intel/user-guides-${VERSION}.exe"
+    mv "dist/aml-reports-windows-intel" "dist/aml-reports-windows-intel-${VERSION}"
+
+    mv "dist/aml-reports-macos-arm/send-aml-reports" "dist/aml-reports-macos-arm/send-aml-reports-${VERSION}"
+    mv "dist/aml-reports-macos-arm/validate-reports" "dist/aml-reports-macos-arm/validate-reports-${VERSION}"
+    mv "dist/aml-reports-macos-arm/user-guides" "dist/aml-reports-macos-arm/user-guides-${VERSION}"
+    mv "dist/aml-reports-macos-arm" "dist/aml-reports-macos-arm-${VERSION}"
+
+    mv "dist/aml-reports-macos-intel/send-aml-reports" "dist/aml-reports-macos-intel/send-aml-reports-${VERSION}"
+    mv "dist/aml-reports-macos-intel/validate-reports" "dist/aml-reports-macos-intel/validate-reports-${VERSION}"
+    mv "dist/aml-reports-macos-intel/user-guides" "dist/aml-reports-macos-intel/user-guides-${VERSION}"
+    mv "dist/aml-reports-macos-intel" "dist/aml-reports-macos-intel-${VERSION}"
+
     rm -rf dist/aml-reports-${VERSION}.zip
 
-    cd dist && \
-    zip -r aml-reports-${VERSION}.zip \
+    cd dist && zip -r aml-reports-${VERSION}.zip \
         aml-reports-windows-arm-${VERSION} \
         aml-reports-windows-intel-${VERSION} \
         aml-reports-macos-arm-${VERSION} \
