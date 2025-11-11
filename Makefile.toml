@@ -58,40 +58,48 @@ script = """
 
 [tasks.package-macos-x86_64]
 script = """
-    rm -rf dist/aml-reports-macos-intel.zip
-    zip -j dist/aml-reports-macos-intel.zip target/x86_64-apple-darwin/release/send-aml-reports
-    zip -j dist/aml-reports-macos-intel.zip target/x86_64-apple-darwin/release/validate-reports
-    zip -j dist/aml-reports-macos-intel.zip target/x86_64-apple-darwin/release/user-guides
+    rm -rf dist/aml-reports-macos-intel
+    mkdir -p dist/aml-reports-macos-intel
+    mv target/x86_64-apple-darwin/release/send-aml-reports \
+        target/x86_64-apple-darwin/release/validate-reports \
+        target/x86_64-apple-darwin/release/user-guides \
+        dist/aml-reports-macos-intel
 """
 dependencies = ["build-macos-x86_64", "dist"]
 
-
 [tasks.package-macos-aarch64]
 script = """
-    rm -rf dist/aml-reports-macos-arm.zip
-    zip -j dist/aml-reports-macos-arm.zip target/aarch64-apple-darwin/release/send-aml-reports
-    zip -j dist/aml-reports-macos-arm.zip target/aarch64-apple-darwin/release/validate-reports
-    zip -j dist/aml-reports-macos-arm.zip target/aarch64-apple-darwin/release/user-guides
+    rm -rf dist/aml-reports-macos-arm
+    mkdir -p dist/aml-reports-macos-arm
+    mv target/aarch64-apple-darwin/release/send-aml-reports \
+        target/aarch64-apple-darwin/release/validate-reports \
+        target/aarch64-apple-darwin/release/user-guides \
+        dist/aml-reports-macos-arm
 """
 dependencies = ["build-macos-aarch64", "dist"]
 
 [tasks.package-windows-x86_64]
 script = """
-    rm -rf dist/aml-reports-windows-intel.zip
-    zip -j dist/aml-reports-windows-intel.zip target/x86_64-pc-windows-gnullvm/release/send-aml-reports.exe
-    zip -j dist/aml-reports-windows-intel.zip target/x86_64-pc-windows-gnullvm/release/validate-reports.exe
-    zip -j dist/aml-reports-windows-intel.zip target/x86_64-pc-windows-gnullvm/release/user-guides.exe
+    rm -rf dist/aml-reports-windows-intel
+    mkdir -p dist/aml-reports-windows-intel
+    mv target/x86_64-pc-windows-gnullvm/release/send-aml-reports.exe \
+        target/x86_64-pc-windows-gnullvm/release/validate-reports.exe \
+        target/x86_64-pc-windows-gnullvm/release/user-guides.exe \
+        dist/aml-reports-windows-intel
 """
 dependencies = ["build-windows-x86_64", "dist"]
 
 [tasks.package-windows-aarch64]
 script = """
-    rm -rf dist/aml-reports-windows-arm.zip
-    zip -j dist/aml-reports-windows-arm.zip target/aarch64-pc-windows-gnullvm/release/send-aml-reports.exe
-    zip -j dist/aml-reports-windows-arm.zip target/aarch64-pc-windows-gnullvm/release/validate-reports.exe
-    zip -j dist/aml-reports-windows-arm.zip target/aarch64-pc-windows-gnullvm/release/user-guides.exe
+    rm -rf dist/aml-reports-windows-arm
+    mkdir -p dist/aml-reports-windows-arm
+    mv target/aarch64-pc-windows-gnullvm/release/send-aml-reports.exe \
+        target/aarch64-pc-windows-gnullvm/release/validate-reports.exe \
+        target/aarch64-pc-windows-gnullvm/release/user-guides.exe \
+        dist/aml-reports-windows-arm
 """
 dependencies = ["build-windows-aarch64", "dist"]
+
 
 [tasks.package-all]
 dependencies = [
@@ -104,36 +112,12 @@ script = """
     VERSION=v$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
     rm -rf dist/aml-reports-${VERSION}.zip
 
-    mv dist/aml-reports-windows-arm.zip     dist/aml-reports-windows-arm-${VERSION}.zip
-    mv dist/aml-reports-windows-intel.zip   dist/aml-reports-windows-intel-${VERSION}.zip
-    mv dist/aml-reports-macos-arm.zip       dist/aml-reports-macos-arm-${VERSION}.zip
-    mv dist/aml-reports-macos-intel.zip     dist/aml-reports-macos-intel-${VERSION}.zip
-
-    7zz rn dist/aml-reports-windows-arm-${VERSION}.zip \
-        validate-reports.exe validate-reports-${VERSION}.exe \
-        user-guides.exe user-guides-${VERSION}.exe \
-        send-aml-reports.exe send-aml-reports-${VERSION}.exe
-
-    7zz rn dist/aml-reports-windows-intel-${VERSION}.zip \
-        validate-reports.exe validate-reports-${VERSION}.exe \
-        user-guides.exe user-guides-${VERSION}.exe \
-        send-aml-reports.exe send-aml-reports-${VERSION}.exe
-
-    7zz rn dist/aml-reports-macos-arm-${VERSION}.zip \
-        validate-reports validate-reports-${VERSION} \
-        user-guides user-guides-${VERSION} \
-        send-aml-reports send-aml-reports-${VERSION}
-
-    7zz rn dist/aml-reports-macos-intel-${VERSION}.zip \
-        validate-reports validate-reports-${VERSION} \
-        user-guides user-guides-${VERSION} \
-        send-aml-reports send-aml-reports-${VERSION}
-
-
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-arm-${VERSION}.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-intel-${VERSION}.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-arm-${VERSION}.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-intel-${VERSION}.zip
+    cd dist && \
+    zip -r aml-reports-${VERSION}.zip \
+        aml-reports-windows-arm-${VERSION} \
+        aml-reports-windows-intel-${VERSION} \
+        aml-reports-macos-arm-${VERSION} \
+        aml-reports-macos-intel-${VERSION}
 """
 
 [tasks.all]
