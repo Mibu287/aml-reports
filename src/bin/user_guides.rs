@@ -6,13 +6,13 @@ use std::{
 use aml::{
     build::print_build_info, codes::document_type::DOCUMENT_TYPES, template::value_list_from_key,
 };
-use colored::Colorize;
+use colored::{ColoredString, Colorize};
 use crossterm::{cursor, queue, terminal};
 use tabled::Tabled;
 
-fn wait_for_user(message: &str) -> String {
+fn wait_for_user(message: ColoredString) -> String {
     // Print message
-    println!("{}", message.bold());
+    println!("{}", message);
 
     // Move cursor up and blink
     {
@@ -192,9 +192,7 @@ fn create_example_files() {
     spacer(1);
     let response = wait_for_user(
         "Bạn có muốn tạo một file báo cáo và các file đính kèm mẫu để tham khảo không? [Y/N] "
-            .bright_red()
-            .to_string()
-            .as_str(),
+            .bright_red(),
     );
 
     match response.trim().to_lowercase().as_str() {
@@ -258,16 +256,11 @@ fn main() {
 
     for (index, step) in steps.into_iter().enumerate() {
         if index > 0 {
-            wait_for_user("Bấm Enter để tiếp tục");
+            wait_for_user("Bấm Enter để tiếp tục".red());
         }
 
         step();
     }
 
-    wait_for_user(
-        "Bấm Enter để kết thúc và đóng cửa sổ chương trình."
-            .red()
-            .to_string()
-            .as_str(),
-    );
+    wait_for_user("Bấm Enter để kết thúc và đóng cửa sổ chương trình.".red());
 }
