@@ -44,12 +44,12 @@ args = [
 
 
 [tasks.build-all]
-run_task = { name = [
+dependencies = [
     "build-macos-x86_64",
     "build-macos-aarch64",
     "build-windows-x86_64",
     "build-windows-aarch64",
-] }
+]
 
 [tasks.dist]
 script = """
@@ -108,6 +108,27 @@ script = """
     mv dist/aml-reports-windows-intel.zip   dist/aml-reports-windows-intel-${VERSION}.zip
     mv dist/aml-reports-macos-arm.zip       dist/aml-reports-macos-arm-${VERSION}.zip
     mv dist/aml-reports-macos-intel.zip     dist/aml-reports-macos-intel-${VERSION}.zip
+
+    7zz rn dist/aml-reports-windows-arm-${VERSION}.zip \
+        validate-reports.exe validate-reports-${VERSION}.exe \
+        user-guides.exe user-guides-${VERSION}.exe \
+        send-aml-reports.exe send-aml-reports-${VERSION}.exe
+
+    7zz rn dist/aml-reports-windows-intel-${VERSION}.zip \
+        validate-reports.exe validate-reports-${VERSION}.exe \
+        user-guides.exe user-guides-${VERSION}.exe \
+        send-aml-reports.exe send-aml-reports-${VERSION}.exe
+
+    7zz rn dist/aml-reports-macos-arm-${VERSION}.zip \
+        validate-reports validate-reports-${VERSION} \
+        user-guides user-guides-${VERSION} \
+        send-aml-reports send-aml-reports-${VERSION}
+
+    7zz rn dist/aml-reports-macos-intel-${VERSION}.zip \
+        validate-reports validate-reports-${VERSION} \
+        user-guides user-guides-${VERSION} \
+        send-aml-reports send-aml-reports-${VERSION}
+
 
     zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-arm-${VERSION}.zip
     zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-intel-${VERSION}.zip
