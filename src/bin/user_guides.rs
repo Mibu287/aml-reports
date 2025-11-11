@@ -1,13 +1,9 @@
-use std::{
-    io::{BufRead, Write},
-    path::PathBuf,
-};
+use std::{io::BufRead, path::PathBuf};
 
 use aml::{
     build::print_build_info, codes::document_type::DOCUMENT_TYPES, template::value_list_from_key,
 };
 use colored::{ColoredString, Colorize};
-use crossterm::{cursor, queue, terminal};
 use tabled::Tabled;
 
 fn wait_for_user(message: ColoredString) -> String {
@@ -16,15 +12,12 @@ fn wait_for_user(message: ColoredString) -> String {
 
     // Move cursor up and blink
     {
-        let mut stdout = std::io::stdout();
-        let message_length = message.chars().count() as u16;
-        queue!(
-            stdout,
-            cursor::MoveUp(1),
-            cursor::MoveRight(message_length + 1),
-            cursor::EnableBlinking
-        )
-        .unwrap();
+        let stdout = console::Term::stdout();
+        let message_length = message.chars().count();
+        stdout.move_cursor_up(1).unwrap_or_default();
+        stdout
+            .move_cursor_right(message_length + 1)
+            .unwrap_or_default();
         stdout.flush().unwrap_or_default();
     }
 
@@ -39,13 +32,9 @@ fn wait_for_user(message: ColoredString) -> String {
 
     // Clear wait message
     {
-        let mut stdout = std::io::stdout();
-        queue!(
-            stdout,
-            cursor::MoveUp(1),
-            terminal::Clear(terminal::ClearType::CurrentLine),
-        )
-        .unwrap_or_default();
+        let stdout = console::Term::stdout();
+        stdout.move_cursor_up(1).unwrap_or_default();
+        stdout.clear_line().unwrap_or_default();
         stdout.flush().unwrap_or_default();
     }
 
