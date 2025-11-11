@@ -225,11 +225,19 @@ fn create_example_files() {
         target_file_path.push(source_file_path);
         if source_file.is_dir() {
             std::fs::create_dir_all(target_file_path.clone()).unwrap();
-            println!("{:<12} {}", "Folder mới:".green(), target_file_path.to_string_lossy());
+            println!(
+                "{:<12} {}",
+                "Folder mới:".green(),
+                target_file_path.to_string_lossy()
+            );
         } else if source_file.is_file() {
             let mut target_file = std::fs::File::create(target_file_path.clone()).unwrap();
             std::io::copy(&mut source_file, &mut target_file).unwrap();
-            println!("{:<12} {}", "File mới:".green(), target_file_path.to_string_lossy());
+            println!(
+                "{:<12} {}",
+                "File mới:".green(),
+                target_file_path.to_string_lossy()
+            );
         }
     }
 }
