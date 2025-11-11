@@ -1,4 +1,7 @@
-use std::io::{BufRead, Write};
+use std::{
+    io::{BufRead, Write},
+    path::PathBuf,
+};
 
 use aml::{
     build::print_build_info, codes::document_type::DOCUMENT_TYPES, template::value_list_from_key,
@@ -7,9 +10,8 @@ use colored::Colorize;
 use crossterm::{cursor, queue, terminal};
 use tabled::Tabled;
 
-fn wait_for_user() {
+fn wait_for_user(message: &str) -> String {
     // Print message
-    let message = "Bấm Enter để tiếp tục";
     println!("{}", message.bold());
 
     // Move cursor up and blink
@@ -28,7 +30,12 @@ fn wait_for_user() {
 
     // Wait for user
     let stdin = std::io::stdin();
-    let _ = stdin.lock().lines().next();
+    let response = stdin
+        .lock()
+        .lines()
+        .next()
+        .unwrap_or(Ok(Default::default()))
+        .unwrap_or_default();
 
     // Clear wait message
     {
@@ -41,6 +48,8 @@ fn wait_for_user() {
         .unwrap_or_default();
         stdout.flush().unwrap_or_default();
     }
+
+    response
 }
 
 fn spacer(n_rows: usize) {
@@ -179,13 +188,68 @@ fn step_3() {
     );
 }
 
+fn create_example_files() {
+    spacer(1);
+    let response = wait_for_user(
+        "Bạn có muốn tạo một file báo cáo và các file đính kèm mẫu để tham khảo không? [Y/N] "
+            .bright_red()
+            .to_string()
+            .as_str(),
+    );
+
+    match response.trim().to_lowercase().as_str() {
+        "y" | "yes" => {}
+        _ => return,
+    };
+
+    let zipped_example = include_bytes!("../../example_data/example_aml_report.zip");
+    let cursor = std::io::Cursor::new(zipped_example);
+    let mut archive = zip::ZipArchive::new(cursor).unwrap();
+    let curr_dir = std::env::current_dir().unwrap();
+
+    for i in 0..archive.len() {
+        let mut source_file = archive.by_index(i).unwrap();
+        let source_file_path: PathBuf = {
+            let file_name_raw = source_file
+                .name_raw()
+                .into_iter()
+                .cloned()
+                .collect::<Vec<_>>();
+
+            let file_name = String::from_utf8(file_name_raw).unwrap();
+            file_name.into()
+        };
+
+        let mut target_file_path = curr_dir.clone();
+        target_file_path.push("input");
+        target_file_path.push(source_file_path);
+        if source_file.is_dir() {
+            std::fs::create_dir_all(target_file_path.clone()).unwrap();
+            println!("{:<12} {}", "Folder mới:".green(), target_file_path.to_string_lossy());
+        } else if source_file.is_file() {
+            let mut target_file = std::fs::File::create(target_file_path.clone()).unwrap();
+            std::io::copy(&mut source_file, &mut target_file).unwrap();
+            println!("{:<12} {}", "File mới:".green(), target_file_path.to_string_lossy());
+        }
+    }
+}
+
 fn main() {
     print_build_info();
 
-    let steps = [header, step_1, step_1_1, step_1_2, step_1_3, step_2, step_3];
+    let steps = [
+        header,
+        step_1,
+        step_1_1,
+        step_1_2,
+        step_1_3,
+        step_2,
+        step_3,
+        create_example_files,
+    ];
 
     for step in steps.into_iter() {
         step();
-        wait_for_user();
+        wait_for_user("Bấm Enter để tiếp tục");
     }
 }
