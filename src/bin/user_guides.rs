@@ -256,8 +256,18 @@ fn main() {
         create_example_files,
     ];
 
-    for step in steps.into_iter() {
+    for (index, step) in steps.into_iter().enumerate() {
+        if index > 0 {
+            wait_for_user("Bấm Enter để tiếp tục");
+        }
+
         step();
-        wait_for_user("Bấm Enter để tiếp tục");
     }
+
+    wait_for_user(
+        "Bấm Enter để kết thúc và đóng cửa sổ chương trình."
+            .red()
+            .to_string()
+            .as_str(),
+    );
 }
