@@ -1,7 +1,7 @@
 use std::{io::BufRead, path::PathBuf};
 
 use aml::{
-    build::print_build_info, codes::document_type::DOCUMENT_TYPES, template::value_list_from_key,
+    build::print_build_info, codes::document_type::DOCUMENT_TYPES, template::value_list_from_key, utils::setup::initial_setup,
 };
 use colored::{ColoredString, Colorize};
 use tabled::Tabled;
@@ -230,6 +230,7 @@ fn create_example_files() {
 }
 
 fn main() {
+    initial_setup().ok();
     print_build_info();
 
     let steps = [
