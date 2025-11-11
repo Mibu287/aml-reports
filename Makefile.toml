@@ -141,7 +141,7 @@ script = """
 """
 
 [tasks.all]
-dependencies = ["build-all", "package-all"]
+dependencies = ["package-all"]
 
 [tasks.default]
 alias = "all"
