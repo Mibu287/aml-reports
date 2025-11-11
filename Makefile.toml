@@ -103,10 +103,16 @@ dependencies = [
 script = """
     VERSION=$(cargo metadata --format-version=1 --no-deps | jq --raw-output '.packages[0].version')
     rm -rf dist/aml-reports-${VERSION}.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-arm.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-intel.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-arm.zip
-    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-intel.zip
+
+    mv dist/aml-reports-windows-arm.zip     dist/aml-reports-windows-arm-${VERSION}.zip
+    mv dist/aml-reports-windows-intel.zip   dist/aml-reports-windows-intel-${VERSION}.zip
+    mv dist/aml-reports-macos-arm.zip       dist/aml-reports-macos-arm-${VERSION}.zip
+    mv dist/aml-reports-macos-intel.zip     dist/aml-reports-macos-intel-${VERSION}.zip
+
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-arm-${VERSION}.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-windows-intel-${VERSION}.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-arm-${VERSION}.zip
+    zip -j dist/aml-reports-${VERSION}.zip dist/aml-reports-macos-intel-${VERSION}.zip
 """
 
 [tasks.all]
