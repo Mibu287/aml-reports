@@ -56,7 +56,20 @@ pub fn get_input_excel_files() -> anyhow::Result<Vec<DirEntry>> {
             )
         })?
         .filter_map(|entry| entry.ok())
-        .filter(|entry| entry.path().extension().and_then(|s| s.to_str()) == Some("xlsx"))
+        .filter(|entry| {
+            let ext = entry
+                .path()
+                .extension()
+                .and_then(|s| s.to_str())
+                .unwrap_or_default()
+                .trim()
+                .to_lowercase();
+
+            match ext.as_str() {
+                "xlsx" | "xlsm" => true,
+                _ => false,
+            }
+        })
         .filter(|entry| {
             !entry
                 .file_name()
