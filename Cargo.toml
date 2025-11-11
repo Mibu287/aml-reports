@@ -47,6 +47,7 @@ scopeguard = "1.2.0"
 serde = { version = "1.*.*", features = ["serde_derive", "derive"] }
 serde_json = "1.0.145"
 shadow-rs = { version = "1.4.0" }
+tabled = { version = "0.20.0", features = ["ansi"] }
 thirtyfour = "0.35.*"
 tokio = { version = "1.48.*", features = ["full", "macros", "rt"] }
 

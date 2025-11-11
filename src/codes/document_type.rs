@@ -1,6 +1,6 @@
 use crate::codes::utils::search_for_code;
 
-const DOCUMENT_TYPES: [(&'static str, &'static str); 7] = [
+pub const DOCUMENT_TYPES: [(&'static str, &'static str); 7] = [
     ("STM", "Bảng kê"),
     ("FLW", "Minh họa dòng tiền"),
     ("REL", "Minh họa mối quan hệ khách hàng"),

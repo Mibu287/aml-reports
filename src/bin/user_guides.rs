@@ -1,8 +1,11 @@
 use std::io::{BufRead, Write};
 
-use aml::build::print_build_info;
+use aml::{
+    build::print_build_info, codes::document_type::DOCUMENT_TYPES, template::value_list_from_key,
+};
 use colored::Colorize;
 use crossterm::{cursor, queue, terminal};
+use tabled::Tabled;
 
 fn wait_for_user() {
     // Print message
@@ -40,10 +43,7 @@ fn wait_for_user() {
     }
 }
 
-fn main() {
-    // Banner
-    print_build_info();
-
+fn header() {
     // Spacer
     for _ in 0..3 {
         println!("");
@@ -57,17 +57,18 @@ fn main() {
             .bold()
     );
     println!("");
+}
 
-    wait_for_user();
-
-    // Steps
+fn step_1() {
     println!(
         "{:<10}: {}",
         "Bước 1".green().bold(),
         "Chuẩn bị biểu mẫu báo cáo và các file đính kèm."
     );
     wait_for_user();
+}
 
+fn step_1_1() {
     println!(
         "{:<10}: {}{}{}{}",
         "Bước 1.1".green().bold(),
@@ -76,8 +77,9 @@ fn main() {
         ". Ví dụ: lưu file ",
         "'input/example_aml_report.xlsx'".on_green(),
     );
-    wait_for_user();
+}
 
+fn step_1_2() {
     println!(
         "{:<10}: {}{}{}{}{}",
         "Bước 1.2".green().bold(),
@@ -87,7 +89,75 @@ fn main() {
         "Tên của folder mới trùng tên với biểu mẫu. Ví dụ: tạo mới folder ",
         "'input/example_aml_report'".on_green(),
     );
-    wait_for_user();
+}
 
-    println!("");
+fn step_1_3() {
+    println!(
+        "{:<10}: {}",
+        "Bước 1.3".green(),
+        "Chuẩn bị các file đính kèm theo danh sách như sau:"
+    );
+    #[derive(Tabled)]
+    struct Attachment {
+        #[tabled(rename = "STT", order = 0)]
+        sequence: usize,
+        #[tabled(rename = "Loại tài liệu", order = 1)]
+        doc_name: String,
+        #[tabled(rename = "Tiền tố", order = 2)]
+        prefix: String,
+        #[tabled(rename = "Ví dụ", order = 3)]
+        example: String,
+        #[tabled(rename = "Ghi chú", order = 4)]
+        required: String,
+    }
+
+    let required_files =
+        value_list_from_key("Phần VI. Tài liệu đính kèm - Tài liệu bắt buộc").unwrap_or_default();
+    let attachments = DOCUMENT_TYPES
+        .into_iter()
+        .enumerate()
+        .map(|(index, (prefix, doc_name))| Attachment {
+            sequence: index + 1,
+            doc_name: doc_name.to_string(),
+            prefix: prefix.to_string(),
+            example: format!("{}_{}.xlsx", prefix, doc_name),
+            required: {
+                let match_count = required_files
+                    .iter()
+                    .filter(|required_doc| required_doc.as_str() == doc_name)
+                    .count();
+
+                if match_count > 0 {
+                    "Bắt buộc".on_green()
+                } else {
+                    "".normal()
+                }
+                .to_string()
+            },
+        })
+        .collect::<Vec<_>>();
+
+    let tbl = {
+        use tabled::settings::*;
+
+        let mut tbl = tabled::Table::new(attachments);
+        tbl.with(Style::modern_rounded());
+
+        let header = object::Rows::first();
+        let colored_header = Modify::new(header).with(Color::FG_BRIGHT_GREEN);
+        tbl.with(colored_header);
+        tbl
+    };
+    println!("{}", tbl);
+}
+
+fn main() {
+    print_build_info();
+
+    let steps = [header, step_1, step_1_1, step_1_2, step_1_3];
+
+    for step in steps.into_iter() {
+        step();
+        wait_for_user();
+    }
 }
