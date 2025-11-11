@@ -43,29 +43,32 @@ fn wait_for_user() {
     }
 }
 
-fn header() {
+fn spacer(n_rows: usize) {
     // Spacer
-    for _ in 0..3 {
+    for _ in 0..n_rows {
         println!("");
     }
+}
 
-    // Header
+fn header() {
+    spacer(3);
+
     println!(
         "{}",
         "Các bước thực hiện gửi báo cáo giao dịch đáng ngờ lên website NHNN"
             .green()
             .bold()
     );
-    println!("");
 }
 
 fn step_1() {
+    spacer(1);
+
     println!(
         "{:<10}: {}",
         "Bước 1".green().bold(),
         "Chuẩn bị biểu mẫu báo cáo và các file đính kèm."
     );
-    wait_for_user();
 }
 
 fn step_1_1() {
@@ -151,10 +154,35 @@ fn step_1_3() {
     println!("{}", tbl);
 }
 
+fn step_2() {
+    spacer(1);
+
+    println!(
+        "{:<10}: {}{}{}",
+        "Bước 2".green().bold(),
+        "Bấm vào file ",
+        "'validate-reports'".on_green(),
+        " để thực hiện kiểm tra và sửa lỗi biểu mẫu báo cáo và các tài liệu đính kèm."
+    );
+}
+
+fn step_3() {
+    spacer(1);
+
+    println!(
+        "{:<10}: {}{}{}{}",
+        "Bước 3".green().bold(),
+        "Bấm vào file ",
+        "'send-aml-reports'".on_green(),
+        " để thực hiện gửi báo cáo lên website của NHNN. ",
+        "Ứng dụng sẽ mở trình duyệt Chrome và yêu cầu người dùng nhập username, pasword."
+    );
+}
+
 fn main() {
     print_build_info();
 
-    let steps = [header, step_1, step_1_1, step_1_2, step_1_3];
+    let steps = [header, step_1, step_1_1, step_1_2, step_1_3, step_2, step_3];
 
     for step in steps.into_iter() {
         step();
