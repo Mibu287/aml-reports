@@ -21,7 +21,7 @@ pub async fn _validate_attachment(
 
     let attachment = attachment.clone();
     let file_content = attachment.file_content.unwrap_or_default();
-    let file_name = attachment.file_name.unwrap_or_default();
+    let file_name = attachment.file_name.clone().unwrap_or_default();
     let file_mime = attachment.file_mime.unwrap_or_default();
     let part_data = reqwest::multipart::Part::bytes(file_content)
         .file_name(file_name.clone())
@@ -69,6 +69,13 @@ pub async fn _validate_attachment(
                 true => element.clone(),
                 false => format!("{}{}", result, element),
             });
+
+        if err_message.len() > 120 {
+            return Err(anyhow::anyhow!(
+                "File '{}' không đúng mẫu bảng kê của NHNN. Vui lòng tải lại mẫu bảng kê và điền lại.",
+                attachment.file_name.clone().unwrap_or_default()
+            ));
+        }
 
         return Err(anyhow::anyhow!("{}", err_message));
     }
