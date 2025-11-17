@@ -73,12 +73,12 @@ dependencies = [
 
 [tasks.dist]
 script = """
+    rm -rf dist
     mkdir -p dist
 """
 
 [tasks.package-macos-x86_64]
 script = """
-    rm -rf dist/aml-reports-macos-intel
     mkdir -p dist/aml-reports-macos-intel
     mv target/x86_64-apple-darwin/release/send-aml-reports \
         target/x86_64-apple-darwin/release/validate-reports \
@@ -88,7 +88,6 @@ dependencies = ["build-macos-x86_64", "dist"]
 
 [tasks.package-macos-aarch64]
 script = """
-    rm -rf dist/aml-reports-macos-arm
     mkdir -p dist/aml-reports-macos-arm
     mv target/aarch64-apple-darwin/release/send-aml-reports \
         target/aarch64-apple-darwin/release/validate-reports \
@@ -98,7 +97,6 @@ dependencies = ["build-macos-aarch64", "dist"]
 
 [tasks.package-windows-x86_64]
 script = """
-    rm -rf dist/aml-reports-windows-intel
     mkdir -p dist/aml-reports-windows-intel
     mv target/x86_64-pc-windows-gnullvm/release/send-aml-reports.exe \
         target/x86_64-pc-windows-gnullvm/release/validate-reports.exe \
@@ -108,7 +106,6 @@ dependencies = ["build-windows-x86_64", "dist"]
 
 [tasks.package-windows-aarch64]
 script = """
-    rm -rf dist/aml-reports-windows-arm
     mkdir -p dist/aml-reports-windows-arm
     mv target/aarch64-pc-windows-gnullvm/release/send-aml-reports.exe \
         target/aarch64-pc-windows-gnullvm/release/validate-reports.exe \
