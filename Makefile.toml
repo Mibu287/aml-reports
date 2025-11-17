@@ -82,7 +82,6 @@ script = """
     mkdir -p dist/aml-reports-macos-intel
     mv target/x86_64-apple-darwin/release/send-aml-reports \
         target/x86_64-apple-darwin/release/validate-reports \
-        target/x86_64-apple-darwin/release/user-guides \
         dist/aml-reports-macos-intel
 """
 dependencies = ["build-macos-x86_64", "dist"]
@@ -93,7 +92,6 @@ script = """
     mkdir -p dist/aml-reports-macos-arm
     mv target/aarch64-apple-darwin/release/send-aml-reports \
         target/aarch64-apple-darwin/release/validate-reports \
-        target/aarch64-apple-darwin/release/user-guides \
         dist/aml-reports-macos-arm
 """
 dependencies = ["build-macos-aarch64", "dist"]
@@ -104,7 +102,6 @@ script = """
     mkdir -p dist/aml-reports-windows-intel
     mv target/x86_64-pc-windows-gnullvm/release/send-aml-reports.exe \
         target/x86_64-pc-windows-gnullvm/release/validate-reports.exe \
-        target/x86_64-pc-windows-gnullvm/release/user-guides.exe \
         dist/aml-reports-windows-intel
 """
 dependencies = ["build-windows-x86_64", "dist"]
@@ -115,7 +112,6 @@ script = """
     mkdir -p dist/aml-reports-windows-arm
     mv target/aarch64-pc-windows-gnullvm/release/send-aml-reports.exe \
         target/aarch64-pc-windows-gnullvm/release/validate-reports.exe \
-        target/aarch64-pc-windows-gnullvm/release/user-guides.exe \
         dist/aml-reports-windows-arm
 """
 dependencies = ["build-windows-aarch64", "dist"]
@@ -133,23 +129,19 @@ script = """
 
     mv "dist/aml-reports-windows-arm/send-aml-reports.exe" "dist/aml-reports-windows-arm/send-aml-reports-${VERSION}.exe"
     mv "dist/aml-reports-windows-arm/validate-reports.exe" "dist/aml-reports-windows-arm/validate-reports-${VERSION}.exe"
-    mv "dist/aml-reports-windows-arm/user-guides.exe" "dist/aml-reports-windows-arm/user-guides-${VERSION}.exe"
     mv "dist/aml-reports-windows-arm" "dist/aml-reports-windows-arm-${VERSION}"
 
     mv "dist/aml-reports-windows-intel/send-aml-reports.exe" "dist/aml-reports-windows-intel/send-aml-reports-${VERSION}.exe"
     mv "dist/aml-reports-windows-intel/validate-reports.exe" "dist/aml-reports-windows-intel/validate-reports-${VERSION}.exe"
-    mv "dist/aml-reports-windows-intel/user-guides.exe" "dist/aml-reports-windows-intel/user-guides-${VERSION}.exe"
     mv "dist/aml-reports-windows-intel" "dist/aml-reports-windows-intel-${VERSION}"
 
     mv "dist/aml-reports-macos-arm/send-aml-reports" "dist/aml-reports-macos-arm/send-aml-reports-${VERSION}"
     mv "dist/aml-reports-macos-arm/validate-reports" "dist/aml-reports-macos-arm/validate-reports-${VERSION}"
-    mv "dist/aml-reports-macos-arm/user-guides" "dist/aml-reports-macos-arm/user-guides-${VERSION}"
     mv "dist/aml-reports-macos-arm" "dist/aml-reports-macos-arm-${VERSION}"
 
     mv "dist/aml-reports-macos-intel/send-aml-reports" "dist/aml-reports-macos-intel/send-aml-reports-${VERSION}"
     mv "dist/aml-reports-macos-intel/validate-reports" "dist/aml-reports-macos-intel/validate-reports-${VERSION}"
-    mv "dist/aml-reports-macos-intel/user-guides" "dist/aml-reports-macos-intel/user-guides-${VERSION}"
-    mv "dist/aml-reports-macos-intel" "dist/aml-reports-macos-intel-${VERSION}"
+    v "dist/aml-reports-macos-intel" "dist/aml-reports-macos-intel-${VERSION}"
 
     rm -rf dist/aml-reports-${VERSION}.zip
 
