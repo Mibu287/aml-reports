@@ -141,7 +141,7 @@ script = """
 
     mv "dist/aml-reports-macos-intel/send-aml-reports" "dist/aml-reports-macos-intel/send-aml-reports-${VERSION}"
     mv "dist/aml-reports-macos-intel/validate-reports" "dist/aml-reports-macos-intel/validate-reports-${VERSION}"
-    v "dist/aml-reports-macos-intel" "dist/aml-reports-macos-intel-${VERSION}"
+    mv "dist/aml-reports-macos-intel" "dist/aml-reports-macos-intel-${VERSION}"
 
     rm -rf dist/aml-reports-${VERSION}.zip
 
